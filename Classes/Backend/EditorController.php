@@ -71,10 +71,10 @@ class EditorController extends ActionController
         $storage = $resourceFactory->getDefaultStorage();
         $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, 'en');
+        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, '', $this->language);
         $editorAjax = GeneralUtility::makeInstance(EditorAjax::class);
         $editorStorage = GeneralUtility::makeInstance(EditorStorage::class);
-        $this->h5pEditor = GeneralUtility::makeInstance(H5PEditor::class, $this->h5pCore, $editorStorage, $editorAjax);
+        $this->h5pEditor = GeneralUtility::makeInstance(H5peditor::class, $this->h5pCore, $editorStorage, $editorAjax);
         $this->h5pAjaxEditor = GeneralUtility::makeInstance(H5PEditorAjax::class, $this->h5pCore, $this->h5pEditor, $editorStorage);
     }
 
@@ -89,7 +89,7 @@ class EditorController extends ActionController
     protected function initializeForAjaxAction()
     {
         $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->entryRepository = $this->objectManager->get(EntryRepository::class);
+//        $this->entryRepository = $this->objectManager->get(EntryRepository::class);
     }
 
     /**
@@ -134,8 +134,8 @@ class EditorController extends ActionController
                 } else {
                     $majorVersion = $parameters['majorVersion'] ?: '';
                     $minorVersion = $parameters['minorVersion'] ?: '';
-                    $languageCode = $parameters['language'] ?: 'en';
-                    $prefix = $parameters['prefix'] ?: '';
+                    $languageCode = $parameters['language'] ?: $this->language;
+                    $prefix = $parameters['prefix'] ?: '/fileadmin/h5p';
                     $fileDir = $parameters['fileDir'] ?: '';
                     $defaultLanguage = 'en';
                     $this->h5pAjaxEditor->action(\H5PEditorEndpoints::SINGLE_LIBRARY, $machineName, $majorVersion, $minorVersion, $languageCode, $prefix, $fileDir, $defaultLanguage);

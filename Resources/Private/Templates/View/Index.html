@@ -12,9 +12,9 @@
             "ajaxPath": "/path/to/h5p-ajax",     // Only used by older Content Types
             "ajax": {
                 // Where to post user results
-                "setFinished": "/interactive-contents/123/results/new",
+                "setFinished": "{ajaxSetFinished}",
                 // Words beginning with : are placeholders
-                "contentUserData": "/interactive-contents/:contentId/user-data?data_type=:dataType&subContentId=:subContentId"
+                "contentUserData": "{ajaxContentUserData}&cid=:contentId&data_type=:dataType&subContentId=:subContentId"
             },
             "saveFreq": 30, // How often current content state should be saved. false to disable.
             "siteUrl": "https://spl.dev.local", // Only if NOT logged in!

@@ -10,16 +10,15 @@
                 <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Library</th>
                     <th>Version</th>
-                    <th>Machine name</th>
                 </tr>
                 </thead>
                 <f:for each="{h5pContent}" as="content">
-                    <f:debug>{content}</f:debug>
                     <tr>
                         <td>{content.title}</td>
-                        <td>{content.majorVersion}.{content.minorVersion}.{content.patchVersion}</td>
-                        <td>{content.machineName}</td>
+                        <td>{content.library.title}</td>
+                        <td>{content.library.majorVersion}.{content.library.minorVersion}.{content.library.patchVersion}</td>
                     </tr>
                 </f:for>
             </table>

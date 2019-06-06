@@ -104,8 +104,12 @@ class ViewController extends ActionController
             $this->loadJsAndCss($dependency);
         }
 
+        $uriBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Routing\UriBuilder::class);
+
         $this->view->assign('content', $h5pContent);
         $this->view->assign('parameters', addslashes($h5pContent->getParameters()));
+        $this->view->assign('ajaxSetFinished', (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']));
+        $this->view->assign('ajaxContentUserData', (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_']));
         $data['h5p_frame'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME) ? 'true' : 'false';
         $data['h5p_export'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD) ? 'true' : 'false';
         $data['h5p_embed'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED) ? 'true' : 'false';

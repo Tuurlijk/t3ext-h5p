@@ -145,7 +145,7 @@ class H5pModuleController extends ActionController
         $storage = $resourceFactory->getDefaultStorage();
         $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, 'en');
+        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
         $this->h5pContentValidator = GeneralUtility::makeInstance(H5PContentValidator::class, $this->h5pFramework, $this->h5pCore);
         $editorAjax = GeneralUtility::makeInstance(EditorAjax::class);
         $editorStorage = GeneralUtility::makeInstance(EditorStorage::class);
@@ -594,7 +594,7 @@ class H5pModuleController extends ActionController
             'assets'             => [],
             'deleteMessage'      => 'Are you sure you wish to delete this content?',
             'apiVersion'         => $this->h5pCore::$coreApi,
-            'language'           => 'en'
+            'language'           => $this->language
         ];
 
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';

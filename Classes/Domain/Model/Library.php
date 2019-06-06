@@ -418,7 +418,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 
         $libraryDependencies = $this->getLibraryDependencies();
 
-        if (is_array($libraryDependencies)) {
+        if ($libraryDependencies->count() > 0) {
             /** @var LibraryDependency $dependency */
             foreach ($libraryDependencies as $dependency) {
                 $libraryArray[$dependency->getDependencyType() . 'Dependencies'][] = [

@@ -1,13 +1,13 @@
-\MichielRoos\H5p\Adapter\Core\Framework::saveLibraryDependencies
-\MichielRoos\H5p\Adapter\Core\Framework::insertContent
+\MichielRoos\H5p\Adapter\Core\Framework::updateContent
 
 Implement methods in
 \MichielRoos\H5p\Adapter\Core\FileStorage
 \MichielRoos\H5p\Adapter\Editor\EditorStorage
 
-Don't re-install exising libs. Does clearing existing libs work?
-
 Backend module should always open op pid 1 of the site or the oldest page that is a site root
 
 
 ContentDependencies in H5PFrameworkInterface css / js - saveLibraryUsage
+
+
+CachedAsset resource

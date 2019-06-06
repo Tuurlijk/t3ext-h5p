@@ -16,6 +16,7 @@ namespace MichielRoos\H5p\Adapter\Core;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use MichielRoos\H5p\Domain\Model\CachedAsset;
 use MichielRoos\H5p\Domain\Model\ConfigSetting;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Model\ContentDependency;
@@ -24,6 +25,7 @@ use MichielRoos\H5p\Domain\Model\FileReference;
 use MichielRoos\H5p\Domain\Model\Library;
 use MichielRoos\H5p\Domain\Model\LibraryDependency;
 use MichielRoos\H5p\Domain\Model\LibraryTranslation;
+use MichielRoos\H5p\Domain\Repository\CachedAssetRepository;
 use MichielRoos\H5p\Domain\Repository\ConfigSettingRepository;
 use MichielRoos\H5p\Domain\Repository\ContentDependencyRepository;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
@@ -37,8 +39,10 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 /**
@@ -50,18 +54,22 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @var string
      */
     public static $version = '1.0.2';
+
     /**
      * @var ContentTypeCacheEntryRepository
      */
     protected $contentTypeCacheEntryRepository;
+
     /**
      * @var \H5PCore
      */
     protected $h5pCore;
+
     /**
      * @var PersistenceManager
      */
     protected $persistenceManager;
+
     /**
      * Path to a temporary folder where uploaded H5P content is processed.
      * Needs to be stable during one request.
@@ -69,6 +77,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @var string
      */
     protected $uploadedH5pFolderPath;
+
     /**
      * Path to a temporary H5P file.
      * Needs to be stable during one request.
@@ -76,38 +85,47 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @var string
      */
     protected $uploadedH5pPath;
+
     /**
      * @var array
      */
     private $messages = [];
+
     /**
      * @var mixed|\TYPO3\CMS\Core\Database\DatabaseConnection
      */
     private $databaseLink;
+
     /**
      * @var string
      */
     private $localTmpFile;
+
     /**
      * @var ResourceStorage
      */
     private $storage;
+
     /**
      * @var FileReference
      */
     private $package;
+
     /**
      * @var LibraryRepository|object
      */
     private $libraryRepository;
+
     /**
      * @var ObjectManager
      */
     private $objectManager;
+
     /**
      * @var ConfigSettingRepository|object
      */
     private $configSettingRepository;
+
     /**
      * @var LibraryTranslationRepository|object
      */
@@ -124,9 +142,14 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     private $libraryDependencyRepository;
 
     /**
-     * @var object
+     * @var ContentDependencyRepository
      */
     private $contentDependencyRepository;
+
+    /**
+     * @var CachedAssetRepository|object
+     */
+    private $cachedAssetRepository;
 
     /**
      * H5pFrameworkService constructor.
@@ -138,6 +161,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         $this->databaseLink = $GLOBALS['TYPO3_DB'];
         $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $this->persistenceManager = $this->objectManager->get(PersistenceManager::class);
+        $this->cachedAssetRepository = $this->objectManager->get(CachedAssetRepository::class);
         $this->configSettingRepository = $this->objectManager->get(ConfigSettingRepository::class);
         $this->contentRepository = $this->objectManager->get(ContentRepository::class);
         $this->contentDependencyRepository = $this->objectManager->get(ContentDependencyRepository::class);
@@ -629,12 +653,10 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         // Persist and re-read the entity to generate the content ID in the DB and fill the field
         $this->contentRepository->add($content);
         $this->persistenceManager->persistAll();
-//        $this->persistenceManager->clearState();
         /** @var Content $content */
         $content = $this->contentRepository->findByIdentifier($this->persistenceManager->getIdentifierByObject($content));
 
         return $content->getUid();
-//        return $this->updateContent($contentData);
     }
 
     /**
@@ -754,6 +776,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
                 $this->libraryDependencyRepository->add($dependency);
             }
         }
+        $this->persistenceManager->persistAll();
     }
 
     /**
@@ -923,8 +946,16 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             return false;
         }
 
-        return $library->toAssocArray();
+        $dependencySet = $this->libraryDependencyRepository->findByLibrary((int)$library->getUid());
 
+        $dependencies = new ObjectStorage();
+        foreach ($dependencySet as $dependency) {
+            $dependencies->attach($dependency);
+        }
+
+        $library->setLibraryDependencies($dependencies);
+
+        return $library->toAssocArray();
     }
 
     /**
@@ -1220,10 +1251,39 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *  Hash key for the given libraries
      * @param array $libraries
      *  List of dependencies(libraries) used to create the key
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
      */
     public function saveCachedAssets($key, $libraries)
     {
-        // TODO: Implement saveCachedAssets() method.
+        /**
+         * This is called after FileAdapter->cacheAssets and makes the assignment of
+         * CachedAsset and Library.
+         * @see FileAdapter::cacheAssets()
+         * @see \H5PCore::getDependenciesFiles()
+         */
+
+        $cachedAssets = $this->cachedAssetRepository->findByHashKey($key);
+
+        /** @var CachedAsset $cachedAsset */
+        foreach ($cachedAssets as $cachedAsset) {
+            foreach ($libraries as $libraryData) {
+                /** @var Library $library */
+                $library = $this->libraryRepository->findOneByUid($libraryData['libraryId']);
+                if ($library === null) {
+                    continue;
+                }
+                $cachedAsset->addLibrary($library);
+                // Whitelist, as this can be called on GETs
+                $this->persistenceManager->whitelistObject($library);
+                $this->persistenceManager->whitelistObject($cachedAsset);
+                try {
+                    $this->libraryRepository->update($library);
+                    $this->cachedAssetRepository->update($cachedAsset);
+                } catch (IllegalObjectTypeException $ex) {
+                    // Swallow, will never happen
+                }
+            }
+        }
     }
 
     /**

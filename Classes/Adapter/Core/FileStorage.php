@@ -14,12 +14,16 @@ namespace MichielRoos\H5p\Adapter\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
+use MichielRoos\H5p\Domain\Model\CachedAsset;
+use MichielRoos\H5p\Domain\Repository\CachedAssetRepository;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class FileStorage
@@ -37,6 +41,16 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     private $storage;
 
     /**
+     * @var CachedAssetRepository|object
+     */
+    private $cachedAssetRepository;
+
+    /**
+     * @var object|PersistenceManager
+     */
+    private $persistenceManager;
+
+    /**
      * FileStorageService constructor.
      *
      * @param ResourceStorage $storage
@@ -49,6 +63,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     {
         $this->storage = $storage;
         $this->basePath = $path ?: 'h5p';
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->cachedAssetRepository = $objectManager->get(CachedAssetRepository::class);
+        $this->persistenceManager = $objectManager->get(PersistenceManager::class);
 
         // Ensure base directories exist
         foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
@@ -248,10 +265,67 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *  A set of all the assets required for content to display
      * @param string $key
      *  Hashed key for cached asset
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
      */
     public function cacheAssets(&$files, $key)
     {
-        // TODO: Implement cacheAssets() method.
+        /**
+         * The files we get here are published H5P library CSS and JS files.
+         * We create and publish the PersistentResource objects and CachedAsset objects
+         * here and make the assignment to libraries later when we have that information
+         * in H5PFramework->saveCachedAssets().
+         * @see H5PFramework::saveCachedAssets()
+         * @see \H5PCore::getDependenciesFiles
+         */
+        foreach ($files as $type => $assets) {
+            if (empty($assets)) {
+                continue;
+            }
+
+            $content = '';
+            foreach ($assets as $asset) {
+                // Get content from asset file
+                $assetContent = file_get_contents(FLOW_PATH_WEB . $asset->path);
+                $cssRelPath = preg_replace('/[^\/]+$/', '', $asset->path);
+
+                // Get file content and concatenate
+                if ($type === 'scripts') {
+                    $content .= $assetContent . ";\n";
+                } else {
+                    // Rewrite relative URLs used inside stylesheets
+                    // TODO: This doesn't work correctly yet
+                    $content .= preg_replace_callback(
+                            '/url\([\'"]?([^"\')]+)[\'"]?\)/i',
+                            function ($matches) use ($cssRelPath) {
+                                if (preg_match("/^(data:|([a-z0-9]+:)?\/)/i", $matches[1]) === 1) {
+                                    return $matches[0]; // Not relative, skip
+                                }
+                                return 'url("../../..' . $cssRelPath . $matches[1] . '")';
+                            },
+                            $assetContent) . "\n";
+                }
+            }
+
+            $ext = ($type === 'scripts' ? 'js' : 'css');
+            $persistentResource = $this->resourceManager->importResourceFromContent($content, $key . '.' . $ext);
+            // Create the CachedAsset object here
+            $cachedAsset = new CachedAsset();
+            $cachedAsset->setHashKey($key);
+            $cachedAsset->setType($type);
+            $cachedAsset->setResource($persistentResource);
+            $this->cachedAssetRepository->add($cachedAsset);
+            // whitelist, as this can be called on GET requests
+            $this->persistenceManager->whitelistObject($cachedAsset);
+
+            $files[$type] = array(
+                (object)array(
+                    'path' => $this->resourceManager->getPublicPersistentResourceUri($persistentResource),
+                    'version' => ''
+                )
+            );
+        }
+        // Persist, so the cachedasset objects can be found in H5PFramework->saveCachedAssets
+        $this->persistenceManager->persistAll();
     }
 
     /**
@@ -263,7 +337,31 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function getCachedAssets($key)
     {
-        // TODO: Implement getCachedAssets() method.
+        $files = [];
+
+        $cachedAssets = $this->cachedAssetRepository->findByHashKey($key);
+
+        /** @var CachedAsset $cachedAsset */
+        foreach ($cachedAssets as $cachedAsset) {
+            if ($cachedAsset->getType() === 'scripts') {
+                $files['scripts'] = [
+                    (object)[
+                        'path'    => $this->resourceManager->getPublicPersistentResourceUri($cachedAsset->getResource()),
+                        'version' => ''
+                    ]
+                ];
+            }
+            if ($cachedAsset->getType() === 'styles') {
+                $files['styles'] = [
+                    (object)[
+                        'path'    => $this->resourceManager->getPublicPersistentResourceUri($cachedAsset->getResource()),
+                        'version' => ''
+                    ]
+                ];
+            }
+        }
+
+        return empty($files) ? null : $files;
     }
 
     /**
@@ -275,17 +373,6 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function deleteCachedAssets($keys)
     {
         // TODO: Implement deleteCachedAssets() method.
-    }
-
-    /**
-     * Read file content of given file and then return it.
-     *
-     * @param string $file_path
-     * @return string contents
-     */
-    public function getContent($file_path)
-    {
-        // TODO: Implement getContent() method.
     }
 
     /**
@@ -444,6 +531,17 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     }
 
     /**
+     * Read file content of given file and then return it.
+     *
+     * @param string $file_path
+     * @return string contents
+     */
+    public function getContent($file_path)
+    {
+        // TODO: Implement getContent() method.
+    }
+
+    /**
      * Checks to see if content has the given file.
      * Used when saving content.
      *
@@ -501,6 +599,12 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function getUpgradeScript($machineName, $majorVersion, $minorVersion)
     {
-        // TODO: Implement getUpgradeScript() method.
+        $upgradesFilePath = "/h5p/libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
+        if ($this->storage->hasFile($upgradesFilePath)) {
+            $file = $this->storage->getFile($upgradesFilePath);
+            return '/' . ltrim($file->getPublicUrl(), '/');
+        }
+
+        return NULL;
     }
 }

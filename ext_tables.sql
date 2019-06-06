@@ -4,6 +4,25 @@ CREATE TABLE tt_content (
     tx_h5p_display_options tinyint(3) unsigned NOT NULL DEFAULT '0'
 );
 
+-- H5P Cached assets
+CREATE TABLE tx_h5p_domain_model_cachedasset (
+    uid       int(11) unsigned    NOT NULL auto_increment,
+    pid       int(11)             NOT NULL DEFAULT '0',
+
+    tstamp    int(11) unsigned    NOT NULL DEFAULT '0',
+    crdate    int(11) unsigned    NOT NULL DEFAULT '0',
+    cruser_id int(11) unsigned    NOT NULL DEFAULT '0',
+    deleted   tinyint(4) unsigned NOT NULL DEFAULT '0',
+    hidden    tinyint(4) unsigned NOT NULL DEFAULT '0',
+    sorting   int(10)             NOT NULL DEFAULT '0',
+
+    resource  VARCHAR(40)                  DEFAULT NULL,
+    hashkey   VARCHAR(255)        NOT NULL DEFAULT '',
+    type      VARCHAR(255)        NOT NULL DEFAULT '',
+    PRIMARY KEY (uid),
+    KEY hashkey (hashkey)
+);
+
 -- H5P Content elements
 CREATE TABLE tx_h5p_domain_model_content (
     uid             int(11)             NOT NULL auto_increment,
