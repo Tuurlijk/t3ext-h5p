@@ -821,7 +821,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
 
         $dropLibraryCssList = [];
         foreach ($librariesInUse as $dependencyData) {
-            if (! empty($dependencyData['library']['dropLibraryCss'])) {
+            if (!empty($dependencyData['library']['dropLibraryCss'])) {
                 $dropLibraryCssList = array_merge($dropLibraryCssList,
                     explode(', ', $dependencyData['library']['dropLibraryCss']));
             }
@@ -836,7 +836,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             $contentDependency->setWeight($dependencyData['weight']);
             $this->contentDependencyRepository->add($contentDependency);
         }
-        $this->persistenceManager->persistAll();    }
+        $this->persistenceManager->persistAll();
+    }
 
     /**
      * Get number of content/nodes using a library, and the number of
@@ -1198,7 +1199,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryStats($type)
     {
-        // TODO: Implement getLibraryStats() method.
+        return ['none' => 0];
     }
 
     /**
@@ -1245,7 +1246,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryContentCount()
     {
-        // TODO: Implement getLibraryContentCount() method.
+        return ['none' => 0];
     }
 
     /**

@@ -13,7 +13,6 @@ namespace MichielRoos\H5p\Domain\Model;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 /**
  * Class Library
@@ -170,6 +169,133 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
+     * Creates a library from a metadata array.
+     *
+     * @param array $libraryData
+     * @return Library
+     * @throws \Exception
+     */
+    public static function createFromLibraryData(array &$libraryData)
+    {
+        $libraryData['__preloadedJs'] = self::pathsToCsv($libraryData, 'preloadedJs');
+        $libraryData['__preloadedCss'] = self::pathsToCsv($libraryData, 'preloadedCss');
+
+        $libraryData['__dropLibraryCss'] = '0';
+        if (isset($libraryData['dropLibraryCss'])) {
+            $libs = [];
+            foreach ($libraryData['dropLibraryCss'] as $lib) {
+                $libs[] = $lib['machineName'];
+            }
+            $libraryData['__dropLibraryCss'] = implode(', ', $libs);
+        }
+
+        $libraryData['__embedTypes'] = '';
+        if (isset($libraryData['embedTypes'])) {
+            $libraryData['__embedTypes'] = implode(', ', $libraryData['embedTypes']);
+        }
+        if (!isset($libraryData['semantics'])) {
+            $libraryData['semantics'] = '';
+        }
+        if (!isset($libraryData['hasIcon'])) {
+            $libraryData['hasIcon'] = 0;
+        }
+        if (!isset($libraryData['fullscreen'])) {
+            $libraryData['fullscreen'] = 0;
+        }
+
+        $library = new Library();
+        $library->updateFromLibraryData($libraryData);
+        $library->setCreatedAt(new \DateTime());
+        $library->setUpdatedAt(new \DateTime());
+        $library->setRestricted(false);
+        $library->setTutorialUrl('');
+        return $library;
+    }
+
+    /**
+     * Convert list of file paths to csv
+     *
+     * @param array $library
+     *  Library data as found in library.json files
+     * @param string $key
+     *  Key that should be found in $libraryData
+     * @return string
+     *  file paths separated by ', '
+     */
+    private static function pathsToCsv($library, $key)
+    {
+        if (isset($library[$key])) {
+            $paths = [];
+            foreach ($library[$key] as $file) {
+                $paths[] = $file['path'];
+            }
+            return implode(', ', $paths);
+        }
+        return '';
+    }
+
+    /**
+     * @param array $libraryData
+     * @throws \Exception
+     */
+    public function updateFromLibraryData(array $libraryData)
+    {
+        $this->setUpdatedAt(new \DateTime());
+        $this->setTitle($libraryData['machineName']);
+        $this->setTitle($libraryData['title']);
+        $this->setMachineName($libraryData['machineName']);
+        $this->setMajorVersion($libraryData['majorVersion']);
+        $this->setMinorVersion($libraryData['minorVersion']);
+        $this->setPatchVersion($libraryData['patchVersion']);
+        $this->setRunnable($libraryData['runnable']);
+        $this->setHasIcon($libraryData['hasIcon'] ? true : false);
+        $this->setAddTo(empty($libraryData['addTo']) ? null : json_encode($libraryData['addTo']));
+        $this->setMetadataSettings($libraryData['metadataSettings']);
+        if (isset($libraryData['semantics'])) {
+            $this->setSemantics($libraryData['semantics']);
+        }
+        if (isset($libraryData['fullscreen'])) {
+            $this->setFullscreen($libraryData['fullscreen']);
+        }
+        if (isset($libraryData['__embedTypes'])) {
+            $this->setEmbedTypes($libraryData['__embedTypes']);
+            $contents = $this->getContents();
+            if (is_array($contents)) {
+                /** @var Content $content */
+                foreach ($contents as $content) {
+                    /** Embed types might have changed, so we trigger a redetermination */
+                    $content->getEmbedType();
+                }
+            }
+        }
+        if (isset($libraryData['__preloadedJs'])) {
+            $this->setPreloadedJs($libraryData['__preloadedJs']);
+        }
+        if (isset($libraryData['__preloadedCss'])) {
+            $this->setPreloadedCss($libraryData['__preloadedCss']);
+        }
+        if (isset($libraryData['__dropLibraryCss'])) {
+            $this->setDropLibraryCss($libraryData['__dropLibraryCss']);
+        }
+    }
+
+    /**
+     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage
+     */
+    public function getContents()
+    {
+        return $this->contents;
+    }
+
+    /**
+     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage $contents
+     */
+    public function setContents(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $contents)
+    {
+        $this->contents = $contents;
+    }
+
+    /**
      * @return \DateTime
      */
     public function getCreatedAt()
@@ -202,6 +328,111 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
+     * @return string
+     */
+    public function getAddTo()
+    {
+        return $this->addTo;
+    }
+
+    /**
+     * @param string $addTo
+     */
+    public function setAddTo($addTo)
+    {
+        $this->addTo = $addTo;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRestricted()
+    {
+        return $this->restricted;
+    }
+
+    /**
+     * @param bool $restricted
+     */
+    public function setRestricted(bool $restricted)
+    {
+        $this->restricted = $restricted;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTutorialUrl()
+    {
+        return $this->tutorial_url;
+    }
+
+    /**
+     * @param string $tutorial_url
+     */
+    public function setTutorialUrl($tutorial_url)
+    {
+        $this->tutorial_url = $tutorial_url;
+    }
+
+    /**
+     * Returns the library name in a format such as
+     * H5P.MultiChoice-1.12
+     *
+     * @return string
+     */
+    public function getFolderName(): string
+    {
+        return \H5PCore::libraryToString($this->toAssocArray(), true);
+    }
+
+    /**
+     * Returns an associative array containing the library in the form that
+     * H5PFramework->loadLibrary is expected to return.
+     * @see H5PFramework::loadLibrary()
+     */
+    public function toAssocArray()
+    {
+        // the keys majorVersion and major_version are both used within the h5p library classes. Same goes for minor and patch.
+        $libraryArray = [
+            'id'             => $this->getUid(),
+            'libraryId'      => $this->getUid(),
+            'name'           => $this->getTitle(),
+            'machineName'    => $this->getMachineName(),
+            'title'          => $this->getTitle(),
+            'major_version'  => $this->getMajorVersion(),
+            'majorVersion'   => $this->getMajorVersion(),
+            'minor_version'  => $this->getMinorVersion(),
+            'minorVersion'   => $this->getMinorVersion(),
+            'patch_version'  => $this->getPatchVersion(),
+            'patchVersion'   => $this->getPatchVersion(),
+            'embedTypes'     => $this->getEmbedTypes(),
+            'preloadedJs'    => $this->getPreloadedJs(),
+            'preloadedCss'   => $this->getPreloadedCss(),
+            'dropLibraryCss' => $this->getDropLibraryCss(),
+            'fullscreen'     => $this->isFullscreen(),
+            'runnable'       => $this->isRunnable(),
+            'semantics'      => $this->getSemantics(),
+            'hasIcon'        => $this->isHasIcon()
+        ];
+
+        $libraryDependencies = $this->getLibraryDependencies();
+
+        if (is_array($libraryDependencies)) {
+            /** @var LibraryDependency $dependency */
+            foreach ($libraryDependencies as $dependency) {
+                $libraryArray[$dependency->getDependencyType() . 'Dependencies'][] = [
+                    'machineName'  => $dependency->getRequiredLibrary()->getTitle(),
+                    'majorVersion' => $dependency->getRequiredLibrary()->getMajorVersion(),
+                    'minorVersion' => $dependency->getRequiredLibrary()->getMinorVersion()
+                ];
+            }
+        }
+
+        return $libraryArray;
+    }
+
+    /**
      * Returns the title
      *
      * @return string $title
@@ -219,87 +450,6 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function setTitle($title)
     {
         $this->title = $title;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getAddTo()
-    {
-        return $this->addTo;
-    }
-
-    /**
-     * @param string $addTo
-     */
-    public function setAddTo($addTo)
-    {
-        $this->addTo = $addTo;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDropLibraryCss()
-    {
-        return $this->dropLibraryCss;
-    }
-
-    /**
-     * @param string $dropLibraryCss
-     */
-    public function setDropLibraryCss($dropLibraryCss)
-    {
-        $this->dropLibraryCss = $dropLibraryCss;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEmbedTypes()
-    {
-        return $this->embedTypes;
-    }
-
-    /**
-     * @param string $embedTypes
-     */
-    public function setEmbedTypes($embedTypes)
-    {
-        $this->embedTypes = $embedTypes;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isFullscreen()
-    {
-        return $this->fullscreen;
-    }
-
-    /**
-     * @param bool $fullscreen
-     */
-    public function setFullscreen($fullscreen)
-    {
-        $this->fullscreen = $fullscreen;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHasIcon()
-    {
-        return $this->hasIcon;
-    }
-
-    /**
-     * @param bool $hasIcon
-     */
-    public function setHasIcon($hasIcon)
-    {
-        $this->hasIcon = $hasIcon;
     }
 
     /**
@@ -369,17 +519,17 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @return string
      */
-    public function getPreloadedCss()
+    public function getEmbedTypes()
     {
-        return $this->preloadedCss;
+        return $this->embedTypes;
     }
 
     /**
-     * @param string $preloadedCss
+     * @param string $embedTypes
      */
-    public function setPreloadedCss($preloadedCss)
+    public function setEmbedTypes($embedTypes)
     {
-        $this->preloadedCss = $preloadedCss;
+        $this->embedTypes = $embedTypes;
     }
 
     /**
@@ -399,19 +549,51 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isRestricted()
+    public function getPreloadedCss()
     {
-        return $this->restricted;
+        return $this->preloadedCss;
     }
 
     /**
-     * @param bool $restricted
+     * @param string $preloadedCss
      */
-    public function setRestricted(bool $restricted)
+    public function setPreloadedCss($preloadedCss)
     {
-        $this->restricted = $restricted;
+        $this->preloadedCss = $preloadedCss;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDropLibraryCss()
+    {
+        return $this->dropLibraryCss;
+    }
+
+    /**
+     * @param string $dropLibraryCss
+     */
+    public function setDropLibraryCss($dropLibraryCss)
+    {
+        $this->dropLibraryCss = $dropLibraryCss;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFullscreen()
+    {
+        return $this->fullscreen;
+    }
+
+    /**
+     * @param bool $fullscreen
+     */
+    public function setFullscreen($fullscreen)
+    {
+        $this->fullscreen = $fullscreen;
     }
 
     /**
@@ -447,116 +629,35 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getTutorialUrl()
+    public function isHasIcon()
     {
-        return $this->tutorial_url;
+        return $this->hasIcon;
     }
 
     /**
-     * @param string $tutorial_url
+     * @param bool $hasIcon
      */
-    public function setTutorialUrl($tutorial_url)
+    public function setHasIcon($hasIcon)
     {
-        $this->tutorial_url = $tutorial_url;
+        $this->hasIcon = $hasIcon;
     }
 
     /**
-     * Creates a library from a metadata array.
-     *
-     * @param array $libraryData
-     * @return Library
-     * @throws \Exception
+     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage
      */
-    public static function createFromLibraryData(array &$libraryData)
+    public function getLibraryDependencies()
     {
-        $libraryData['__preloadedJs'] = self::pathsToCsv($libraryData, 'preloadedJs');
-        $libraryData['__preloadedCss'] = self::pathsToCsv($libraryData, 'preloadedCss');
-
-        $libraryData['__dropLibraryCss'] = '0';
-        if (isset($libraryData['dropLibraryCss'])) {
-            $libs = array();
-            foreach ($libraryData['dropLibraryCss'] as $lib) {
-                $libs[] = $lib['machineName'];
-            }
-            $libraryData['__dropLibraryCss'] = implode(', ', $libs);
-        }
-
-        $libraryData['__embedTypes'] = '';
-        if (isset($libraryData['embedTypes'])) {
-            $libraryData['__embedTypes'] = implode(', ', $libraryData['embedTypes']);
-        }
-        if (! isset($libraryData['semantics'])) {
-            $libraryData['semantics'] = '';
-        }
-        if (! isset($libraryData['hasIcon'])) {
-            $libraryData['hasIcon'] = 0;
-        }
-        if (! isset($libraryData['fullscreen'])) {
-            $libraryData['fullscreen'] = 0;
-        }
-
-        $library = new Library();
-        $library->updateFromLibraryData($libraryData);
-        $library->setCreatedAt(new \DateTime());
-        $library->setUpdatedAt(new \DateTime());
-        $library->setRestricted(false);
-        $library->setTutorialUrl('');
-        return $library;
+        return $this->libraryDependencies;
     }
 
     /**
-     * @param array $libraryData
-     * @throws \Exception
+     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage $libraryDependencies
      */
-    public function updateFromLibraryData(array $libraryData)
+    public function setLibraryDependencies(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $libraryDependencies)
     {
-        $this->setUpdatedAt(new \DateTime());
-        $this->setTitle($libraryData['machineName']);
-        $this->setTitle($libraryData['title']);
-        $this->setMachineName($libraryData['machineName']);
-        $this->setMajorVersion($libraryData['majorVersion']);
-        $this->setMinorVersion($libraryData['minorVersion']);
-        $this->setPatchVersion($libraryData['patchVersion']);
-        $this->setRunnable($libraryData['runnable']);
-        $this->setHasIcon($libraryData['hasIcon'] ? true : false);
-        $this->setAddTo(empty($libraryData['addTo']) ? null : json_encode($libraryData['addTo']));
-        $this->setMetadataSettings($libraryData['metadataSettings']);
-        if (isset($libraryData['semantics'])) {
-            $this->setSemantics($libraryData['semantics']);
-        }
-        if (isset($libraryData['fullscreen'])) {
-            $this->setFullscreen($libraryData['fullscreen']);
-        }
-        if (isset($libraryData['__embedTypes'])) {
-            $this->setEmbedTypes($libraryData['__embedTypes']);
-            /** @var Content $content */
-            foreach ($this->getContents() as $content) {
-                /** Embed types might have changed, so we trigger a redetermination */
-                $content->getEmbedType();
-            }
-        }
-        if (isset($libraryData['__preloadedJs'])) {
-            $this->setPreloadedJs($libraryData['__preloadedJs']);
-        }
-        if (isset($libraryData['__preloadedCss'])) {
-            $this->setPreloadedCss($libraryData['__preloadedCss']);
-        }
-        if (isset($libraryData['__dropLibraryCss'])) {
-            $this->setDropLibraryCss($libraryData['__dropLibraryCss']);
-        }
-    }
-
-    /**
-     * Returns the library name in a format such as
-     * H5P.MultiChoice-1.12
-     *
-     * @return string
-     */
-    public function getFolderName(): string
-    {
-        return \H5PCore::libraryToString($this->toAssocArray(), true);
+        $this->libraryDependencies = $libraryDependencies;
     }
 
     /**
@@ -571,86 +672,14 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * Convert list of file paths to csv
-     *
-     * @param array $library
-     *  Library data as found in library.json files
-     * @param string $key
-     *  Key that should be found in $libraryData
-     * @return string
-     *  file paths separated by ', '
-     */
-    private static function pathsToCsv($library, $key)
-    {
-        if (isset($library[$key])) {
-            $paths = array();
-            foreach ($library[$key] as $file) {
-                $paths[] = $file['path'];
-            }
-            return implode(', ', $paths);
-        }
-        return '';
-    }
-
-    /**
-     * Returns an associative array containing the library in the form that
-     * H5PFramework->loadLibrary is expected to return.
-     * @see H5PFramework::loadLibrary()
-     */
-    public function toAssocArray()
-    {
-        // the keys majorVersion and major_version are both used within the h5p library classes. Same goes for minor and patch.
-        $libraryArray = [
-            'id' => $this->getUid(),
-            'libraryId' => $this->getUid(),
-            'name' => $this->getTitle(),
-            'machineName' => $this->getMachineName(),
-            'title' => $this->getTitle(),
-            'major_version' => $this->getMajorVersion(),
-            'majorVersion' => $this->getMajorVersion(),
-            'minor_version' => $this->getMinorVersion(),
-            'minorVersion' => $this->getMinorVersion(),
-            'patch_version' => $this->getPatchVersion(),
-            'patchVersion' => $this->getPatchVersion(),
-            'embedTypes' => $this->getEmbedTypes(),
-            'preloadedJs' => $this->getPreloadedJs(),
-            'preloadedCss' => $this->getPreloadedCss(),
-            'dropLibraryCss' => $this->getDropLibraryCss(),
-            'fullscreen' => $this->isFullscreen(),
-            'runnable' => $this->isRunnable(),
-            'semantics' => $this->getSemantics(),
-            'hasIcon' => $this->isHasIcon()
-        ];
-
-        /** @var LibraryDependency $dependency */
-        foreach ($this->getLibraryDependencies() as $dependency) {
-            $libraryArray[$dependency->getDependencyType() . 'Dependencies'][] = [
-                'machineName' => $dependency->getRequiredLibrary()->getTitle(),
-                'majorVersion' => $dependency->getRequiredLibrary()->getMajorVersion(),
-                'minorVersion' => $dependency->getRequiredLibrary()->getMinorVersion()
-            ];
-        }
-
-        return $libraryArray;
-    }
-
-    /**
      * Returns this library as a stdClass object in a format that H5P expects
      * when it calls the method:
-     * @see \H5peditorStorage::getLibraries()
      * @return \stdClass
+     * @see \H5peditorStorage::getLibraries()
      */
     public function toStdClass()
     {
         return (object)$this->toAssocArray();
-    }
-
-    /**
-     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage
-     */
-    public function getLibraryDependencies()
-    {
-        return $this->libraryDependencies;
     }
 
     /**
@@ -662,14 +691,6 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
             /** @var LibraryDependency $libraryDependency */
             return $libraryDependency->getRequiredLibrary();
         })->toArray();
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage $libraryDependencies
-     */
-    public function setLibraryDependencies(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $libraryDependencies)
-    {
-        $this->libraryDependencies = $libraryDependencies;
     }
 
     /**
@@ -722,22 +743,6 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function addCachedAsset(CachedAsset $cachedAsset)
     {
         $this->cachedAssets->add($cachedAsset);
-    }
-
-    /**
-     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage
-     */
-    public function getContents()
-    {
-        return $this->contents;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage $contents
-     */
-    public function setContents(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $contents)
-    {
-        $this->contents = $contents;
     }
 
     /**
