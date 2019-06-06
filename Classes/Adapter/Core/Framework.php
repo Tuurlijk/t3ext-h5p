@@ -300,7 +300,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function getLibraryFileUrl($libraryFolderName, $fileName)
     {
         $file = $this->storage->getFile('/h5p/libraries/' . $libraryFolderName . '/' . $fileName);
-        return $file->getPublicUrl();
+        return '/' . ltrim($file->getPublicUrl(), '/');
     }
 
     /**
