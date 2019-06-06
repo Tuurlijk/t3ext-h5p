@@ -67,7 +67,7 @@ class EditorStorage implements \H5peditorStorage
     public function getAvailableLanguages($machineName, $majorVersion, $minorVersion)
     {
         // Note that the parameter $machineName is contains $name instead
-        $translationCodes = [];
+        $translationCodes = ['en'];
         $library = $this->libraryRepository->findOneByMachinenameMajorVersionAndMinorVersion($machineName, $majorVersion, $minorVersion);
         $translations = $this->libraryTranslationRepository->findByLibrary($library->getUid());
         /** @var LibraryTranslation $translation */
