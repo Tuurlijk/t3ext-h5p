@@ -1,0 +1,64 @@
+config.tx_extbase {
+    persistence {
+        classes {
+            MichielRoos\H5p\Domain\Model\FileReference {
+                mapping {
+                    tableName = sys_file_reference
+                    columns {
+                        uid_local.mapOnProperty = originalFileIdentifier
+                    }
+                }
+            }
+
+            MichielRoos\H5p\Domain\Model\ContentDependency {
+                mapping {
+                    columns {
+                        dependencytype.mapOnProperty = dependencyType
+                        dropcss.mapOnProperty = dropCss
+                    }
+                }
+            }
+
+            MichielRoos\H5p\Domain\Model\LibraryDependency {
+                mapping {
+                    columns {
+                        dependencytype.mapOnProperty = dependencyType
+                        requiredlibrary.mapOnProperty = requiredLibrary
+                    }
+                }
+            }
+
+            MichielRoos\H5p\Domain\Model\Library {
+                mapping {
+                    columns {
+                        addto.mapOnProperty = addTo
+                    }
+                }
+            }
+
+            MichielRoos\H5p\Domain\Model\LibraryTranslation {
+                mapping {
+                    columns {
+                        languagecode.mapOnProperty = languageCode
+                    }
+                }
+            }
+        }
+    }
+
+    objects {
+        TYPO3\CMS\Extbase\Domain\Model\FileReference.className = \MichielRoos\H5p\Domain\Model\FileReference
+    }
+}
+
+plugin.tx_h5p_view {
+    persistence {
+        storagePid = 1
+    }
+}
+
+module.tx_h5p_web {
+    persistence {
+        storagePid = 1
+    }
+}

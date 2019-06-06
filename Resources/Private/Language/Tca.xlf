@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" date="2018-05-13T17:55:17Z" product-name="h5p">
+        <header/>
+        <body>
+            <trans-unit id="h5p.wizard.title">
+                <source>H5P View</source>
+            </trans-unit>
+            <trans-unit id="h5p.wizard.description">
+                <source>Create and add rich content to your website for free. Some examples of what you get with H5P are Interactive Video, Quizzes, Collage and Timeline.</source>
+            </trans-unit>
+            <trans-unit id="h5p.contentelement">
+                <source>H5P View</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_content">
+                <source>Content object</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_display_options">
+                <source>Display options</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_display_options.I.0">
+                <source>Show frame and buttons below H5P</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_display_options.I.1">
+                <source>Display download button</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_display_options.I.2">
+                <source>Display embed button</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_display_options.I.3">
+                <source>Display copyright button</source>
+            </trans-unit>
+            <trans-unit id="tt_content.tx_h5p_display_options.I.4">
+                <source>Display H5P icon</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

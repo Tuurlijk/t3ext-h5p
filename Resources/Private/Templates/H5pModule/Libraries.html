@@ -1,0 +1,26 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Backend/Default"/>
+
+<f:section name="iconButtons">
+</f:section>
+
+<f:section name="content">
+    <h1>Libraries</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Machine name</th>
+        </tr>
+        </thead>
+        <f:for each="{libraries}" as="library">
+            <tr>
+                <td>{library.title}</td>
+                <td>{library.majorVersion}.{library.minorVersion}.{library.patchVersion}</td>
+                <td>{library.machineName}</td>
+            </tr>
+        </f:for>
+    </table>
+</f:section>
+</html>

@@ -1,0 +1,79 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default"/>
+
+<f:section name="content">
+    <h1>H5P</h1>
+    <div class="h5p-content" data-content-id="{content.uid}"></div>
+    <script type="text/javascript">
+        window.H5PIntegration = {
+            "baseUrl": "https://spl.dev.local", // No trailing slash
+            "url": "/fileadmin/h5p/",          // Relative to web root
+            "postUserStatistics": false,         // Only if user is logged in
+            "ajaxPath": "/path/to/h5p-ajax",     // Only used by older Content Types
+            "ajax": {
+                // Where to post user results
+                "setFinished": "/interactive-contents/123/results/new",
+                // Words beginning with : are placeholders
+                "contentUserData": "/interactive-contents/:contentId/user-data?data_type=:dataType&subContentId=:subContentId"
+            },
+            "saveFreq": 30, // How often current content state should be saved. false to disable.
+            "siteUrl": "https://spl.dev.local", // Only if NOT logged in!
+            "l10n": { // Text string translations
+                "H5P": {
+                    "fullscreen": "Fullscreen",
+                    "disableFullscreen": "Disable fullscreen",
+                    "download": "Download",
+                    "copyrights": "Rights of use",
+                    "embed": "Embed",
+                    "size": "Size",
+                    "showAdvanced": "Show advanced",
+                    "hideAdvanced": "Hide advanced",
+                    "advancedHelp": "Include this script on your website if you want dynamic sizing of the embedded content:",
+                    "copyrightInformation": "Rights of use",
+                    "close": "Close",
+                    "title": "Title",
+                    "author": "Author",
+                    "year": "Year",
+                    "source": "Source",
+                    "license": "License",
+                    "thumbnail": "Thumbnail",
+                    "noCopyrights": "No copyright information available for this content.",
+                    "downloadDescription": "Download this content as a H5P file.",
+                    "copyrightsDescription": "View copyright information for this content.",
+                    "embedDescription": "View the embed code for this content.",
+                    "h5pDescription": "Visit H5P.org to check out more cool content.",
+                    "contentChanged": "This content has changed since you last used it.",
+                    "startingOver": "You'll be starting over.",
+                    "by": "by",
+                    "showMore": "Show more",
+                    "showLess": "Show less",
+                    "subLevel": "Sublevel"
+                }
+            },
+            "loadedJs": [], // Only required when Embed Type = div
+            "loadedCss": [],
+            "contents": []
+        };
+    </script>
+    <script type="text/javascript">
+        window.H5PIntegration.contents<f:format.raw>[</f:format.raw>'cid-{content.uid}'] = <f:comment>The following format raw is needed because all these JavaScript brackets confuse fluid.</f:comment><f:format.raw>{</f:format.raw>
+            "library": "{content.library.machineName} {content.library.majorVersion}.{content.library.minorVersion}",
+            "jsonContent": "<f:format.raw>{parameters}</f:format.raw>",
+            "fullScreen": {f:if(condition: content.library.fullscreen, then: 'true', else: 'false')}, // No fullscreen support
+            "exportUrl": "/path/to/download.h5p",
+            "embedCode": "",
+            "resizeCode": "",
+            "mainId": {content.uid},
+            "url": "https://mysite.com/fileadmin/h5p/1",
+            "title": "{content.title}",
+            "displayOptions": <f:comment>The following format raw is needed because all these JavaScript brackets confuse fluid.</f:comment><f:format.raw>{</f:format.raw>
+                "frame": {data.h5p_frame}, // Show frame and buttons below H5P
+                "export": {data.h5p_export}, // Display download button
+                "embed": {data.h5p_embed}, // Display embed button
+                "copyright": {data.h5p_copyright}, // Display copyright button
+                "icon": {data.h5p_icon} // Display H5P icon
+            }
+        };
+    </script>
+</f:section>
+</html>

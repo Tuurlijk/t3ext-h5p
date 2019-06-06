@@ -1,0 +1,24 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Backend/Default"/>
+
+<f:section name="content">
+    <h1>Content</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Machine name</th>
+        </tr>
+        </thead>
+        <f:for each="{h5pContent}" as="content">
+            <f:debug>{content}</f:debug>
+            <tr>
+                <td>{content.title}</td>
+                <td>{content.majorVersion}.{content.minorVersion}.{content.patchVersion}</td>
+                <td>{content.machineName}</td>
+            </tr>
+        </f:for>
+    </table>
+</f:section>
+</html>

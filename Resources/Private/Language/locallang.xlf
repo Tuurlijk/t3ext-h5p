@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2014-02-19T23:36:47Z"
+          product-name="h5p">
+        <header/>
+        <body>
+            <trans-unit id="tx_h5p_library">
+                <source>H5P Library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.title">
+                <source>Title</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.drop_library_css">
+                <source>Drop library CSS</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.drop_library_js">
+                <source>Drop library JS</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.embed_types">
+                <source>Embed types</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.fullscreen">
+                <source>Fullscreen</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.has_icon">
+                <source>Has icon</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.machine_name">
+                <source>Machine name</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.major_version">
+                <source>Major version</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.minor_version">
+                <source>Minor version</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.patch_version">
+                <source>Patch version</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.preloaded_css">
+                <source>Preloaded CSS</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.preloaded_js">
+                <source>Preloaded JS</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.runnable">
+                <source>Runnable</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.semantics">
+                <source>Semantics</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.tutorial_url">
+                <source>Tutorial URL</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.addto">
+                <source>Add to</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.restricted">
+                <source>Restricted</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.createdAt">
+                <source>Created at</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_library.updatedAt">
+                <source>Updated at</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry">
+                <source>H5P Content type cache entry</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.h5pMajorVersion">
+                <source>h5pMajorVersion</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.h5pMinorVersion">
+                <source>h5pMinorVersion</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.machineName">
+                <source>machineName</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.majorVersion">
+                <source>majorVersion</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.minorVersion">
+                <source>minorVersion</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.categories">
+                <source>categories</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.createdAt">
+                <source>createdAt</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.description">
+                <source>description</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.example">
+                <source>example</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.icon">
+                <source>icon</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.isRecommended">
+                <source>isRecommended</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.keywords">
+                <source>keywords</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.license">
+                <source>license</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.owner">
+                <source>owner</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.patchVersion">
+                <source>patchVersion</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.popularity">
+                <source>popularity</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.screenshots">
+                <source>screenshots</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.summary">
+                <source>summary</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.updatedAt">
+                <source>updatedAt</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.title">
+                <source>title</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contenttypecacheentry.tutorial">
+                <source>tutorial</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarytranslation">
+                <source>H5P Library translation</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarytranslation.library">
+                <source>Library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarytranslation.languageCode">
+                <source>Language code</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarytranslation.translation">
+                <source>Translation</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarydependency">
+                <source>Library dependency</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarydependency.library">
+                <source>Library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarydependency.requiredlibrary">
+                <source>Required library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_librarydependency.dependencytype">
+                <source>Dependency type</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentdependency">
+                <source>H5P Library dependency</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentdependency.library">
+                <source>Library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentdependency.requiredlibrary">
+                <source>Required library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentdependency.dependencytype">
+                <source>Dependency type</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentdependency.weight">
+                <source>Weight</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentdependency.dropCss">
+                <source>Drop CSS</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content">
+                <source>H5P Content</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.title">
+                <source>Title</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.parameters">
+                <source>Parameters</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.package">
+                <source>H5p package file</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.library">
+                <source>Library</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.parameters">
+                <source>Parameters</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.filtered">
+                <source>Filtered</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.slug">
+                <source>Slug</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.embed_type">
+                <source>Embed type</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.disable">
+                <source>Disable</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.content_type">
+                <source>Content type</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.author">
+                <source>Author</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.license">
+                <source>License</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.keywords">
+                <source>Keywords</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.description">
+                <source>Description</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.authors">
+                <source>authors</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.source">
+                <source>source</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.year_from">
+                <source>year_from</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.year_to">
+                <source>year_to</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.license_version">
+                <source>license_version</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.license_extras">
+                <source>license_extras</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.author_comments">
+                <source>author_comments</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.changes">
+                <source>changes</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.keywords">
+                <source>keywords</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_configsetting">
+                <source>H5P Config Setting</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_configsetting.config_key">
+                <source>Config key</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_configsetting.config_value">
+                <source>Config value</source>
+            </trans-unit>
+            <trans-unit id="settings.toolbarBelowContent">
+                <source>Display toolbar below content: Display a toolbar below each H5P element</source>
+            </trans-unit>
+            <trans-unit id="settings.allowDownload">
+                <source>Allow users to download the content</source>
+            </trans-unit>
+            <trans-unit id="settings.displayEmbed">
+                <source>Display Embed button</source>
+            </trans-unit>
+            <trans-unit id="settings.displayCopyright">
+                <source>Display Copyright button</source>
+            </trans-unit>
+            <trans-unit id="module.menu.index">
+                <source>All H5P content</source>
+            </trans-unit>
+            <trans-unit id="module.menu.libraries">
+                <source>Libraries</source>
+            </trans-unit>
+            <trans-unit id="module.menu.new">
+                <source>Add new</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
