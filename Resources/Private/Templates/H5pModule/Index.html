@@ -3,22 +3,33 @@
 
 <f:section name="content">
     <h1>Content</h1>
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Machine name</th>
-        </tr>
-        </thead>
-        <f:for each="{h5pContent}" as="content">
-            <f:debug>{content}</f:debug>
-            <tr>
-                <td>{content.title}</td>
-                <td>{content.majorVersion}.{content.minorVersion}.{content.patchVersion}</td>
-                <td>{content.machineName}</td>
-            </tr>
-        </f:for>
-    </table>
+
+    <f:if condition="{f:count(subject: h5pContent)}">
+        <f:then>
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Version</th>
+                    <th>Machine name</th>
+                </tr>
+                </thead>
+                <f:for each="{h5pContent}" as="content">
+                    <f:debug>{content}</f:debug>
+                    <tr>
+                        <td>{content.title}</td>
+                        <td>{content.majorVersion}.{content.minorVersion}.{content.patchVersion}</td>
+                        <td>{content.machineName}</td>
+                    </tr>
+                </f:for>
+            </table>
+        </f:then>
+        <f:else>
+            <p>No H5P content available. You must upload or create new content.</p>
+            <f:form action="new" controller="H5pModule">
+                <f:form.button class="button" type="submit"><f:translate key="module.menu.new">Create</f:translate></f:form.button>
+            </f:form>
+        </f:else>
+    </f:if>
 </f:section>
 </html>
