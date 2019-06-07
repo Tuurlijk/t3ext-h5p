@@ -2,19 +2,19 @@
 
 return [
     'ctrl'     => [
-        'title'         => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_library',
-        'label'         => 'title',
+        'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_library',
+        'label'          => 'title',
         'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getLibraryTitle',
-        'tstamp'        => 'tstamp',
-        'crdate'        => 'crdate',
-        'dividers2tabs' => true,
-        'enablecolumns' => [
+        'tstamp'         => 'tstamp',
+        'crdate'         => 'crdate',
+        'dividers2tabs'  => true,
+        'enablecolumns'  => [
             'disabled' => 'hidden',
         ],
-        'delete'        => 'deleted',
-        'sortby'        => 'sorting',
-        'searchFields'  => 'title',
-        'iconfile'      => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
+        'delete'         => 'deleted',
+        'sortby'         => 'sorting',
+        'searchFields'   => 'title',
+        'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
     'columns'  => [
         'hidden'           => [
@@ -159,7 +159,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'addto'       => [
+        'add_to'           => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_library.addto',
             'config'  => [

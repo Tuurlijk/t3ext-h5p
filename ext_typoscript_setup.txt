@@ -9,40 +9,6 @@ config.tx_extbase {
                     }
                 }
             }
-
-            MichielRoos\H5p\Domain\Model\ContentDependency {
-                mapping {
-                    columns {
-                        dependencytype.mapOnProperty = dependencyType
-                        dropcss.mapOnProperty = dropCss
-                    }
-                }
-            }
-
-            MichielRoos\H5p\Domain\Model\LibraryDependency {
-                mapping {
-                    columns {
-                        dependencytype.mapOnProperty = dependencyType
-                        requiredlibrary.mapOnProperty = requiredLibrary
-                    }
-                }
-            }
-
-            MichielRoos\H5p\Domain\Model\Library {
-                mapping {
-                    columns {
-                        addto.mapOnProperty = addTo
-                    }
-                }
-            }
-
-            MichielRoos\H5p\Domain\Model\LibraryTranslation {
-                mapping {
-                    columns {
-                        languagecode.mapOnProperty = languageCode
-                    }
-                }
-            }
         }
     }
 

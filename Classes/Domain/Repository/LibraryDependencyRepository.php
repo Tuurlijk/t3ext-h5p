@@ -31,10 +31,9 @@ class LibraryDependencyRepository extends \TYPO3\CMS\Extbase\Persistence\Reposit
         $dependencies = $query->matching(
             $query->logicalAnd(
                 $query->equals('library', $library),
-                $query->equals('requiredLibrary', $requiredLibrary)
+                $query->equals('required_library', $requiredLibrary)
             )
         )->execute();
         return $dependencies->getFirst();
     }
-
 }

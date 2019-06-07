@@ -160,8 +160,8 @@
             <trans-unit id="tx_h5p_domain_model_contentdependency.library">
                 <source>Library</source>
             </trans-unit>
-            <trans-unit id="tx_h5p_domain_model_contentdependency.requiredlibrary">
-                <source>Required library</source>
+            <trans-unit id="tx_h5p_domain_model_contentdependency.content">
+                <source>Content</source>
             </trans-unit>
             <trans-unit id="tx_h5p_domain_model_contentdependency.dependencytype">
                 <source>Dependency type</source>

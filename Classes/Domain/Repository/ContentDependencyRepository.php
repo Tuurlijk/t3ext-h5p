@@ -30,10 +30,9 @@ class ContentDependencyRepository extends \TYPO3\CMS\Extbase\Persistence\Reposit
         $dependencies = $query->matching(
             $query->logicalAnd(
                 $query->equals('content', $content),
-                $query->equals('dependencyType', $type)
+                $query->equals('dependency_type', $type)
             )
         )->execute();
         return $dependencies;
     }
-
 }

@@ -44,6 +44,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Exception;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 /**
  * Class Framework
@@ -793,7 +794,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function copyLibraryUsage($contentId, $copyFromId, $contentMainId = null)
     {
-        // TODO: Implement copyLibraryUsage() method.
+        $blah = 'break';
     }
 
     /**
@@ -833,6 +834,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *     - editor
      *     - dynamic
      *     - preloaded
+     * @throws IllegalObjectTypeException
      */
     public function saveLibraryUsage($contentId, $librariesInUse)
     {
@@ -853,7 +855,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         foreach ($librariesInUse as $dependencyData) {
             $contentDependency = new ContentDependency();
             $contentDependency->setContent($content);
-            $contentDependency->setLibrary($this->libraryRepository->findOneByLibrary($dependencyData['library']['libraryId']));
+            $contentDependency->setLibrary($this->libraryRepository->findOneByUid($dependencyData['library']['libraryId']));
             $contentDependency->setDependencyType($dependencyData['type']);
             $contentDependency->setDropCss(in_array($dependencyData['library']['machineName'], $dropLibraryCssList));
             $contentDependency->setWeight($dependencyData['weight']);
@@ -1107,9 +1109,9 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
 
         $this->contentDependencyRepository->setDefaultOrderings(['weight' => QueryInterface::ORDER_ASCENDING]);
         if ($type !== null) {
-            $dependencies = $this->contentDependencyRepository->findByContentAndType($content->getUid(), $type);
+            $dependencies = $this->contentDependencyRepository->findByContentAndType($content, $type);
         } else {
-            $dependencies = $this->contentDependencyRepository->findByContent($content->getUid());
+            $dependencies = $this->contentDependencyRepository->findByContent($content);
         }
 
         /** @var ContentDependency $dependency */
@@ -1173,7 +1175,21 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function updateContentFields($id, $fields)
     {
-        // TODO: Implement updateContentFields() method.
+        /** @var Content $content */
+        $content = $this->contentRepository->findOneByUid($id);
+        if ($content === null) {
+            return;
+        }
+
+        foreach ($fields as $propertyName => $value) {
+            ObjectAccess::setProperty($content, $propertyName, $value);
+        }
+
+        try {
+            $this->contentRepository->update($content);
+        } catch (IllegalObjectTypeException $ex) {
+            // will never happen
+        }
     }
 
     /**
@@ -1208,7 +1224,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getNumContent($libraryId, $skip = NULL)
     {
-        // TODO: Implement getNumContent() method.
+        $library = $this->libraryRepository->findOneByUid($libraryId);
+        return $this->contentRepository->countContents($library);
     }
 
     /**
@@ -1219,7 +1236,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function isContentSlugAvailable($slug)
     {
-        // TODO: Implement isContentSlugAvailable() method.
+        return $this->contentRepository->findOneBySlug($slug) === null;
     }
 
     /**
@@ -1360,7 +1377,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function loadAddons()
     {
-        // TODO: Implement loadAddons() method.
+        return $this->libraryRepository->getLibraryAddons();
     }
 
     /**

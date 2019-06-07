@@ -2,29 +2,29 @@
 
 return [
     'ctrl'     => [
-        'title'         => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarydependency',
-        'label'         => 'library',
+        'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarydependency',
+        'label'          => 'library',
         'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getLibraryDependencyTitle',
-        'tstamp'        => 'tstamp',
-        'crdate'        => 'crdate',
-        'dividers2tabs' => true,
-        'enablecolumns' => [
+        'tstamp'         => 'tstamp',
+        'crdate'         => 'crdate',
+        'dividers2tabs'  => true,
+        'enablecolumns'  => [
             'disabled' => 'hidden',
         ],
-        'delete'        => 'deleted',
-        'sortby'        => 'sorting',
-        'searchFields'  => 'library',
-        'iconfile'      => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
+        'delete'         => 'deleted',
+        'sortby'         => 'sorting',
+        'searchFields'   => 'library',
+        'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
     'columns'  => [
-        'hidden'          => [
+        'hidden'           => [
             'exclude' => 1,
             'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
             'config'  => [
                 'type' => 'check'
             ]
         ],
-        'library'         => [
+        'library'          => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarydependency.library',
             'config'  => [
@@ -33,7 +33,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'requiredlibrary' => [
+        'required_library' => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarydependency.requiredlibrary',
             'config'  => [
@@ -42,7 +42,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'dependencytype'  => [
+        'dependency_type'  => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarydependency.dependencytype',
             'config'  => [

@@ -32,16 +32,16 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'requiredlibrary' => [
+        'content'         => [
             'exclude' => 0,
-            'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contentdependency.requiredlibrary',
+            'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contentdependency.content',
             'config'  => [
                 'type' => 'input',
                 'size' => 80,
                 'eval' => 'trim',
             ]
         ],
-        'dependencytype'  => [
+        'dependency_type' => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contentdependency.dependencytype',
             'config'  => [
@@ -59,7 +59,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'dropcss'         => [
+        'drop_css'        => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contentdependency.dropCss',
             'config'  => [
@@ -70,9 +70,9 @@ return [
         ]
     ],
     'types'    => [
-        '1' => ['showitem' => '--palette--;;library, weight, dropcss']
+        '1' => ['showitem' => '--palette--;;library, weight, drop_css']
     ],
     'palettes' => [
-        'library' => ['showitem' => 'library,requiredlibrary,dependencytype']
+        'library' => ['showitem' => 'library,required_library,dependency_type']
     ]
 ];

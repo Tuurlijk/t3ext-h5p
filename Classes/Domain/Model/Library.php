@@ -26,7 +26,6 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     protected $title = '';
 
-
     /**
      * @var string
      */
@@ -133,7 +132,6 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\MichielRoos\H5p\Domain\Model\ContentDependency>
      */
     protected $libraryTranslations;
-
 
     /**
      * @var string

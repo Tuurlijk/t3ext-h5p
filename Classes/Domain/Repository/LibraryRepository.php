@@ -93,9 +93,9 @@ class LibraryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query = $this->createQuery();
         $libraries = $query->matching(
             $query->logicalAnd(
-                $query->equals('machineName', $libraryName),
-                $query->equals('majorVersion', $majorVersion),
-                $query->equals('minorVersion', $minorVersion)
+                $query->equals('machine_name', $libraryName),
+                $query->equals('major_version', $majorVersion),
+                $query->equals('minor_version', $minorVersion)
             )
         )->execute();
         return $libraries->getFirst();
@@ -113,8 +113,8 @@ class LibraryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $libraries = $query->matching(
             $query->logicalAnd(
                 $query->equals('title', $libraryName),
-                $query->equals('majorVersion', $majorVersion),
-                $query->equals('minorVersion', $minorVersion)
+                $query->equals('major_version', $majorVersion),
+                $query->equals('minor_version', $minorVersion)
             )
         )->execute();
         return $libraries->getFirst();
@@ -125,20 +125,28 @@ class LibraryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      */
     public function getLibraryAddons()
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('e.libraryId, e.name AS machineName, e.majorVersion, e.minorVersion, e.patchVersion, e.addTo, e.preloadedJs, e.preloadedCss')
-            ->from(Library::class, 'e')
-            ->leftJoin(
-                Library::class,
-                'l2',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'e.name = l2.name AND
-                    (e.majorVersion < l2.majorVersion OR
-                        (e.majorVersion = l2.majorVersion AND e.minorVersion < l2.minorVersion)
-                    )'
+        $query = $this->createQuery();
+        $sql = <<<EOS
+SELECT e.uid,
+       e.title         AS machineName,
+       e.major_version AS majorVersion,
+       e.minor_version AS minorVersion,
+       e.patch_version AS patchVersion,
+       e.add_to        AS addTo,
+       e.preloaded_js  AS preloadedJs,
+       e.preloaded_css AS preloadedCSS
+FROM tx_h5p_domain_model_library e
+         LEFT JOIN
+     tx_h5p_domain_model_library l2
+     ON e.title = l2.title
+         AND (
+                e.major_version < l2.major_version OR
+                (e.major_version = l2.major_version AND e.minor_version < l2.minor_version)
             )
-            ->where('e.addTo IS NOT NULL AND l2.name IS NULL');
+WHERE e.add_to IS NOT NULL
+  AND l2.title IS NULL
+EOS;
 
-        return $qb->getQuery()->execute();
+        return $query->statement($sql)->execute(true);
     }
 }

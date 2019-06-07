@@ -2,19 +2,19 @@
 
 return [
     'ctrl'     => [
-        'title'         => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_content',
-        'label'         => 'title',
+        'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_content',
+        'label'          => 'title',
         'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getContentTitle',
-        'tstamp'        => 'tstamp',
-        'crdate'        => 'crdate',
-        'dividers2tabs' => true,
-        'enablecolumns' => [
+        'tstamp'         => 'tstamp',
+        'crdate'         => 'crdate',
+        'dividers2tabs'  => true,
+        'enablecolumns'  => [
             'disabled' => 'hidden',
         ],
-        'delete'        => 'deleted',
-        'sortby'        => 'sorting',
-        'searchFields'  => 'title',
-        'iconfile'      => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
+        'delete'         => 'deleted',
+        'sortby'         => 'sorting',
+        'searchFields'   => 'title',
+        'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
     'columns'  => [
         'hidden'          => [

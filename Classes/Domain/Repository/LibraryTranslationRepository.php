@@ -25,7 +25,7 @@ class LibraryTranslationRepository extends \TYPO3\CMS\Extbase\Persistence\Reposi
         $libraries = $query->matching(
             $query->logicalAnd(
                 $query->equals('uid', $libraryUid),
-                $query->equals('languageCode', $language)
+                $query->equals('language_code', $language)
             )
         )->execute();
         return $libraries->getFirst();

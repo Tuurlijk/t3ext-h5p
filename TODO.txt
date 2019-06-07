@@ -3,6 +3,7 @@
 Implement methods in
 \MichielRoos\H5p\Adapter\Core\FileStorage
 \MichielRoos\H5p\Adapter\Editor\EditorStorage
+\MichielRoos\H5p\Adapter\Core\Framework
 
 Backend module should always open op pid 1 of the site or the oldest page that is a site root
 
@@ -11,3 +12,6 @@ ContentDependencies in H5PFrameworkInterface css / js - saveLibraryUsage
 
 
 CachedAsset resource
+
+
+\MichielRoos\H5p\Adapter\Core\CoreStorage::savePackage

@@ -19,5 +19,4 @@ namespace MichielRoos\H5p\Domain\Repository;
  */
 class ContentRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 {
-
 }

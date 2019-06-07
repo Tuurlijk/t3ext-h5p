@@ -17,10 +17,10 @@ CREATE TABLE tx_h5p_domain_model_cachedasset (
     sorting   int(10)             NOT NULL DEFAULT '0',
 
     resource  VARCHAR(40)                  DEFAULT NULL,
-    hashkey   VARCHAR(255)        NOT NULL DEFAULT '',
+    hash_key  VARCHAR(255)        NOT NULL DEFAULT '',
     type      VARCHAR(255)        NOT NULL DEFAULT '',
     PRIMARY KEY (uid),
-    KEY hashkey (hashkey)
+    KEY hashkey (hash_key)
 );
 
 -- H5P Content elements
@@ -66,25 +66,25 @@ CREATE TABLE tx_h5p_domain_model_content (
 );
 
 CREATE TABLE tx_h5p_domain_model_contentdependency (
-    uid            int(11)             NOT NULL auto_increment,
-    pid            int(11)             NOT NULL DEFAULT '0',
+    uid             int(11)             NOT NULL auto_increment,
+    pid             int(11)             NOT NULL DEFAULT '0',
 
-    package        int(11) unsigned             DEFAULT '0',
+    package         int(11) unsigned             DEFAULT '0',
 
-    tstamp         int(11) unsigned    NOT NULL DEFAULT '0',
-    crdate         int(11) unsigned    NOT NULL DEFAULT '0',
-    cruser_id      int(11) unsigned    NOT NULL DEFAULT '0',
-    deleted        tinyint(4) unsigned NOT NULL DEFAULT '0',
-    hidden         tinyint(4) unsigned NOT NULL DEFAULT '0',
-    starttime      int(11) unsigned    NOT NULL DEFAULT '0',
-    endtime        int(11) unsigned    NOT NULL DEFAULT '0',
-    sorting        int(10)             NOT NULL DEFAULT '0',
+    tstamp          int(11) unsigned    NOT NULL DEFAULT '0',
+    crdate          int(11) unsigned    NOT NULL DEFAULT '0',
+    cruser_id       int(11) unsigned    NOT NULL DEFAULT '0',
+    deleted         tinyint(4) unsigned NOT NULL DEFAULT '0',
+    hidden          tinyint(4) unsigned NOT NULL DEFAULT '0',
+    starttime       int(11) unsigned    NOT NULL DEFAULT '0',
+    endtime         int(11) unsigned    NOT NULL DEFAULT '0',
+    sorting         int(10)             NOT NULL DEFAULT '0',
 
-    content        VARCHAR(40)         NOT NULL DEFAULT '',
-    library        VARCHAR(40)         NOT NULL DEFAULT '',
-    dependencytype VARCHAR(255)        NOT NULL DEFAULT '',
-    weight         int(11)             NOT NULL DEFAULT '0',
-    dropcss        tinyint(1)          NOT NULL DEFAULT '0',
+    content         VARCHAR(40)         NOT NULL DEFAULT '',
+    library         VARCHAR(40)         NOT NULL DEFAULT '',
+    dependency_type VARCHAR(255)        NOT NULL DEFAULT '',
+    weight          int(11)             NOT NULL DEFAULT '0',
+    drop_css        tinyint(1)          NOT NULL DEFAULT '0',
     PRIMARY KEY (uid)
 );
 
@@ -158,7 +158,7 @@ CREATE TABLE tx_h5p_domain_model_library (
     endtime          int(11) unsigned    NOT NULL DEFAULT '0',
     sorting          int(10)             NOT NULL DEFAULT '0',
 
-    addto            longtext,
+    add_to           longtext,
     created_at       int(11) unsigned    NOT NULL DEFAULT '0',
     updated_at       int(11) unsigned    NOT NULL DEFAULT '0',
     machine_name     VARCHAR(127)        NOT NULL default '',
@@ -182,42 +182,42 @@ CREATE TABLE tx_h5p_domain_model_library (
 );
 
 CREATE TABLE tx_h5p_domain_model_librarydependency (
-    uid             int(11)             NOT NULL auto_increment,
-    pid             int(11)             NOT NULL DEFAULT '0',
+    uid              int(11)             NOT NULL auto_increment,
+    pid              int(11)             NOT NULL DEFAULT '0',
 
-    tstamp          int(11) unsigned    NOT NULL DEFAULT '0',
-    crdate          int(11) unsigned    NOT NULL DEFAULT '0',
-    cruser_id       int(11) unsigned    NOT NULL DEFAULT '0',
-    deleted         tinyint(4) unsigned NOT NULL DEFAULT '0',
-    hidden          tinyint(4) unsigned NOT NULL DEFAULT '0',
-    starttime       int(11) unsigned    NOT NULL DEFAULT '0',
-    endtime         int(11) unsigned    NOT NULL DEFAULT '0',
-    sorting         int(10)             NOT NULL DEFAULT '0',
+    tstamp           int(11) unsigned    NOT NULL DEFAULT '0',
+    crdate           int(11) unsigned    NOT NULL DEFAULT '0',
+    cruser_id        int(11) unsigned    NOT NULL DEFAULT '0',
+    deleted          tinyint(4) unsigned NOT NULL DEFAULT '0',
+    hidden           tinyint(4) unsigned NOT NULL DEFAULT '0',
+    starttime        int(11) unsigned    NOT NULL DEFAULT '0',
+    endtime          int(11) unsigned    NOT NULL DEFAULT '0',
+    sorting          int(10)             NOT NULL DEFAULT '0',
 
-    library         VARCHAR(40)         NOT NULL default '',
-    requiredlibrary VARCHAR(40)         NOT NULL default '',
-    dependencytype  VARCHAR(255)        NOT NULL default '',
+    library          VARCHAR(40)         NOT NULL default '',
+    required_library VARCHAR(40)         NOT NULL default '',
+    dependency_type  VARCHAR(255)        NOT NULL default '',
     PRIMARY KEY (uid),
     KEY library (library),
-    KEY requiredlibrary (requiredlibrary)
+    KEY requiredlibrary (required_library)
 );
 
 CREATE TABLE tx_h5p_domain_model_librarytranslation (
-    uid          int(11)             NOT NULL auto_increment,
-    pid          int(11)             NOT NULL DEFAULT '0',
+    uid           int(11)             NOT NULL auto_increment,
+    pid           int(11)             NOT NULL DEFAULT '0',
 
-    tstamp       int(11) unsigned    NOT NULL DEFAULT '0',
-    crdate       int(11) unsigned    NOT NULL DEFAULT '0',
-    cruser_id    int(11) unsigned    NOT NULL DEFAULT '0',
-    deleted      tinyint(4) unsigned NOT NULL DEFAULT '0',
-    hidden       tinyint(4) unsigned NOT NULL DEFAULT '0',
-    starttime    int(11) unsigned    NOT NULL DEFAULT '0',
-    endtime      int(11) unsigned    NOT NULL DEFAULT '0',
-    sorting      int(10)             NOT NULL DEFAULT '0',
+    tstamp        int(11) unsigned    NOT NULL DEFAULT '0',
+    crdate        int(11) unsigned    NOT NULL DEFAULT '0',
+    cruser_id     int(11) unsigned    NOT NULL DEFAULT '0',
+    deleted       tinyint(4) unsigned NOT NULL DEFAULT '0',
+    hidden        tinyint(4) unsigned NOT NULL DEFAULT '0',
+    starttime     int(11) unsigned    NOT NULL DEFAULT '0',
+    endtime       int(11) unsigned    NOT NULL DEFAULT '0',
+    sorting       int(10)             NOT NULL DEFAULT '0',
 
-    library      VARCHAR(40)         NOT NULL DEFAULT '',
-    languagecode VARCHAR(255)        NOT NULL DEFAULT '',
-    translation  longtext            NOT NULL,
+    library       VARCHAR(40)         NOT NULL DEFAULT '',
+    language_code VARCHAR(255)        NOT NULL DEFAULT '',
+    translation   longtext            NOT NULL,
     PRIMARY KEY (uid),
-    KEY languagecode (languagecode)
+    KEY languagecode (language_code)
 );

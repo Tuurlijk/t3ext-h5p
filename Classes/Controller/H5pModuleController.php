@@ -420,6 +420,12 @@ class H5pModuleController extends ActionController
         // Move images and find all content dependencies
         $this->h5pEditor->processParameters($content['id'], $content['library'], $params->params, $oldLibrary, $oldParams);
 
+        // Used to generate the slug
+        $content['title'] = $content['metadata']->title;
+
+        // Store content dependencies
+        $this->h5pCore->filterParameters($content);
+
         $this->addFlashMessage('Content stored successfully.');
         $this->forward('new');
     }
