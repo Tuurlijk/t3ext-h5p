@@ -409,7 +409,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return Library
+     * @return \MichielRoos\H5p\Domain\Model\Library
      */
     public function getLibrary()
     {
@@ -417,7 +417,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @param Library $library
+     * @param \MichielRoos\H5p\Domain\Model\Library $library
      */
     public function setLibrary($library)
     {

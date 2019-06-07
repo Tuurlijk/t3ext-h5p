@@ -13,6 +13,7 @@ namespace MichielRoos\H5p\Domain\Model;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 /**
  * Class Library
@@ -416,7 +417,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 
         $libraryDependencies = $this->getLibraryDependencies();
 
-        if ($libraryDependencies->count() > 0) {
+        if ($libraryDependencies instanceof ObjectStorage && $libraryDependencies->count() > 0) {
             /** @var LibraryDependency $dependency */
             foreach ($libraryDependencies as $dependency) {
                 $libraryArray[$dependency->getDependencyType() . 'Dependencies'][] = [

@@ -3,17 +3,17 @@ namespace MichielRoos\H5p\Domain\Model;
 
 /**
  * Class ContentDependency
- * @package MichielRoos\H5p\Domain\Model
+ * @package \MichielRoos\H5p\Domain\Model
  */
 class ContentDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 {
     /**
-     * @var Content
+     * @var \MichielRoos\H5p\Domain\Model\Content
      */
     protected $content;
 
     /**
-     * @var Library
+     * @var \MichielRoos\H5p\Domain\Model\Library
      */
     protected $library;
 
@@ -49,7 +49,7 @@ class ContentDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return Content
+     * @return \MichielRoos\H5p\Domain\Model\Content
      */
     public function getContent()
     {
@@ -57,7 +57,7 @@ class ContentDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @param Content $content
+     * @param \MichielRoos\H5p\Domain\Model\Content $content
      */
     public function setContent(Content $content)
     {
@@ -65,7 +65,7 @@ class ContentDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return Library
+     * @return \MichielRoos\H5p\Domain\Model\Library
      */
     public function getLibrary()
     {
@@ -73,7 +73,7 @@ class ContentDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @param Library $library
+     * @param \MichielRoos\H5p\Domain\Model\Library $library
      */
     public function setLibrary(Library $library)
     {
