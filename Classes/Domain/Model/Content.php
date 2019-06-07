@@ -197,7 +197,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
         if (isset($contentData['params'])) {
             // Yes, twice. they added metadata later and didnt rename the top level.
             $parameters = json_decode($contentData['params'], true);
-            $this->setParameters(json_encode($parameters['params']));
+            $this->setParameters(json_encode($parameters));
 
             // "H5P Metadata"
             $this->setTitle(html_entity_decode($contentData['metadata']->title));

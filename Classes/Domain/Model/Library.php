@@ -421,7 +421,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
             /** @var LibraryDependency $dependency */
             foreach ($libraryDependencies as $dependency) {
                 $libraryArray[$dependency->getDependencyType() . 'Dependencies'][] = [
-                    'machineName'  => $dependency->getRequiredLibrary()->getTitle(),
+                    'machineName'  => $dependency->getRequiredLibrary()->getMachineName(),
                     'majorVersion' => $dependency->getRequiredLibrary()->getMajorVersion(),
                     'minorVersion' => $dependency->getRequiredLibrary()->getMinorVersion()
                 ];

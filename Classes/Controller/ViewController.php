@@ -14,6 +14,8 @@ namespace MichielRoos\H5p\Controller;
  * The TYPO3 project - inspiring people to share!
  */
 
+use MichielRoos\H5p\Adapter\Core\CoreFactory;
+use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
@@ -49,6 +51,18 @@ class ViewController extends ActionController
      * @var PageRenderer
      */
     private $pageRenderer;
+    /**
+     * @var string
+     */
+    private $language;
+    /**
+     * @var FileStorage|object
+     */
+    private $h5pFileStorage;
+    /**
+     * @var CoreFactory|object
+     */
+    private $h5pCore;
 
     /**
      * Inject content repository
@@ -65,7 +79,14 @@ class ViewController extends ActionController
     public function initializeAction()
     {
         $this->contentObjectRenderer = $this->configurationManager->getContentObject();
-        $this->h5pFramework = GeneralUtility::makeInstance(Framework::class);
+
+        $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
+
+        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+        $storage = $resourceFactory->getDefaultStorage();
+        $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
+        $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
+        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
@@ -75,7 +96,6 @@ class ViewController extends ActionController
         $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
 
-
         foreach (\H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFooterFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
         }
@@ -84,6 +104,16 @@ class ViewController extends ActionController
         }
 
         parent::initializeAction();
+    }
+
+    /**
+     * Returns an instance of LanguageService
+     *
+     * @return \TYPO3\CMS\Lang\LanguageService
+     */
+    protected function getLanguageService()
+    {
+        return $GLOBALS['LANG'];
     }
 
     /**
@@ -99,17 +129,29 @@ class ViewController extends ActionController
         }
 
         // load JS and CSS requirements
-        $dependencies = $this->h5pFramework->loadContentDependencies($data['tx_h5p_content'], 'preloaded');
+
+        $contentLibrary = $h5pContent->getLibrary()->toAssocArray();
+
+        $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
+
+        $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
+
         foreach ($dependencies as $dependency) {
+            $this->loadJsAndCss($dependency['library']);
+        }
+
+        $contentDependencies = $this->h5pFramework->loadContentDependencies($data['tx_h5p_content'], 'preloaded');
+        foreach ($contentDependencies as $dependency) {
             $this->loadJsAndCss($dependency);
         }
 
         $uriBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Routing\UriBuilder::class);
 
         $this->view->assign('content', $h5pContent);
-        $this->view->assign('parameters', addslashes($h5pContent->getParameters()));
-        $this->view->assign('ajaxSetFinished', (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']));
-        $this->view->assign('ajaxContentUserData', (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_']));
+        $this->view->assign('parameters', addslashes($h5pContent->getFiltered()));
+        $this->view->assign('ajaxSetFinished', addslashes((string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_'])));
+        $this->view->assign('ajaxContentUserData', addslashes((string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_'])));
+        $this->view->assign('libraryConfig', $this->h5pFramework->getLibraryConfig());
         $data['h5p_frame'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME) ? 'true' : 'false';
         $data['h5p_export'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD) ? 'true' : 'false';
         $data['h5p_embed'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED) ? 'true' : 'false';
@@ -124,6 +166,9 @@ class ViewController extends ActionController
      */
     private function loadJsAndCss($library)
     {
+        if (strpos($library['machineName'], 'H5PEditor') === 0) {
+            return;
+        }
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);
