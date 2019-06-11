@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
@@ -136,8 +137,14 @@ class ViewController extends ActionController
 
         $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
 
-        foreach ($dependencies as $dependency) {
-            $this->loadJsAndCss($dependency['library']);
+        if (is_array($dependencies)) {
+            $dependencies = $this->orderDependenciesByWeight($dependencies);
+            foreach ($dependencies as $key => $dependency) {
+                if (strpos($key, 'preloaded-') !== 0) {
+                    continue;
+                }
+                $this->loadJsAndCss($dependency['library']);
+            }
         }
 
         $contentDependencies = $this->h5pFramework->loadContentDependencies($data['tx_h5p_content'], 'preloaded');
@@ -145,12 +152,22 @@ class ViewController extends ActionController
             $this->loadJsAndCss($dependency);
         }
 
-        $uriBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Routing\UriBuilder::class);
+        $this->loadJsAndCss($contentLibrary);
+
+        $uriBuilder = $this->objectManager->get(UriBuilder::class);
+
+        $ajaxSetFinishedUri = $uriBuilder->reset()
+            ->setArguments(['type' => 1560239219921, 'action' => 'setFinished', 'h5pAction' => 'h5p_'])
+            ->buildFrontendUri();
+
+        $contentUserDataUri = $uriBuilder->reset()
+            ->setArguments(['type' => 1560239219921, 'action' => 'contentUserData', 'h5pAction' => 'h5p_'])
+            ->buildFrontendUri();
 
         $this->view->assign('content', $h5pContent);
         $this->view->assign('parameters', addslashes($h5pContent->getFiltered()));
-        $this->view->assign('ajaxSetFinished', addslashes((string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_'])));
-        $this->view->assign('ajaxContentUserData', addslashes((string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_'])));
+        $this->view->assign('ajaxSetFinished', addslashes($ajaxSetFinishedUri));
+        $this->view->assign('ajaxContentUserData', addslashes($contentUserDataUri));
         $this->view->assign('libraryConfig', $this->h5pFramework->getLibraryConfig());
         $data['h5p_frame'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME) ? 'true' : 'false';
         $data['h5p_export'] = ($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD) ? 'true' : 'false';
@@ -161,14 +178,27 @@ class ViewController extends ActionController
     }
 
     /**
+     * @param array $dependencies
+     * @return array
+     */
+    private function orderDependenciesByWeight(array $dependencies)
+    {
+        uasort($dependencies, static function ($a, $b) {
+            if ($a['weight'] === $b['wieight']) {
+                return 0;
+            }
+            return ($a['weight'] > $b['weight']) ? 1 : -1;
+        });
+
+        return $dependencies;
+    }
+
+    /**
      * Load JS and CSS
      * @param array $library
      */
     private function loadJsAndCss($library)
     {
-        if (strpos($library['machineName'], 'H5PEditor') === 0) {
-            return;
-        }
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);

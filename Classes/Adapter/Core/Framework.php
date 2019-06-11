@@ -948,7 +948,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             return false;
         }
 
-        $dependencySet = $this->libraryDependencyRepository->findByLibrary((int)$library->getUid());
+        $dependencySet = $this->libraryDependencyRepository->findByLibrary($library);
 
         $dependencies = new ObjectStorage();
         foreach ($dependencySet as $dependency) {
@@ -957,7 +957,9 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
 
         $library->setLibraryDependencies($dependencies);
 
-        return $library->toAssocArray();
+        $theLib = $library->toAssocArray();
+
+        return $theLib;
     }
 
     /**
