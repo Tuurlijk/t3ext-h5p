@@ -271,6 +271,9 @@
             <trans-unit id="module.menu.libraries">
                 <source>Libraries</source>
             </trans-unit>
+            <trans-unit id="contentElements">
+                <source>Content elements</source>
+            </trans-unit>
             <trans-unit id="module.menu.new">
                 <source>Add new</source>
             </trans-unit>

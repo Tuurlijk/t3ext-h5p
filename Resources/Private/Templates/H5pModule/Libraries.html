@@ -6,21 +6,36 @@
 
 <f:section name="content">
     <h1>Libraries</h1>
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Machine name</th>
-        </tr>
-        </thead>
-        <f:for each="{libraries}" as="library">
-            <tr>
-                <td>{library.title}</td>
-                <td>{library.majorVersion}.{library.minorVersion}.{library.patchVersion}</td>
-                <td>{library.machineName}</td>
-            </tr>
-        </f:for>
-    </table>
+    <f:widget.paginate objects="{libraries}" as="paginatedLibraries" configuration="{itemsPerPage: 50, insertBelow: 1}">
+        <div class="table-fit">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th class="col-title">Name</th>
+                    <th>Version</th>
+                    <th>Machine name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <f:for each="{paginatedLibraries}" as="library">
+                    <tr>
+                        <td>{library.title}</td>
+                        <td>{library.majorVersion}.{library.minorVersion}.{library.patchVersion}</td>
+                        <td>{library.machineName}</td>
+                    </tr>
+                </f:for>
+                <f:comment>
+                    Footer row: no officially defined style yet
+                </f:comment>
+                <tr>
+                    <td colspan="3">
+                        <f:count subject="{libraries}"/>
+                        <f:translate key="module.menu.libraries"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </f:widget.paginate>
 </f:section>
 </html>
