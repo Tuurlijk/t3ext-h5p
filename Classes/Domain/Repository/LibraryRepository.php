@@ -36,7 +36,12 @@ class LibraryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
     /**
      * @var array
      */
-    protected $defaultOrderings = ['title' => QueryInterface::ORDER_ASCENDING];
+    protected $defaultOrderings = [
+        'title' => QueryInterface::ORDER_ASCENDING,
+        'majorVersion' => QueryInterface::ORDER_ASCENDING,
+        'minorVersion' => QueryInterface::ORDER_ASCENDING,
+        'patchVersion' => QueryInterface::ORDER_ASCENDING
+    ];
 
     /**
      * @param integer $id
