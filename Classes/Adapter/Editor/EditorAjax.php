@@ -44,7 +44,7 @@ class EditorAjax implements \H5PEditorAjaxInterface
             'minorVersion' => QueryInterface::ORDER_DESCENDING
         ]);
 
-        $librariesOrderedByMajorAndMinorVersion = $this->libraryRepository->findAll();
+        $librariesOrderedByMajorAndMinorVersion = $this->libraryRepository->findByRunnable(1);
 
         $versionInformation = [];
         /** @var Library $library */
