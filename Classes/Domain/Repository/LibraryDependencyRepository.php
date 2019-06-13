@@ -15,11 +15,12 @@ namespace MichielRoos\H5p\Domain\Repository;
  */
 use MichielRoos\H5p\Domain\Model\LibraryDependency;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class LibraryDependencyRepository
  */
-class LibraryDependencyRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class LibraryDependencyRepository extends Repository
 {
     /**
      * initializes any required object

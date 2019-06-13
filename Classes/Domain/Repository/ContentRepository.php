@@ -13,10 +13,11 @@ namespace MichielRoos\H5p\Domain\Repository;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class ContentRepository
  */
-class ContentRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class ContentRepository extends Repository
 {
 }

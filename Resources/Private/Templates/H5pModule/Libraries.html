@@ -14,6 +14,7 @@
                     <th class="col-title">Name</th>
                     <th>Version</th>
                     <th>Machine name</th>
+                    <th>Runnable</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -22,13 +23,14 @@
                         <td>{library.title}</td>
                         <td>{library.majorVersion}.{library.minorVersion}.{library.patchVersion}</td>
                         <td>{library.machineName}</td>
+                        <td><f:if condition="{library.runnable}"><f:then>✔</f:then></f:if></td>
                     </tr>
                 </f:for>
                 <f:comment>
                     Footer row: no officially defined style yet
                 </f:comment>
                 <tr>
-                    <td colspan="3">
+                    <td colspan="4">
                         <f:count subject="{libraries}"/>
                         <f:translate key="module.menu.libraries"/>
                     </td>

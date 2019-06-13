@@ -15,7 +15,7 @@ if (TYPO3_MODE === 'BE') {
         'Manager',
         '',
         [
-            'H5pModule' => 'index,new,edit,create,libraries',
+            'H5pModule' => 'index,new,edit,create,libraries,show',
         ],
         [
             'access' => 'user,group',

@@ -27,16 +27,18 @@ use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
 use MichielRoos\H5p\Property\TypeConverter\UploadedFileReferenceConverter;
+use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\Folder;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 
 /**
@@ -110,6 +112,11 @@ class H5pModuleController extends ActionController
     private $h5pEditor;
 
     /**
+     * @var \TYPO3\CMS\Core\Page\PageRenderer
+     */
+    private $pageRenderer;
+
+    /**
      * Initializes the Module
      *
      * @return void
@@ -119,7 +126,7 @@ class H5pModuleController extends ActionController
         $this->id = (int)GeneralUtility::_GP('id');
         $backendUser = $this->getBackendUser();
         $this->perms_clause = $backendUser->getPagePermsClause(1);
-        $this->pageRecord = \TYPO3\CMS\Backend\Utility\BackendUtility::readPageAccess($this->id, $this->perms_clause);
+        $this->pageRecord = BackendUtility::readPageAccess($this->id, $this->perms_clause);
         $this->isAccessibleForCurrentUser = ($this->id && is_array($this->pageRecord)) || (!$this->id && $this->isCurrentUserAdmin());
 
         // don't access in workspace
@@ -141,7 +148,7 @@ class H5pModuleController extends ActionController
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
-        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+        $resourceFactory = ResourceFactory::getInstance();
         $storage = $resourceFactory->getDefaultStorage();
         $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
@@ -149,7 +156,7 @@ class H5pModuleController extends ActionController
         $this->h5pContentValidator = GeneralUtility::makeInstance(H5PContentValidator::class, $this->h5pFramework, $this->h5pCore);
         $editorAjax = GeneralUtility::makeInstance(EditorAjax::class);
         $editorStorage = GeneralUtility::makeInstance(EditorStorage::class);
-        $this->h5pEditor = GeneralUtility::makeInstance(H5PEditor::class, $this->h5pCore, $editorStorage, $editorAjax);
+        $this->h5pEditor = GeneralUtility::makeInstance(H5peditor::class, $this->h5pCore, $editorStorage, $editorAjax);
     }
 
     /**
@@ -289,7 +296,7 @@ class H5pModuleController extends ActionController
      */
     protected function prepareStorage()
     {
-        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+        $resourceFactory = ResourceFactory::getInstance();
         $storage = $resourceFactory->getDefaultStorage();
         $basePath = 'h5p';
         foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
@@ -301,7 +308,7 @@ class H5pModuleController extends ActionController
     }
 
     /**
-     * Renders the content of the module.
+     * Shows a list of h5p content
      *
      * @return void
      */
@@ -312,8 +319,7 @@ class H5pModuleController extends ActionController
             $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $contentRepository = $objectManager->get(ContentRepository::class);
+        $contentRepository = $this->objectManager->get(ContentRepository::class);
         $content = $contentRepository->findAll();
         $this->view->assign('h5pContent', $content);
     }
@@ -329,8 +335,7 @@ class H5pModuleController extends ActionController
         if ($this->isAccessibleForCurrentUser) {
             $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
         }
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $libraryRepository = $objectManager->get(LibraryRepository::class);
+        $libraryRepository = $this->objectManager->get(LibraryRepository::class);
         $libraries = $libraryRepository->findAll();
 
         $this->view->assign('libraries', $libraries);
@@ -340,7 +345,6 @@ class H5pModuleController extends ActionController
      * Create action
      *
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
      */
     public function createAction()
@@ -450,17 +454,234 @@ class H5pModuleController extends ActionController
     }
 
     /**
-     *
+     * Edit action
+     * @param int $contentId
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    public function editAction()
+    public function editAction(int $contentId)
     {
-        $this->embedScriptsAndStyles();
+        $this->pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
+
+        $this->pageRenderer->addJsInlineCode(
+            'H5PIntegration',
+            'H5PIntegration = ' . json_encode($this->getEditorSettings($this->getCoreSettings())) . ';'
+        );
+
+        $this->embedEditorScriptsAndStyles();
+        $contenRepository = $this->objectManager->get(ContentRepository::class);
+        $content = $contenRepository->findByUid($contentId);
+        $this->view->getModuleTemplate()->getPageRenderer()->addJsInlineCode(
+            'H5PIntegration.contents',
+            'H5PIntegration.contents[\'cid-' . $contentId . '\'] = ' . json_encode($this->getContentSettings($content)) . ';'
+        );
+
+        // load JS and CSS requirements
+        $contentLibrary = $content->getLibrary()->toAssocArray();
+
+        $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
+
+        $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
+
+        if (is_array($dependencies)) {
+            $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
+            foreach ($dependencies as $key => $dependency) {
+                if (strpos($key, 'preloaded-') !== 0) {
+                    continue;
+                }
+                $this->loadJsAndCss($dependency['library']);
+            }
+        }
+
+        $contentDependencies = $this->h5pFramework->loadContentDependencies($contentId, 'preloaded');
+        foreach ($contentDependencies as $dependency) {
+            $this->loadJsAndCss($dependency);
+        }
+
+        $this->loadJsAndCss($contentLibrary);
+
+        $this->view->assign('content', $content);
+    }
+
+    /**
+     * @param $settings
+     * @return mixed
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
+    public function getEditorSettings($settings)
+    {
+        $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+
+        $uriBuilder = GeneralUtility::makeInstance(BackendUriBuilder::class);
+        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
+        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+
+        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+
+        // Add JavaScript settings
+        $settings['editor'] = [
+            'filesPath'          => '/fileadmin/h5p/editor',
+            'fileIcon'           => [
+                'path'   => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/images/binary-file.png',
+                'width'  => 50,
+                'height' => 50,
+            ],
+            'ajaxPath'           => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['action' => 'h5p_']),
+            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/',
+            'copyrightSemantics' => $this->h5pContentValidator->getCopyrightSemantics(),
+            'metadataSemantics'  => $this->h5pContentValidator->getMetadataSemantics(),
+            'assets'             => [],
+            'deleteMessage'      => 'Are you sure you wish to delete this content?',
+            'apiVersion'         => $this->h5pCore::$coreApi,
+            'language'           => $this->language
+        ];
+
+        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        foreach (H5PCore::$styles as $style) {
+            $settings['editor']['assets']['css'][] = $relativeCorePath . $style . $cacheBuster;
+        }
+        foreach (H5PCore::$scripts as $script) {
+            $settings['editor']['assets']['js'][] = $relativeCorePath . $script . $cacheBuster;
+        }
+
+        $relativeEditorPath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/';
+        foreach (H5peditor::$styles as $style) {
+            $settings['editor']['assets']['css'][] = $relativeEditorPath . $style . $cacheBuster;
+        }
+        foreach (H5peditor::$scripts as $script) {
+            if (strpos($script, 'h5peditor-editor') === false) {
+                $settings['editor']['assets']['js'][] = $relativeEditorPath . $script . $cacheBuster;
+            }
+        }
+
+        //        if ($id !== NULL) {
+//            $settings['editor']['nodeVersionId'] = $id;
+//        }
+        return $settings;
+    }
+
+    /**
+     * Get content settings
+     *
+     * @return array;
+     */
+    public function getContentSettings(Content $content)
+    {
+        $settings = [
+            'url'            => '/fileamdin/h5p/',
+            'library'        => sprintf(
+                '%s %d.%d.%d',
+                $content->getLibrary()->getMachineName(),
+                $content->getLibrary()->getMajorVersion(),
+                $content->getLibrary()->getMinorVersion(),
+                $content->getLibrary()->getPatchVersion()
+            ),
+            'jsonContent'    => $content->getFiltered(),
+            'fullScreen'     => false,
+            'exportUrl'      => '/path/to/download.h5p',
+            'embedCode'      => '',
+            'resizeCode'     => '',
+            'mainId'         => $content->getUid(),
+            'title'          => $content->getTitle(),
+            'displayOptions' => [
+                'frame'     => false,
+                'export'    => false,
+                'embed'     => false,
+                'copyright' => false,
+                'icon'      => false
+            ]
+        ];
+
+        if ($content->getEmbedType() === 'iframe') {
+            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
+            $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
+            if (is_array($dependencies)) {
+                $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
+                foreach ($dependencies as $key => $dependency) {
+                    if (strpos($key, 'preloaded-') !== 0) {
+                        continue;
+                    }
+                    $this->setJsAndCss($dependency['library'], $settings);
+                }
+            }
+
+            $contentDependencies = $this->h5pFramework->loadContentDependencies($content->getUid(), 'preloaded');
+            foreach ($contentDependencies as $dependency) {
+                $this->setJsAndCss($dependency, $settings);
+            }
+
+            $this->setJsAndCss($contentLibrary, $settings);
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Get generic h5p settings
+     *
+     * @return array;
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     */
+    public function getCoreSettings()
+    {
+        $backendUser = $this->getBackendUser()->user;
+
+        $uriBuilder = GeneralUtility::makeInstance(BackendUriBuilder::class);
+        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
+        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+
+        $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+
+        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+
+        $settings = [
+            'baseUrl'            => $url,
+            'url'                => '/fileamdin/h5p/',
+            'postUserStatistics' => $this->h5pFramework->getOption('track_user') && (bool)$backendUser['uid'],
+            'ajax'               => [
+                'setFinished'     => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']),
+                'contentUserData' => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_']),
+            ],
+            'saveFreq'           => $this->h5pFramework->getOption('save_content_state') ? $this->h5pFramework->getOption('save_content_frequency') : false,
+            'siteUrl'            => $url,
+            'l10n'               => [
+                'H5P' => $this->h5pCore->getLocalization(),
+            ],
+            'hubIsEnabled'       => (int)$this->h5pFramework->getOption('hub_is_enabled') === 1,
+            'reportingIsEnabled' => (int)$this->h5pFramework->getOption('enable_lrs_content_types') === 1,
+            'libraryConfig'      => $this->h5pFramework->getLibraryConfig(),
+            'crossorigin'        => defined('H5P_CROSSORIGIN') ? H5P_CROSSORIGIN : null,
+            'pluginCacheBuster'  => $cacheBuster,
+            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/js',
+            'contents'           => []
+        ];
+
+        if ($backendUser['uid']) {
+            $settings['user'] = [
+                'name' => $backendUser['realName'],
+                'mail' => $backendUser['email']
+            ];
+        }
+
+        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
+        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        foreach (H5PCore::$styles as $style) {
+            $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;
+        }
+        foreach (H5PCore::$scripts as $script) {
+            $settings['core']['scripts'][] = $relativeCorePath . $script . $cacheBuster;
+        }
+        $settings['loadedJs'] = [];
+        $settings['loadedCss'] = [];
+
+        return $settings;
     }
 
     /**
      * Embed scripts and styles
      */
-    protected function embedScriptsAndStyles()
+    protected function embedEditorScriptsAndStyles()
     {
         $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
         $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
@@ -555,8 +776,31 @@ class H5pModuleController extends ActionController
     }
 
     /**
+     * Load JS and CSS
+     * @param array $library
+     */
+    private function loadJsAndCss($library)
+    {
+        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $preloadCss = explode(',', $library['preloadedCss']);
+        $preloadJs = explode(',', $library['preloadedJs']);
+
+        foreach ($preloadJs as $js) {
+            $js = trim($js);
+            if ($js) {
+                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '');
+            }
+        }
+        foreach ($preloadCss as $css) {
+            $css = trim($css);
+            if ($css) {
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
+            }
+        }
+    }
+
+    /**
      * New action / upload form
-     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
     public function newAction()
     {
@@ -565,126 +809,87 @@ class H5pModuleController extends ActionController
             'H5PIntegration = ' . json_encode($this->getEditorSettings($this->getCoreSettings())) . ';'
         );
 
-        $this->embedScriptsAndStyles();
+        $this->embedEditorScriptsAndStyles();
         $newContent = new Content();
         $this->view->assign('newContent', $newContent);
     }
 
     /**
-     * @param $settings
-     * @return mixed
+     * Show action
+     * @param int $contentId
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
      */
-    public function getEditorSettings($settings)
+    public function showAction(int $contentId)
     {
-        $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+        $this->pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
 
-        $uriBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Routing\UriBuilder::class);
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $contenRepository = $this->objectManager->get(ContentRepository::class);
+        $content = $contenRepository->findByUid($contentId);
+
+        if (!$content instanceof Content) {
+            $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
+            $this->forward('configurationError', 'Content', 'remindo_toets');
+        }
 
         $cacheBuster = '?v=' . $this->h5pFramework::$version;
 
-        // Add JavaScript settings
-        $settings['editor'] = [
-            'filesPath'          => '/fileadmin/h5p/editor',
-            'fileIcon'           => [
-                'path'   => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/images/binary-file.png',
-                'width'  => 50,
-                'height' => 50,
-            ],
-            'ajaxPath'           => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['action' => 'h5p_']),
-            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/',
-            'copyrightSemantics' => $this->h5pContentValidator->getCopyrightSemantics(),
-            'metadataSemantics'  => $this->h5pContentValidator->getMetadataSemantics(),
-            'assets'             => [],
-            'deleteMessage'      => 'Are you sure you wish to delete this content?',
-            'apiVersion'         => $this->h5pCore::$coreApi,
-            'language'           => $this->language
-        ];
-
+        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
+        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
-        foreach (H5PCore::$styles as $style) {
-            $settings['editor']['assets']['css'][] = $relativeCorePath . $style . $cacheBuster;
+
+        foreach (\H5PCore::$scripts as $script) {
+            $this->pageRenderer->addJsFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
         }
-        foreach (H5PCore::$scripts as $script) {
-            $settings['editor']['assets']['js'][] = $relativeCorePath . $script . $cacheBuster;
+        foreach (\H5PCore::$styles as $style) {
+            $this->pageRenderer->addCssFile($relativeCorePath . $style . $cacheBuster);
         }
 
-        $relativeEditorPath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/';
-        foreach (H5peditor::$styles as $style) {
-            $settings['editor']['assets']['css'][] = $relativeEditorPath . $style . $cacheBuster;
-        }
-        foreach (H5peditor::$scripts as $script) {
-            if (strpos($script, 'h5peditor-editor') === false) {
-                $settings['editor']['assets']['js'][] = $relativeEditorPath . $script . $cacheBuster;
+        $this->pageRenderer->addJsInlineCode(
+            'H5PIntegration',
+            'H5PIntegration = ' . json_encode($this->getCoreSettings()) . ';'
+        );
+
+        if ($content->getEmbedType() === 'iframe') {
+            $contentSettings = $this->getContentSettings($content);
+            $contentSettings['displayOptions'] = [];
+            $contentSettings['displayOptions']['frame'] = false;
+            $contentSettings['displayOptions']['export'] = false;
+            $contentSettings['displayOptions']['embed'] = false;
+            $contentSettings['displayOptions']['copyright'] = false;
+            $contentSettings['displayOptions']['icon'] = false;
+            $this->pageRenderer->addJsInlineCode(
+                'H5PIntegration contents',
+                'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
+            );
+        } else {
+            // load JS and CSS requirements
+            $contentLibrary = $content->getLibrary()->toAssocArray();
+
+            // JS and CSS required by all libraries
+            $contentLibraryWithDependencies = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
+            $this->h5pCore->findLibraryDependencies($dependencies, $contentLibraryWithDependencies);
+            if (is_array($dependencies)) {
+                $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
+                foreach ($dependencies as $key => $dependency) {
+                    if (strpos($key, 'preloaded-') !== 0) {
+                        continue;
+                    }
+                    $this->loadJsAndCss($dependency['library']);
+                }
             }
+
+            // JS and CSS required by the content
+            $contentDependencies = $this->h5pFramework->loadContentDependencies($content->getUid(), 'preloaded');
+            foreach ($contentDependencies as $dependency) {
+                $this->loadJsAndCss($dependency);
+            }
+
+            // JS and CSS required by the main Library of the content
+            $this->loadJsAndCss($contentLibrary);
         }
 
-        //        if ($id !== NULL) {
-//            $settings['editor']['nodeVersionId'] = $id;
-//        }
-        return $settings;
-    }
-
-    /**
-     * Get generic h5p settings
-     *
-     * @return array;
-     */
-    public function getCoreSettings()
-    {
-        $backendUser = $this->getBackendUser()->user;
-
-        $uriBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Routing\UriBuilder::class);
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
-
-        $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
-
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
-
-        $settings = [
-            'baseUrl'            => $url,
-            'url'                => '/fileamdin/h5p/',
-            'postUserStatistics' => $this->h5pFramework->getOption('track_user') && (bool)$backendUser['uid'],
-            'ajax'               => [
-                'setFinished'     => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']),
-                'contentUserData' => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_']),
-            ],
-            'saveFreq'           => $this->h5pFramework->getOption('save_content_state') ? $this->h5pFramework->getOption('save_content_frequency') : false,
-            'siteUrl'            => $url,
-            'l10n'               => [
-                'H5P' => $this->h5pCore->getLocalization(),
-            ],
-            'hubIsEnabled'       => (int)$this->h5pFramework->getOption('hub_is_enabled') === 1,
-            'reportingIsEnabled' => (int)$this->h5pFramework->getOption('enable_lrs_content_types') == 1,
-            'libraryConfig'      => $this->h5pFramework->getLibraryConfig(),
-            'crossorigin'        => defined('H5P_CROSSORIGIN') ? H5P_CROSSORIGIN : null,
-            'pluginCacheBuster'  => $cacheBuster,
-            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/js'
-        ];
-
-        if ($backendUser['uid']) {
-            $settings['user'] = [
-                'name' => $backendUser['realName'],
-                'mail' => $backendUser['email']
-            ];
-        }
-
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
-        foreach (H5PCore::$styles as $style) {
-            $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;
-        }
-        foreach (H5PCore::$scripts as $script) {
-            $settings['core']['scripts'][] = $relativeCorePath . $script . $cacheBuster;
-        }
-        $settings['loadedJs'] = [];
-        $settings['loadedCss'] = [];
-
-        return $settings;
+        $this->view->assign('content', $content);
     }
 
     /**
@@ -731,5 +936,38 @@ class H5pModuleController extends ActionController
                     UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER           => '1:/h5p/packages/',
                 ]
             );
+    }
+
+    /**
+     * Set JS and CSS
+     * @param array $library
+     * @param array $settings
+     */
+    private function setJsAndCss(array $library, array &$settings)
+    {
+        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $preloadCss = explode(',', $library['preloadedCss']);
+        $preloadJs = explode(',', $library['preloadedJs']);
+
+        if (!array_key_exists('scripts', $settings)) {
+            $settings['scripts'] = [];
+        }
+
+        if (!array_key_exists('styles', $settings)) {
+            $settings['styles'] = [];
+        }
+
+        foreach ($preloadJs as $js) {
+            $js = trim($js);
+            if ($js) {
+                $settings['scripts'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $js;
+            }
+        }
+        foreach ($preloadCss as $css) {
+            $css = trim($css);
+            if ($css) {
+                $settings['styles'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $css;
+            }
+        }
     }
 }

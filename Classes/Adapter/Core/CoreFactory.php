@@ -21,4 +21,19 @@ use TYPO3\CMS\Core\SingletonInterface;
  */
 class CoreFactory extends \H5PCore implements SingletonInterface
 {
+    /**
+     * @param array $dependencies
+     * @return array
+     */
+    public function orderDependenciesByWeight(array $dependencies)
+    {
+        uasort($dependencies, static function ($a, $b) {
+            if ($a['weight'] === $b['wieight']) {
+                return 0;
+            }
+            return ($a['weight'] > $b['weight']) ? 1 : -1;
+        });
+
+        return $dependencies;
+    }
 }

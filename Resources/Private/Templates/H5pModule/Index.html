@@ -1,4 +1,4 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:layout name="Backend/Default"/>
 
 <f:section name="content">
@@ -13,22 +13,30 @@
                         <tr>
                             <th class="col-title">Name</th>
                             <th>Library</th>
-                            <th>Library</th>
+                            <th>Version</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         <f:for each="{paginatedH5pContent}" as="content">
+
                             <tr>
                                 <td>{content.title}</td>
                                 <td>{content.library.title}</td>
                                 <td>{content.library.majorVersion}.{content.library.minorVersion}.{content.library.patchVersion}</td>
+                                <td class="col-control">
+                                    <div class="btn-group" role="group">
+                                        <a class="btn btn-default" href="{f:uri.action(action: 'show', arguments: {contentId: content.uid})}"><core:icon identifier="actions-document-info" /></a>
+                                        <a class="btn btn-default" href="{f:uri.action(action: 'edit', arguments: {contentId: content.uid})}"><core:icon identifier="actions-document-open" /></a>
+                                    </div>
+                                </td>
                             </tr>
                         </f:for>
                         <f:comment>
                             Footer row: no officially defined style yet
                         </f:comment>
                         <tr>
-                            <td colspan="3">
+                            <td colspan="4">
                                 <f:count subject="{h5pContent}"/>
                                 <f:translate key="contentElements"/>
                             </td>

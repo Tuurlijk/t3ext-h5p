@@ -14,11 +14,12 @@ namespace MichielRoos\H5p\Domain\Repository;
  * The TYPO3 project - inspiring people to share!
  */
 use MichielRoos\H5p\Domain\Model\ContentTypeCacheEntry;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class ContentTypeCacheEntryRepository
  */
-class ContentTypeCacheEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class ContentTypeCacheEntryRepository extends Repository
 {
     /**
      * Returns all cache entries as an array of stdObjects, the way the H5P core
