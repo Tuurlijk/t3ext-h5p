@@ -431,7 +431,7 @@ class H5pModuleController extends ActionController
         $this->h5pCore->filterParameters($content);
 
         $this->addFlashMessage('Content stored successfully.');
-        $this->forward('new');
+        $this->forward('show', 'H5pModule', 'h5p', ['contentId' => $content['id']] );
     }
 
     /**
