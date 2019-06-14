@@ -18,7 +18,7 @@
                 <tbody>
                 <f:for each="{paginatedLibraries}" as="library">
                     <tr>
-                        <td>{library.title}</td>
+                        <td><strong>{library.title}</strong></td>
                         <td>{library.majorVersion}.{library.minorVersion}.{library.patchVersion}</td>
                         <td>{library.machineName}</td>
                         <td><f:format.date format="{dateFormat} {timeFormat}">{library.updatedAt}</f:format.date></td>

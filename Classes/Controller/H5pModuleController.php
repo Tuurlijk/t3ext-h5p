@@ -31,6 +31,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -231,6 +232,16 @@ class H5pModuleController extends ActionController
             ->setModuleName($moduleName)
             ->setGetVariables($getVars);
         $buttonBar->addButton($shortcutButton);
+
+        if (in_array($this->request->getControllerActionName(), ['index', 'show'])) {
+            $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
+            $icon = $this->view->getModuleTemplate()->getIconFactory()->getIcon('actions-document-new', Icon::SIZE_SMALL);
+            $addUserButton = $buttonBar->makeLinkButton()
+                ->setHref($this->getHref('H5pModule', 'new'))
+                ->setTitle($title)
+                ->setIcon($icon);
+            $buttonBar->addButton($addUserButton, ButtonBar::BUTTON_POSITION_LEFT);
+        }
     }
 
     /**
