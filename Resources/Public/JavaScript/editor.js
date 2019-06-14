@@ -26,7 +26,7 @@ define('TYPO3/CMS/H5p/editor', [], function () {
             }
 
             var h5peditor;
-            var $type = $('input[name="tx_h5p_web_h5pmanager[action]"]');
+            var $type = $('input[name="action"]');
             var $upload = $('.h5p-upload');
             var $create = $('.h5p-create').hide();
             var $editor = $('.h5p-editor');

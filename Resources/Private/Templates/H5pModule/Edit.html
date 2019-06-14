@@ -2,8 +2,43 @@
 <f:layout name="Backend/Default"/>
 
 <f:section name="content">
-    <h1>Edit</h1>
-    <div class="h5p-content" data-content-id="{content.uid}"></div>
-    <f:debug>{content}</f:debug>
+    <h1>Edit <em>{content.title}</em></h1>
+    <f:form method="post" enctype="multipart/form-data" id="h5p-content-form" action="update" controller="H5pModule">
+        <div id="post-body-content">
+            <div class="h5p-create">
+                <div class="h5p-editor">Waiting for javascript...</div>
+            </div>
+        </div>
+        <div class="postbox h5p-sidebar">
+            <h2>Actions</h2>
+            <div id="minor-publishing" style="display:none">
+                <label><input type="radio" name="action" value="upload"/>Upload</label>
+                <label><input type="radio" name="action" value="create"/>Create</label>
+                <f:form.hidden name="contentId" value="{content.uid}"/>
+                <f:form.hidden name="library" value="{library}"/>
+                <f:form.hidden name="parameters" value="{parameters}"/>
+            </div>
+            <div id="major-publishing-actions" class="submitbox">
+                <input type="submit" name="submit-button" value="Update" class="button button-primary button-large"/>
+            </div>
+        </div>
+        <div class="postbox h5p-sidebar">
+            <h2>Display Options</h2>
+            <div class="h5p-action-bar-settings h5p-panel">
+                <label>
+                    <f:form.checkbox name="frame" value="true" checked="checked"/>
+                    Display toolbar below content </label>
+                <label title="If checked a reuse button will always be displayed for this content and allow users to download the content as an .h5p file">
+                    <f:form.checkbox name="download" value="true" checked="checked"/>
+                    Allow users to download the content </label>
+                <label>
+                    <f:form.checkbox name="embed" value="true" checked="checked"/>
+                    Display Embed button </label>
+                <label>
+                    <f:form.checkbox name="copyright" value="true" checked="checked"/>
+                    Display Copyright button </label>
+            </div>
+        </div>
+    </f:form>
 </f:section>
 </html>

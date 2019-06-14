@@ -239,6 +239,11 @@ class H5pModuleController extends ActionController
     protected function generateMenu()
     {
         $menuItems = [
+            'choose'     => [
+                'controller' => 'H5pModule',
+                'action'     => 'index',
+                'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.choose')
+            ],
             'index'     => [
                 'controller' => 'H5pModule',
                 'action'     => 'index',
@@ -321,6 +326,10 @@ class H5pModuleController extends ActionController
 
         $contentRepository = $this->objectManager->get(ContentRepository::class);
         $content = $contentRepository->findAll();
+
+        $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
+        $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
+        $this->view->assign('id', $this->id);
         $this->view->assign('h5pContent', $content);
     }
 
@@ -338,6 +347,8 @@ class H5pModuleController extends ActionController
         $libraryRepository = $this->objectManager->get(LibraryRepository::class);
         $libraries = $libraryRepository->findAll();
 
+        $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
+        $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
         $this->view->assign('libraries', $libraries);
     }
 
@@ -352,15 +363,9 @@ class H5pModuleController extends ActionController
         // Keep track of the old library and params
         $oldLibrary = NULL;
         $oldParams = NULL;
-//        if ($content !== NULL) {
-//            $oldLibrary = $content['library'];
-//            $oldParams = json_decode($content['params']);
-//        }
-//        else {
         $content = [
             'disable' => H5PCore::DISABLE_NONE
         ];
-//        }
 
         // Get library
         $content['library'] = H5PCore::libraryFromString($this->request->getArgument('library'));
@@ -431,7 +436,99 @@ class H5pModuleController extends ActionController
         $this->h5pCore->filterParameters($content);
 
         $this->addFlashMessage('Content stored successfully.');
-        $this->forward('show', 'H5pModule', 'h5p', ['contentId' => $content['id']] );
+        $this->forward('show', 'H5pModule', 'h5p', ['contentId' => $content['id']]);
+    }
+
+    /**
+     * Update action
+     *
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
+     */
+    public function updateAction()
+    {
+
+        // Content id
+        $contentId = $this->request->getArgument('contentId');
+
+        // Keep track of the old library and params
+        $oldLibrary = NULL;
+        $oldParams = NULL;
+        $content = [
+            'disable' => H5PCore::DISABLE_NONE
+        ];
+
+        // Get library
+        $content['library'] = H5PCore::libraryFromString($this->request->getArgument('library'));
+        if (!$content['library']) {
+            $this->h5pCore->h5pF->setErrorMessage('Invalid library.');
+            $this->forward('new');
+        }
+        if ($this->h5pCore->h5pF->libraryHasUpgrade($content['library'])) {
+            // We do not allow storing old content due to security concerns
+            $this->h5pCore->h5pF->setErrorMessage('Something unexpected happened. We were unable to save this content.');
+            $this->addFlashMessage('Something unexpected happened. We were unable to save this content.');
+            $this->forward('new');
+        }
+
+        // Check if library exists.
+        $content['library']['libraryId'] = $this->h5pCore->h5pF->getLibraryId($content['library']['machineName'], $content['library']['majorVersion'], $content['library']['minorVersion']);
+        if (!$content['library']['libraryId']) {
+            $this->h5pCore->h5pF->setErrorMessage('No such library.');
+            $this->addFlashMessage('No such library.');
+            $this->forward('new');
+        }
+
+        // Check parameters
+        $content['params'] = $this->request->getArgument('parameters');
+        if ($content['params'] === NULL) {
+            return FALSE;
+        }
+        $params = json_decode($content['params']);
+        if ($params === NULL) {
+            $this->h5pCore->h5pF->setErrorMessage('Invalid parameters.');
+            $this->addFlashMessage('Invalid parameters.');
+            $this->forward('new');
+        }
+
+        $content['params'] = json_encode($params->params);
+        $content['metadata'] = $params->metadata;
+
+        // Trim title and check length
+        $trimmed_title = empty($content['metadata']->title) ? '' : trim($content['metadata']->title);
+        if ($trimmed_title === '') {
+            $this->addFlashMessage('Missing title');
+            $this->forward('new');
+        }
+
+        if (strlen($trimmed_title) > 255) {
+            $this->addFlashMessage('Title is too long. Must be 256 letters or shorter.', '', FlashMessage::ERROR);
+            $this->forward('new');
+        }
+
+        // Set disabled features
+        $this->get_disabled_content_features($this->h5pCore, $content);
+
+        try {
+            // Save new content
+            $content['id'] = $contentId;
+            $content['id'] = $this->h5pCore->saveContent($content);
+        } catch (\Exception $e) {
+            $this->addFlashMessage($e->getMessage(), $e->getCode(), FlashMessage::ERROR);
+            $this->forward('new');
+        }
+
+        // Move images and find all content dependencies
+        $this->h5pEditor->processParameters($content['id'], $content['library'], $params->params, $oldLibrary, $oldParams);
+
+        // Used to generate the slug
+        $content['title'] = $content['metadata']->title;
+
+        // Store content dependencies
+        $this->h5pCore->filterParameters($content);
+
+        $this->addFlashMessage('Content stored successfully.');
+        $this->forward('show', 'H5pModule', 'h5p', ['contentId' => $content['id']]);
     }
 
     /**
@@ -460,46 +557,35 @@ class H5pModuleController extends ActionController
      */
     public function editAction(int $contentId)
     {
-        $this->pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
+        $this->view->getModuleTemplate()->getPageRenderer()->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
+        if ($this->isAccessibleForCurrentUser) {
+            $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
+        }
 
-        $this->pageRenderer->addJsInlineCode(
+        $this->view->getModuleTemplate()->getPageRenderer()->addJsInlineCode(
             'H5PIntegration',
             'H5PIntegration = ' . json_encode($this->getEditorSettings($this->getCoreSettings())) . ';'
         );
 
-        $this->embedEditorScriptsAndStyles();
-        $contenRepository = $this->objectManager->get(ContentRepository::class);
-        $content = $contenRepository->findByUid($contentId);
-        $this->view->getModuleTemplate()->getPageRenderer()->addJsInlineCode(
-            'H5PIntegration.contents',
-            'H5PIntegration.contents[\'cid-' . $contentId . '\'] = ' . json_encode($this->getContentSettings($content)) . ';'
-        );
+        if ($contentId > 0) {
+            $contenRepository = $this->objectManager->get(ContentRepository::class);
+            $content = $contenRepository->findByUid($contentId);
 
-        // load JS and CSS requirements
-        $contentLibrary = $content->getLibrary()->toAssocArray();
-
-        $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
-
-        $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
-
-        if (is_array($dependencies)) {
-            $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
-            foreach ($dependencies as $key => $dependency) {
-                if (strpos($key, 'preloaded-') !== 0) {
-                    continue;
-                }
-                $this->loadJsAndCss($dependency['library']);
+            if (!$content instanceof Content) {
+                $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
+                return;
             }
+
+            // load JS and CSS requirements
+            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $this->view->assign('content', $content);
+            $this->view->assign('library', sprintf('%s %d.%d', $contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']));
+            $parameters = json_decode($content->getFiltered(), true);
+            $parameters = $this->injectMetadataIntoParameters($parameters, $content);
+            $this->view->assign('parameters', json_encode($parameters, true));
         }
 
-        $contentDependencies = $this->h5pFramework->loadContentDependencies($contentId, 'preloaded');
-        foreach ($contentDependencies as $dependency) {
-            $this->loadJsAndCss($dependency);
-        }
-
-        $this->loadJsAndCss($contentLibrary);
-
-        $this->view->assign('content', $content);
+        $this->embedEditorScriptsAndStyles();
     }
 
     /**
@@ -556,63 +642,6 @@ class H5pModuleController extends ActionController
         //        if ($id !== NULL) {
 //            $settings['editor']['nodeVersionId'] = $id;
 //        }
-        return $settings;
-    }
-
-    /**
-     * Get content settings
-     *
-     * @return array;
-     */
-    public function getContentSettings(Content $content)
-    {
-        $settings = [
-            'url'            => '/fileamdin/h5p/',
-            'library'        => sprintf(
-                '%s %d.%d.%d',
-                $content->getLibrary()->getMachineName(),
-                $content->getLibrary()->getMajorVersion(),
-                $content->getLibrary()->getMinorVersion(),
-                $content->getLibrary()->getPatchVersion()
-            ),
-            'jsonContent'    => $content->getFiltered(),
-            'fullScreen'     => false,
-            'exportUrl'      => '/path/to/download.h5p',
-            'embedCode'      => '',
-            'resizeCode'     => '',
-            'mainId'         => $content->getUid(),
-            'title'          => $content->getTitle(),
-            'displayOptions' => [
-                'frame'     => false,
-                'export'    => false,
-                'embed'     => false,
-                'copyright' => false,
-                'icon'      => false
-            ]
-        ];
-
-        if ($content->getEmbedType() === 'iframe') {
-            $contentLibrary = $content->getLibrary()->toAssocArray();
-            $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
-            $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
-            if (is_array($dependencies)) {
-                $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
-                foreach ($dependencies as $key => $dependency) {
-                    if (strpos($key, 'preloaded-') !== 0) {
-                        continue;
-                    }
-                    $this->setJsAndCss($dependency['library'], $settings);
-                }
-            }
-
-            $contentDependencies = $this->h5pFramework->loadContentDependencies($content->getUid(), 'preloaded');
-            foreach ($contentDependencies as $dependency) {
-                $this->setJsAndCss($dependency, $settings);
-            }
-
-            $this->setJsAndCss($contentLibrary, $settings);
-        }
-
         return $settings;
     }
 
@@ -776,42 +805,40 @@ class H5pModuleController extends ActionController
     }
 
     /**
-     * Load JS and CSS
-     * @param array $library
-     */
-    private function loadJsAndCss($library)
-    {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
-        $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
-
-        foreach ($preloadJs as $js) {
-            $js = trim($js);
-            if ($js) {
-                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '');
-            }
-        }
-        foreach ($preloadCss as $css) {
-            $css = trim($css);
-            if ($css) {
-                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
-            }
-        }
-    }
-
-    /**
      * New action / upload form
+     * @param int $contentId
+     * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
-    public function newAction()
+    public function newAction(int $contentId = 0)
     {
-        $this->view->getModuleTemplate()->getPageRenderer()->addJsInlineCode(
+        $this->view->getModuleTemplate()->getPageRenderer()->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
+        if ($this->isAccessibleForCurrentUser) {
+            $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
+        }
+
+        $this->pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
+
+        $this->pageRenderer->addJsInlineCode(
             'H5PIntegration',
             'H5PIntegration = ' . json_encode($this->getEditorSettings($this->getCoreSettings())) . ';'
         );
 
+        if ($contentId > 0) {
+            $contenRepository = $this->objectManager->get(ContentRepository::class);
+            $content = $contenRepository->findByUid($contentId);
+
+            if (!$content instanceof Content) {
+                $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
+                return;
+            }
+
+            // load JS and CSS requirements
+            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $this->view->assign('library', sprintf('%s %d.%d', $contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']));
+            $this->view->assign('parameters', $content->getFiltered());
+        }
+
         $this->embedEditorScriptsAndStyles();
-        $newContent = new Content();
-        $this->view->assign('newContent', $newContent);
     }
 
     /**
@@ -822,6 +849,11 @@ class H5pModuleController extends ActionController
      */
     public function showAction(int $contentId)
     {
+        $this->view->getModuleTemplate()->getPageRenderer()->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
+        if ($this->isAccessibleForCurrentUser) {
+            $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
+        }
+
         $this->pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
 
         $contenRepository = $this->objectManager->get(ContentRepository::class);
@@ -829,7 +861,6 @@ class H5pModuleController extends ActionController
 
         if (!$content instanceof Content) {
             $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
-            $this->forward('configurationError', 'Content', 'remindo_toets');
         }
 
         $cacheBuster = '?v=' . $this->h5pFramework::$version;
@@ -853,11 +884,11 @@ class H5pModuleController extends ActionController
         if ($content->getEmbedType() === 'iframe') {
             $contentSettings = $this->getContentSettings($content);
             $contentSettings['displayOptions'] = [];
-            $contentSettings['displayOptions']['frame'] = false;
+            $contentSettings['displayOptions']['frame'] = true;
             $contentSettings['displayOptions']['export'] = false;
             $contentSettings['displayOptions']['embed'] = false;
             $contentSettings['displayOptions']['copyright'] = false;
-            $contentSettings['displayOptions']['icon'] = false;
+            $contentSettings['displayOptions']['icon'] = true;
             $this->pageRenderer->addJsInlineCode(
                 'H5PIntegration contents',
                 'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
@@ -890,6 +921,123 @@ class H5pModuleController extends ActionController
         }
 
         $this->view->assign('content', $content);
+    }
+
+    /**
+     * Get content settings
+     *
+     * @return array;
+     */
+    public function getContentSettings(Content $content)
+    {
+        $settings = [
+            'url'            => '/fileamdin/h5p/',
+            'library'        => sprintf(
+                '%s %d.%d.%d',
+                $content->getLibrary()->getMachineName(),
+                $content->getLibrary()->getMajorVersion(),
+                $content->getLibrary()->getMinorVersion(),
+                $content->getLibrary()->getPatchVersion()
+            ),
+            'jsonContent'    => $content->getFiltered(),
+            'fullScreen'     => false,
+            'exportUrl'      => '/path/to/download.h5p',
+            'embedCode'      => '',
+            'resizeCode'     => '',
+            'mainId'         => $content->getUid(),
+            'title'          => $content->getTitle(),
+            'displayOptions' => [
+                'frame'     => false,
+                'export'    => false,
+                'embed'     => false,
+                'copyright' => false,
+                'icon'      => false
+            ],
+            'metadata'       => [
+                'title' => $content->getTitle()
+            ]
+        ];
+
+        if ($content->getEmbedType() === 'iframe') {
+            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
+            $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
+            if (is_array($dependencies)) {
+                $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
+                foreach ($dependencies as $key => $dependency) {
+                    if (strpos($key, 'preloaded-') !== 0) {
+                        continue;
+                    }
+                    $this->setJsAndCss($dependency['library'], $settings);
+                }
+            }
+
+            $contentDependencies = $this->h5pFramework->loadContentDependencies($content->getUid(), 'preloaded');
+            foreach ($contentDependencies as $dependency) {
+                $this->setJsAndCss($dependency, $settings);
+            }
+
+            $this->setJsAndCss($contentLibrary, $settings);
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Set JS and CSS
+     * @param array $library
+     * @param array $settings
+     */
+    private function setJsAndCss(array $library, array &$settings)
+    {
+        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $preloadCss = explode(',', $library['preloadedCss']);
+        $preloadJs = explode(',', $library['preloadedJs']);
+
+        if (!array_key_exists('scripts', $settings)) {
+            $settings['scripts'] = [];
+        }
+
+        if (!array_key_exists('styles', $settings)) {
+            $settings['styles'] = [];
+        }
+
+        foreach ($preloadJs as $js) {
+            $js = trim($js);
+            if ($js) {
+                $settings['scripts'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $js;
+            }
+        }
+        foreach ($preloadCss as $css) {
+            $css = trim($css);
+            if ($css) {
+                $settings['styles'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $css;
+            }
+        }
+    }
+
+    /**
+     * Load JS and CSS
+     * @param array $library
+     */
+    private function loadJsAndCss($library)
+    {
+        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $preloadCss = explode(',', $library['preloadedCss']);
+        $preloadJs = explode(',', $library['preloadedJs']);
+
+        foreach ($preloadJs as $js) {
+            $js = trim($js);
+            if ($js) {
+                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '');
+            }
+        }
+        foreach ($preloadCss as $css) {
+            $css = trim($css);
+            if ($css) {
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
+            }
+        }
     }
 
     /**
@@ -939,35 +1087,27 @@ class H5pModuleController extends ActionController
     }
 
     /**
-     * Set JS and CSS
-     * @param array $library
-     * @param array $settings
+     * @param array $parameters
+     * @param Content $content
+     * @return array
      */
-    private function setJsAndCss(array $library, array &$settings)
+    private function injectMetadataIntoParameters(array $parameters, Content $content)
     {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
-        $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
 
-        if (!array_key_exists('scripts', $settings)) {
-            $settings['scripts'] = [];
-        }
+        $metadata = [
+            'title'          => $content->getTitle(),
+            'authors'        => json_decode($content->getAuthors(), true),
+            'source'         => $content->getSource(),
+            'yearFrom'       => $content->getYearFrom(),
+            'yearTo'         => $content->getYearTo(),
+            'license'        => $content->getLicense(),
+            'licenseVersion' => $content->getLicenseVersion(),
+            'licenseExtras'  => $content->getLicenseExtras(),
+            'authorComments' => $content->getAuthorComments(),
+            'changes'        => json_decode($content->getChanges(), true)
+        ];
 
-        if (!array_key_exists('styles', $settings)) {
-            $settings['styles'] = [];
-        }
-
-        foreach ($preloadJs as $js) {
-            $js = trim($js);
-            if ($js) {
-                $settings['scripts'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $js;
-            }
-        }
-        foreach ($preloadCss as $css) {
-            $css = trim($css);
-            if ($css) {
-                $settings['styles'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $css;
-            }
-        }
+        $parameters['metadata'] = $metadata;
+        return $parameters;
     }
 }

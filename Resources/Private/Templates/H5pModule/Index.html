@@ -14,20 +14,21 @@
                             <th class="col-title">Name</th>
                             <th>Library</th>
                             <th>Version</th>
+                            <th>Last updated</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         <f:for each="{paginatedH5pContent}" as="content">
-
                             <tr>
                                 <td>{content.title}</td>
                                 <td>{content.library.title}</td>
                                 <td>{content.library.majorVersion}.{content.library.minorVersion}.{content.library.patchVersion}</td>
+                                <td><f:format.date format="{dateFormat} {timeFormat}">{content.updatedAt}</f:format.date></td>
                                 <td class="col-control">
                                     <div class="btn-group" role="group">
-                                        <a class="btn btn-default" href="{f:uri.action(action: 'show', arguments: {contentId: content.uid})}"><core:icon identifier="actions-document-info" /></a>
-                                        <a class="btn btn-default" href="{f:uri.action(action: 'edit', arguments: {contentId: content.uid})}"><core:icon identifier="actions-document-open" /></a>
+                                        <a class="btn btn-default" href="{f:uri.action(action: 'show', arguments: {contentId: content.uid}, additionalParams: '{id: id}')}"><core:icon identifier="actions-document-info" /></a>
+                                        <a class="btn btn-default" href="{f:uri.action(action: 'edit', arguments: {contentId: content.uid}, additionalParams: '{id: id}')}"><core:icon identifier="actions-document-open" /></a>
                                     </div>
                                 </td>
                             </tr>
@@ -36,7 +37,7 @@
                             Footer row: no officially defined style yet
                         </f:comment>
                         <tr>
-                            <td colspan="4">
+                            <td colspan="5">
                                 <f:count subject="{h5pContent}"/>
                                 <f:translate key="contentElements"/>
                             </td>

@@ -244,6 +244,12 @@
             <trans-unit id="tx_h5p_domain_model_content.keywords">
                 <source>keywords</source>
             </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.createdAt">
+                <source>Created at</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_content.updatedAt">
+                <source>Updated at</source>
+            </trans-unit>
             <trans-unit id="tx_h5p_domain_model_configsetting">
                 <source>H5P Config Setting</source>
             </trans-unit>
@@ -264,6 +270,9 @@
             </trans-unit>
             <trans-unit id="settings.displayCopyright">
                 <source>Display Copyright button</source>
+            </trans-unit>
+            <trans-unit id="module.menu.choose">
+                <source>...</source>
             </trans-unit>
             <trans-unit id="module.menu.index">
                 <source>All H5P content</source>

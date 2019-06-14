@@ -39,8 +39,8 @@ CREATE TABLE tx_h5p_domain_model_content (
     endtime         int(11) unsigned    NOT NULL DEFAULT '0',
     sorting         int(10)             NOT NULL DEFAULT '0',
 
-    created_at      timestamp           NOT NULL DEFAULT '0000-00-00 00:00:00',
-    updated_at      timestamp           NOT NULL DEFAULT '0000-00-00 00:00:00',
+    created_at      int(11) unsigned    NOT NULL DEFAULT '0',
+    updated_at      int(11) unsigned    NOT NULL DEFAULT '0',
     user_id         int(10) unsigned    NOT NULL default '0',
     title           VARCHAR(255)        NOT NULL default '',
     library         int(10) unsigned    NOT NULL default '0',

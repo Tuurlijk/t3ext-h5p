@@ -663,7 +663,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     /**
      * Update old content.
      *
-     * @param array $content
+     * @param array $contentData
      *   An associative array containing:
      *   - id: The content id
      *   - params: The content in json format
@@ -672,49 +672,28 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param int $contentMainId
      *   Main id for the content if this is a system that supports versions
      * @return int
+     * @throws IllegalObjectTypeException
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
+     * @throws \Exception
      */
-    public function updateContent($content, $contentMainId = null)
+    public function updateContent($contentData, $contentMainId = null)
     {
-        $table = 'tx_h5p_domain_model_content';
-        $data = [
-            'tstamp'     => time(),
-            'title'      => (string)$content['title'],
-            'parameters' => $content['params'],
-            'embed_type' => 'div', // TODO: Determine from library?
-            'library_id' => $content['library']['libraryId'],
-            'filtered'   => '',
-            'hidden'     => (int)$content['disable'],
-        ];
-
-        if (!isset($content['id'])) {
-            // Insert new content
-            $data['crdate'] = $data['tstamp'];
-            $format[] = '%s';
-            $data['cruser_id'] = $GLOBALS['BE_USER']->id;
-            $format[] = '%d';
-            $this->databaseLink->exec_INSERTquery($table, $data);
-            $content['id'] = $this->databaseLink->sql_insert_id();
-            $event_type = 'create';
-        } else {
-            // Update existing content
-            $this->databaseLink->exec_UPDATEquery($table, 'id = ' . $content['id'], $data);
-            $event_type = 'update';
+        /** @var Content $content */
+        $content = $this->contentRepository->findOneByUid($contentData['id']);
+        if ($content === null) {
+            return 0;
         }
 
-        // Log content create/update/upload
-        if (!empty($content['uploaded'])) {
-            $event_type .= ' upload';
+        /** @var Library $library */
+        $library = $this->libraryRepository->findOneByUid($contentData['library']['libraryId']);
+        if ($library === null) {
+            return 0;
         }
-        new Event(
-            'content',
-            $event_type,
-            $content['id'],
-            $content['title'],
-            $content['library']['machineName'],
-            $content['library']['majorVersion'] . '.' . $content['library']['minorVersion']
-        );
 
-        return $content['id'];
+        $content->updateFromContentData($contentData, $library);
+
+        $this->contentRepository->update($content);
+        return $content->getUid();
     }
 
     /**

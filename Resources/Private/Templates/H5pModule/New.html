@@ -1,14 +1,9 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:layout name="Backend/Default"/>
 
-<f:section name="iconButtons">
-</f:section>
-
 <f:section name="content">
     <h1><f:translate key="module.menu.new">New</f:translate></h1>
     <f:flashMessages/>
-
-    <f:render partial="FormErrors" arguments="{object:'newContent'}"/>
 
     <f:form method="post" enctype="multipart/form-data" id="h5p-content-form" action="create" controller="H5pModule">
         <div id="post-body-content">
@@ -30,36 +25,30 @@
         <div class="postbox h5p-sidebar">
             <h2>Actions</h2>
             <div id="minor-publishing" style="display:none">
-                <label><f:form.radio name="action" value="upload"/>Upload</label>
-                <label><f:form.radio name="action" value="create"/>Create</label>
-                <f:form.hidden name="library" value="0"/>
-                <f:form.hidden name="parameters" value='{"params":{},"metadata":{}}'/>
+                <label><input type="radio" name="action" value="upload"/>Upload</label>
+                <label><input type="radio" name="action" value="create"/>Create</label>
+                <f:form.hidden name="library" value="{library}"/>
+                <f:form.hidden name="parameters" value="{parameters}"/>
             </div>
             <div id="major-publishing-actions" class="submitbox">
                 <input type="submit" name="submit-button" value="Create" class="button button-primary button-large"/>
             </div>
         </div>
         <div class="postbox h5p-sidebar">
-            <div role="button" class="h5p-toggle" tabindex="0" aria-expanded="true" aria-label="Toggle panel"></div>
             <h2>Display Options</h2>
             <div class="h5p-action-bar-settings h5p-panel">
                 <label>
-                    <f:form.checkbox name="frame" class="h5p-visibility-toggler"
-                           data="{data-h5p-visibility-subject-selector: '.h5p-action-bar-buttons-settings'}" value="true"
-                           checked="checked"/>
+                    <f:form.checkbox name="frame" value="true" checked="checked"/>
                     Display toolbar below content </label>
-                <div class="h5p-action-bar-buttons-settings">
-                    <label
-                        title="If checked a reuse button will always be displayed for this content and allow users to download the content as an .h5p file">
-                        <f:form.checkbox name="download" value="true" checked="checked"/>
-                        Allow users to download the content </label>
-                    <label>
-                        <f:form.checkbox name="embed" value="true" checked="checked"/>
-                        Display Embed button </label>
-                    <label>
-                        <f:form.checkbox name="copyright" value="true" checked="checked"/>
-                        Display Copyright button </label>
-                </div>
+                <label title="If checked a reuse button will always be displayed for this content and allow users to download the content as an .h5p file">
+                    <f:form.checkbox name="download" value="true" checked="checked"/>
+                    Allow users to download the content </label>
+                <label>
+                    <f:form.checkbox name="embed" value="true" checked="checked"/>
+                    Display Embed button </label>
+                <label>
+                    <f:form.checkbox name="copyright" value="true" checked="checked"/>
+                    Display Copyright button </label>
             </div>
         </div>
     </f:form>
