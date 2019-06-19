@@ -26,10 +26,11 @@ class TCA
     {
         $row = $parameters['row'];
         if ($row['config_key'] === 'content_type_cache_updated_at') {
+            $date = \DateTime::createFromFormat('U', (int)$row['config_value']);
             $parameters['title'] = sprintf(
                 '%s: %s',
                 $row['config_key'],
-                date(DATE_RFC822, (int)$row['config_value'])
+                $date->format($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'])
             );
         } else {
             $parameters['title'] = sprintf(
@@ -48,15 +49,20 @@ class TCA
      */
     public function getLibraryTitle(&$parameters, $parentObject)
     {
+
         $row = $parameters['row'];
+
+        $updatedAt = \DateTime::createFromFormat('U', (int)$row['updated_at']);
+
         $parameters['title'] = sprintf(
-            '%s: %s %d.%d.%d',
+            '%s: %s %d.%d.%d - %s',
             $row['title'],
             $row['machine_name'],
             $row['major_version'],
             $row['minor_version'],
-            $row['patch_version']
-        );
+            $row['patch_version'],
+            $updatedAt->format($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'])
+    );
     }
 
     /**
@@ -73,14 +79,25 @@ class TCA
             sprintf('uid=%d', $parameters['row']['library'])
         );
 
+        $updatedAt = \DateTime::createFromFormat('U', (int)$libraryRow['updated_at']);
+
         $parameters['title'] = sprintf(
-            '%s - %s %d.%d.%d',
+            '%s: %s %d.%d.%d - %s',
             $parameters['row']['title'],
             $libraryRow['title'],
             $libraryRow['major_version'],
             $libraryRow['minor_version'],
-            $libraryRow['patch_version']
+            $libraryRow['patch_version'],
+            $updatedAt->format($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'])
         );
+    }
+
+    /**
+     * @return \TYPO3\CMS\Core\Database\DatabaseConnection $dbHandle
+     */
+    protected function getDBHandle()
+    {
+        return $GLOBALS['TYPO3_DB'];
     }
 
     /**
@@ -99,7 +116,7 @@ class TCA
         $dependencyRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
             '*',
             'tx_h5p_domain_model_library',
-            sprintf('uid=%d', $parameters['row']['requiredlibrary'])
+            sprintf('uid=%d', $parameters['row']['required_library'])
         );
 
         $parameters['title'] = sprintf(
@@ -138,15 +155,7 @@ class TCA
             $libraryRow['major_version'],
             $libraryRow['minor_version'],
             $libraryRow['patch_version'],
-            $parameters['row']['languagecode']
+            $parameters['row']['language_code']
         );
-    }
-
-    /**
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection $dbHandle
-     */
-    protected function getDBHandle()
-    {
-        return $GLOBALS['TYPO3_DB'];
     }
 }

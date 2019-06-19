@@ -51,6 +51,11 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     private $persistenceManager;
 
     /**
+     * @var object|ObjectManager
+     */
+    private $objectManager;
+
+    /**
      * FileStorageService constructor.
      *
      * @param ResourceStorage $storage
@@ -63,9 +68,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     {
         $this->storage = $storage;
         $this->basePath = $path ?: 'h5p';
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->cachedAssetRepository = $objectManager->get(CachedAssetRepository::class);
-        $this->persistenceManager = $objectManager->get(PersistenceManager::class);
+        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->cachedAssetRepository = $this->objectManager->get(CachedAssetRepository::class);
+        $this->persistenceManager = $this->objectManager->get(PersistenceManager::class);
 
         // Ensure base directories exist
         foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
@@ -105,7 +110,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
-            $dir = ltrim($dir, '/');
+            $dir = ltrim($dir, DIRECTORY_SEPARATOR);
             if ($fileInfo->isDir()) {
                 $this->storage->createFolder($destination . DIRECTORY_SEPARATOR . $dir);
             }
@@ -147,7 +152,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
-            $dir = ltrim($dir, '/');
+            $dir = ltrim($dir, DIRECTORY_SEPARATOR);
             if ($fileInfo->isDir()) {
                 $this->storage->createFolder($destination . DIRECTORY_SEPARATOR . $dir);
             }
@@ -317,12 +322,12 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             // whitelist, as this can be called on GET requests
             $this->persistenceManager->whitelistObject($cachedAsset);
 
-            $files[$type] = array(
-                (object)array(
-                    'path' => $this->resourceManager->getPublicPersistentResourceUri($persistentResource),
+            $files[$type] = [
+                (object)[
+                    'path'    => $this->resourceManager->getPublicPersistentResourceUri($persistentResource),
                     'version' => ''
-                )
-            );
+                ]
+            ];
         }
         // Persist, so the cachedasset objects can be found in H5PFramework->saveCachedAssets
         $this->persistenceManager->persistAll();
@@ -386,21 +391,19 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function saveFile($file, $contentId)
     {
-        // This creates an editortempfile, attaches a resource, publishes that resource, and returns a file ID.
-
-        // If we have a content id set, we assign the file directly to a content element.
-        // In the current implementation, this doesn't happen yet - all uploaded editor files are
-        // first saved as an EditorTempfile. Therefore, we throw an Excaption if we get a content id.
-        if (is_int($contentId) && $contentId > 0) {
-            throw new \Exception("Uploading files directly to a Content element is not supported yet.");
-        }
-
         $data = [];
         $namespace = key($_FILES);
         $storageId = $this->storage->getUid();
-        $targetFalDirectory = $storageId . ':/h5p/editor/' . $file->getType() . 's';
         $editorFilename = $file->getName();
 
+        // Prepare directory
+        if (empty($contentId)) {
+            // Should be in editor tmp folder
+            $targetFalDirectory = $storageId . ':' . $this->basePath . DIRECTORY_SEPARATOR . 'editor' . DIRECTORY_SEPARATOR . $file->getType() . 's';
+        } else {
+            // Should be in content folder
+            $targetFalDirectory = $storageId . ':' . $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId . DIRECTORY_SEPARATOR . $file->getType() . 's';
+        }
 
         $this->registerUploadField($data, $namespace, $targetFalDirectory, $editorFilename);
 
@@ -453,7 +456,24 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
-        // TODO: Implement cloneContentFile() method.
+        if ($fromId === 'editor') {
+            $sourcePath = $this->basePath . DIRECTORY_SEPARATOR . 'editor';
+        } else {
+            $sourcePath = $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $fromId;
+        }
+
+        $destinationPath = $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $toId . DIRECTORY_SEPARATOR . dirname($file);
+        $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destinationPath, '');
+        if (!$this->storage->hasFolder($destinationFolder->getIdentifier())) {
+            $this->storage->createFolder($destinationPath);
+        }
+
+        $sourceFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $sourcePath, '');
+
+        if ($this->storage->hasFileInFolder($file, $sourceFolder)) {
+            $sourceFile = $this->storage->getFile($sourcePath . DIRECTORY_SEPARATOR . $file);
+            $this->storage->copyFile($sourceFile, $destinationFolder);
+        }
     }
 
     /**
@@ -499,7 +519,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
-            $dir = ltrim($dir, '/');
+            $dir = ltrim($dir, DIRECTORY_SEPARATOR);
             if ($fileInfo->isDir()) {
                 $this->storage->createFolder($destination . DIRECTORY_SEPARATOR . $dir);
             }
@@ -602,7 +622,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         $upgradesFilePath = "/h5p/libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
         if ($this->storage->hasFile($upgradesFilePath)) {
             $file = $this->storage->getFile($upgradesFilePath);
-            return '/' . ltrim($file->getPublicUrl(), '/');
+            return DIRECTORY_SEPARATOR . ltrim($file->getPublicUrl(), DIRECTORY_SEPARATOR);
         }
 
         return NULL;

@@ -259,17 +259,18 @@ class ViewController extends ActionController
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);
+        $cacheBuster = '?v=' . $this->h5pFramework::$version;
 
         foreach ($preloadJs as $js) {
             $js = trim($js);
             if ($js) {
-                $this->pageRenderer->addJsFooterFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '');
+                $this->pageRenderer->addJsFooterFile('/fileadmin/h5p/libraries/' . $name . '/' . $js . $cacheBuster, 'text/javascript', false, false, '');
             }
         }
         foreach ($preloadCss as $css) {
             $css = trim($css);
             if ($css) {
-                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css . $cacheBuster);
             }
         }
     }
@@ -341,6 +342,7 @@ class ViewController extends ActionController
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);
+        $cacheBuster = '?v=' . $this->h5pFramework::$version;
 
         if (!array_key_exists('scripts', $settings)) {
             $settings['scripts'] = [];
@@ -353,13 +355,13 @@ class ViewController extends ActionController
         foreach ($preloadJs as $js) {
             $js = trim($js);
             if ($js) {
-                $settings['scripts'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $js;
+                $settings['scripts'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $js . $cacheBuster;
             }
         }
         foreach ($preloadCss as $css) {
             $css = trim($css);
             if ($css) {
-                $settings['styles'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $css;
+                $settings['styles'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $css . $cacheBuster;
             }
         }
     }

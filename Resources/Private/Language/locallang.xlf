@@ -286,6 +286,9 @@
             <trans-unit id="module.menu.new">
                 <source>Add new</source>
             </trans-unit>
+            <trans-unit id="module.menu.edit">
+                <source>Edit</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>
