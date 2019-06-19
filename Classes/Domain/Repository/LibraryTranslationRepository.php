@@ -20,6 +20,22 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  */
 class LibraryTranslationRepository extends Repository
 {
+    /**
+     * initializes any required object
+     */
+    public function initializeObject()
+    {
+        if ($this->defaultQuerySettings === null) {
+            $this->defaultQuerySettings = $this->objectManager->get(QuerySettingsInterface::class);
+        }
+        $this->defaultQuerySettings->setRespectStoragePage(false);
+    }
+
+    /**
+     * @param $libraryUid
+     * @param $language
+     * @return object
+     */
     public function findOneByLibraryAndLanguage($libraryUid, $language)
     {
         $query = $this->createQuery();

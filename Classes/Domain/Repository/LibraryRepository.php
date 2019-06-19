@@ -24,25 +24,25 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 class LibraryRepository extends Repository
 {
     /**
+     * @var array
+     */
+    protected $defaultOrderings = [
+        'title'        => QueryInterface::ORDER_ASCENDING,
+        'majorVersion' => QueryInterface::ORDER_ASCENDING,
+        'minorVersion' => QueryInterface::ORDER_ASCENDING,
+        'patchVersion' => QueryInterface::ORDER_ASCENDING
+    ];
+
+    /**
      * initializes any required object
      */
     public function initializeObject()
     {
         if ($this->defaultQuerySettings === null) {
             $this->defaultQuerySettings = $this->objectManager->get(QuerySettingsInterface::class);
-            $this->defaultQuerySettings->setRespectStoragePage(false);
         }
+        $this->defaultQuerySettings->setRespectStoragePage(false);
     }
-
-    /**
-     * @var array
-     */
-    protected $defaultOrderings = [
-        'title' => QueryInterface::ORDER_ASCENDING,
-        'majorVersion' => QueryInterface::ORDER_ASCENDING,
-        'minorVersion' => QueryInterface::ORDER_ASCENDING,
-        'patchVersion' => QueryInterface::ORDER_ASCENDING
-    ];
 
     /**
      * @param integer $id

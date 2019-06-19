@@ -28,7 +28,7 @@ class ConfigSettingRepository extends Repository
     {
         if ($this->defaultQuerySettings === null) {
             $this->defaultQuerySettings = $this->objectManager->get(QuerySettingsInterface::class);
-            $this->defaultQuerySettings->setRespectStoragePage(false);
         }
+        $this->defaultQuerySettings->setRespectStoragePage(false);
     }
 }

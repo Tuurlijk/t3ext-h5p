@@ -773,7 +773,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function copyLibraryUsage($contentId, $copyFromId, $contentMainId = null)
     {
-        $blah = 'break';
     }
 
     /**
@@ -795,7 +794,17 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function deleteLibraryUsage($contentId)
     {
-        // TODO: Implement deleteLibraryUsage() method.
+        /** @var ObjectStorage $content */
+        $contentDependencies = $this->contentDependencyRepository->findByContent($contentId);
+        if ($contentDependencies === null) {
+            return;
+        }
+        foreach ($contentDependencies as $contentDependency) {
+            $this->contentDependencyRepository->remove($contentDependency);
+        }
+
+        // Persist, because directly afterwards saveLibraryUsage() might be called
+        $this->persistenceManager->persistAll();
     }
 
     /**
