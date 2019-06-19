@@ -242,6 +242,16 @@ class H5pModuleController extends ActionController
                 ->setIcon($icon);
             $buttonBar->addButton($addUserButton, ButtonBar::BUTTON_POSITION_LEFT);
         }
+
+        if (in_array($this->request->getControllerActionName(), ['show'])) {
+            $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.edit');
+            $icon = $this->view->getModuleTemplate()->getIconFactory()->getIcon('actions-document-open', Icon::SIZE_SMALL);
+            $addUserButton = $buttonBar->makeLinkButton()
+                ->setHref($this->getHref('H5pModule', 'edit', ['contentId' => $this->request->getArgument('contentId')]))
+                ->setTitle($title)
+                ->setIcon($icon);
+            $buttonBar->addButton($addUserButton, ButtonBar::BUTTON_POSITION_LEFT);
+        }
     }
 
     /**
