@@ -206,7 +206,7 @@ class ViewController extends ActionController
 
         $settings = [
             'baseUrl'            => $url,
-            'url'                => '/fileamdin/h5p/',
+            'url'                => '/fileadmin/h5p/',
             'postUserStatistics' => false,
             'ajax'               => [
                 'setFinished'     => '',
@@ -283,7 +283,7 @@ class ViewController extends ActionController
     public function getContentSettings(Content $content)
     {
         $settings = [
-            'url'            => '/fileamdin/h5p/',
+            'url'            => '/fileadmin/h5p/',
             'library'        => sprintf(
                 '%s %d.%d.%d',
                 $content->getLibrary()->getMachineName(),

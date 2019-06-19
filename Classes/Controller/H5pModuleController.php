@@ -686,7 +686,7 @@ class H5pModuleController extends ActionController
 
         $settings = [
             'baseUrl'            => $url,
-            'url'                => '/fileamdin/h5p/',
+            'url'                => '/fileadmin/h5p/',
             'postUserStatistics' => $this->h5pFramework->getOption('track_user') && (bool)$backendUser['uid'],
             'ajax'               => [
                 'setFinished'     => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']),
@@ -952,7 +952,7 @@ class H5pModuleController extends ActionController
     public function getContentSettings(Content $content)
     {
         $settings = [
-            'url'            => '/fileamdin/h5p/',
+            'url'            => '/fileadmin/h5p/',
             'library'        => sprintf(
                 '%s %d.%d.%d',
                 $content->getLibrary()->getMachineName(),
