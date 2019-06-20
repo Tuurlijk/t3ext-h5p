@@ -138,19 +138,19 @@ class ViewController extends ActionController
             'H5PIntegration = ' . json_encode($this->getCoreSettings()) . ';'
         );
 
-        if ($content->getEmbedType() === 'iframe') {
-            $contentSettings = $this->getContentSettings($content);
-            $contentSettings['displayOptions'] = [];
-            $contentSettings['displayOptions']['frame'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME);
-            $contentSettings['displayOptions']['export'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD);
-            $contentSettings['displayOptions']['embed'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED);
-            $contentSettings['displayOptions']['copyright'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_COPYRIGHT);
-            $contentSettings['displayOptions']['icon'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_ABOUT);
-            $this->pageRenderer->addJsInlineCode(
-                'H5PIntegration contents',
-                'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
-            );
-        } else {
+        $contentSettings = $this->getContentSettings($content);
+        $contentSettings['displayOptions'] = [];
+        $contentSettings['displayOptions']['frame'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME);
+        $contentSettings['displayOptions']['export'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD);
+        $contentSettings['displayOptions']['embed'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED);
+        $contentSettings['displayOptions']['copyright'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_COPYRIGHT);
+        $contentSettings['displayOptions']['icon'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_ABOUT);
+        $this->pageRenderer->addJsInlineCode(
+            'H5PIntegration contents',
+            'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
+        );
+
+        if ($content->getEmbedType() !== 'iframe') {
             // load JS and CSS requirements
             $contentLibrary = $content->getLibrary()->toAssocArray();
 
@@ -251,31 +251,6 @@ class ViewController extends ActionController
     }
 
     /**
-     * Load JS and CSS
-     * @param array $library
-     */
-    private function loadJsAndCss($library)
-    {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
-        $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
-
-        foreach ($preloadJs as $js) {
-            $js = trim($js);
-            if ($js) {
-                $this->pageRenderer->addJsFooterFile('/fileadmin/h5p/libraries/' . $name . '/' . $js . $cacheBuster, 'text/javascript', false, false, '');
-            }
-        }
-        foreach ($preloadCss as $css) {
-            $css = trim($css);
-            if ($css) {
-                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css . $cacheBuster);
-            }
-        }
-    }
-
-    /**
      * Get content settings
      *
      * @return array;
@@ -362,6 +337,31 @@ class ViewController extends ActionController
             $css = trim($css);
             if ($css) {
                 $settings['styles'][] = '/fileadmin/h5p/libraries/' . $name . '/' . $css . $cacheBuster;
+            }
+        }
+    }
+
+    /**
+     * Load JS and CSS
+     * @param array $library
+     */
+    private function loadJsAndCss($library)
+    {
+        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $preloadCss = explode(',', $library['preloadedCss']);
+        $preloadJs = explode(',', $library['preloadedJs']);
+        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+
+        foreach ($preloadJs as $js) {
+            $js = trim($js);
+            if ($js) {
+                $this->pageRenderer->addJsFooterFile('/fileadmin/h5p/libraries/' . $name . '/' . $js . $cacheBuster, 'text/javascript', false, false, '');
+            }
+        }
+        foreach ($preloadCss as $css) {
+            $css = trim($css);
+            if ($css) {
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css . $cacheBuster);
             }
         }
     }

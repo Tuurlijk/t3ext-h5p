@@ -947,19 +947,18 @@ class H5pModuleController extends ActionController
             'H5PIntegration = ' . json_encode($this->getCoreSettings()) . ';'
         );
 
-        if ($content->getEmbedType() === 'iframe') {
-            $contentSettings = $this->getContentSettings($content);
-            $contentSettings['displayOptions'] = [];
-            $contentSettings['displayOptions']['frame'] = true;
-            $contentSettings['displayOptions']['export'] = false;
-            $contentSettings['displayOptions']['embed'] = false;
-            $contentSettings['displayOptions']['copyright'] = false;
-            $contentSettings['displayOptions']['icon'] = true;
-            $this->pageRenderer->addJsInlineCode(
-                'H5PIntegration contents',
-                'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
-            );
-        } else {
+        $contentSettings = $this->getContentSettings($content);
+        $contentSettings['displayOptions'] = [];
+        $contentSettings['displayOptions']['frame'] = true;
+        $contentSettings['displayOptions']['export'] = false;
+        $contentSettings['displayOptions']['embed'] = false;
+        $contentSettings['displayOptions']['copyright'] = false;
+        $contentSettings['displayOptions']['icon'] = true;
+        $this->pageRenderer->addJsInlineCode(
+            'H5PIntegration contents',
+            'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
+        );
+        if ($content->getEmbedType() !== 'iframe') {
             // load JS and CSS requirements
             $contentLibrary = $content->getLibrary()->toAssocArray();
 
