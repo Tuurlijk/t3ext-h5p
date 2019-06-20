@@ -255,12 +255,27 @@ class H5pModuleController extends ActionController
     }
 
     /**
+     * Creates te URI for a backend action
+     *
+     * @param string $controller
+     * @param string $action
+     * @param array $parameters
+     * @return string
+     */
+    protected function getHref($controller, $action, $parameters = [])
+    {
+        $uriBuilder = $this->objectManager->get(UriBuilder::class);
+        $uriBuilder->setRequest($this->request);
+        return $uriBuilder->reset()->uriFor($action, $parameters, $controller);
+    }
+
+    /**
      * Generates the action menu
      */
     protected function generateMenu()
     {
         $menuItems = [
-            'choose'     => [
+            'choose'    => [
                 'controller' => 'H5pModule',
                 'action'     => 'index',
                 'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.choose')
@@ -297,21 +312,6 @@ class H5pModuleController extends ActionController
         }
 
         $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
-    }
-
-    /**
-     * Creates te URI for a backend action
-     *
-     * @param string $controller
-     * @param string $action
-     * @param array $parameters
-     * @return string
-     */
-    protected function getHref($controller, $action, $parameters = [])
-    {
-        $uriBuilder = $this->objectManager->get(UriBuilder::class);
-        $uriBuilder->setRequest($this->request);
-        return $uriBuilder->reset()->uriFor($action, $parameters, $controller);
     }
 
     /**
@@ -461,6 +461,25 @@ class H5pModuleController extends ActionController
     }
 
     /**
+     * Extract disabled content features from input post.
+     *
+     * @param H5PCore $core
+     * @param $content
+     * @return void
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
+     */
+    private function get_disabled_content_features($core, &$content)
+    {
+        $set = [
+            H5PCore::DISPLAY_OPTION_FRAME     => (bool)$this->request->getArgument('frame'),
+            H5PCore::DISPLAY_OPTION_DOWNLOAD  => (bool)$this->request->getArgument('download'),
+            H5PCore::DISPLAY_OPTION_EMBED     => (bool)$this->request->getArgument('embed'),
+            H5PCore::DISPLAY_OPTION_COPYRIGHT => (bool)$this->request->getArgument('copyright')
+        ];
+        $content['disable'] = $core->getStorableDisplayOptions($set, $content['disable']);
+    }
+
+    /**
      * Update action
      *
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
@@ -550,25 +569,6 @@ class H5pModuleController extends ActionController
 
         $this->addFlashMessage('Content stored successfully.');
         $this->forward('show', 'H5pModule', 'h5p', ['contentId' => $content['id']]);
-    }
-
-    /**
-     * Extract disabled content features from input post.
-     *
-     * @param H5PCore $core
-     * @param $content
-     * @return void
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
-     */
-    private function get_disabled_content_features($core, &$content)
-    {
-        $set = [
-            H5PCore::DISPLAY_OPTION_FRAME     => (bool)$this->request->getArgument('frame'),
-            H5PCore::DISPLAY_OPTION_DOWNLOAD  => (bool)$this->request->getArgument('download'),
-            H5PCore::DISPLAY_OPTION_EMBED     => (bool)$this->request->getArgument('embed'),
-            H5PCore::DISPLAY_OPTION_COPYRIGHT => (bool)$this->request->getArgument('copyright')
-        ];
-        $content['disable'] = $core->getStorableDisplayOptions($set, $content['disable']);
     }
 
     /**
@@ -729,6 +729,31 @@ class H5pModuleController extends ActionController
     }
 
     /**
+     * @param array $parameters
+     * @param Content $content
+     * @return array
+     */
+    private function injectMetadataIntoParameters(array $parameters, Content $content)
+    {
+
+        $metadata = [
+            'title'          => $content->getTitle(),
+            'authors'        => json_decode($content->getAuthors(), true),
+            'source'         => $content->getSource(),
+            'yearFrom'       => $content->getYearFrom(),
+            'yearTo'         => $content->getYearTo(),
+            'license'        => $content->getLicense(),
+            'licenseVersion' => $content->getLicenseVersion(),
+            'licenseExtras'  => $content->getLicenseExtras(),
+            'authorComments' => $content->getAuthorComments(),
+            'changes'        => json_decode($content->getChanges(), true)
+        ];
+
+        $parameters['metadata'] = $metadata;
+        return $parameters;
+    }
+
+    /**
      * Embed scripts and styles
      */
     protected function embedEditorScriptsAndStyles()
@@ -739,76 +764,79 @@ class H5pModuleController extends ActionController
         $relativeEditorPath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/';
         $relativeScriptPath = $relativeExtensionPath . 'Resources/Public/JavaScript/';
 
+        $paths = [
+            'h5p-jquery'              => $relativeCorePath . 'js/jquery',
+            'h5p'                     => $relativeCorePath . 'js/h5p',
+            'h5p-event-dispatcher'    => $relativeCorePath . 'js/h5p-event-dispatcher',
+            'h5p-x-api-event'         => $relativeCorePath . 'js/h5p-x-api-event',
+            'h5p-x-api'               => $relativeCorePath . 'js/h5p-x-api',
+            'h5p-content-type'        => $relativeCorePath . 'js/h5p-content-type',
+            'h5p-confirmation-dialog' => $relativeCorePath . 'js/h5p-confirmation-dialog',
+            'h5p-action-bar'          => $relativeCorePath . 'js/h5p-action-bar',
+            'h5peditor-editor'        => $relativeEditorPath . 'scripts/h5peditor-editor',
+            'h5peditor-init'          => $relativeEditorPath . 'scripts/h5peditor-init',
+            'h5p-display-options'     => $relativeCorePath . 'js/h5p-display-options',
+            'TYPO3/CMS/H5p/editor'    => $relativeScriptPath . 'editor',
+        ];
+
+        $languageFile = ExtensionManagementUtility::extPath('h5p') . 'Resources/Public/Lib/h5p-editor/language/' . $this->language . '.js';
+        if (file_exists($languageFile)) {
+            $paths['h5peditor-editor-language'] = $relativeEditorPath . 'language/' . $this->language;
+        } else {
+            $paths['h5peditor-editor-language'] = $relativeEditorPath . 'language/en';
+        }
+
         $this->view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
-                'paths' => [
-                    'h5p-jquery'              => $relativeCorePath . 'js/jquery',
-                    'h5p'                     => $relativeCorePath . 'js/h5p',
-                    'h5p-event-dispatcher'    => $relativeCorePath . 'js/h5p-event-dispatcher',
-                    'h5p-x-api-event'         => $relativeCorePath . 'js/h5p-x-api-event',
-                    'h5p-x-api'               => $relativeCorePath . 'js/h5p-x-api',
-                    'h5p-content-type'        => $relativeCorePath . 'js/h5p-content-type',
-                    'h5p-confirmation-dialog' => $relativeCorePath . 'js/h5p-confirmation-dialog',
-                    'h5p-action-bar'          => $relativeCorePath . 'js/h5p-action-bar',
-                    'h5peditor-editor'        => $relativeEditorPath . 'scripts/h5peditor-editor',
-                    'h5peditor-init'          => $relativeEditorPath . 'scripts/h5peditor-init',
-                    'h5peditor-editor-en'     => $relativeEditorPath . 'language/en',
-                    'h5peditor-editor-nl'     => $relativeEditorPath . 'language/nl',
-                    'h5p-display-options'     => $relativeCorePath . 'js/h5p-display-options',
-                    'TYPO3/CMS/H5p/editor'    => $relativeScriptPath . 'editor',
-                ],
+                'paths' => $paths,
                 'shim'  => [
-                    'h5p-jquery'              => [
+                    'h5p-jquery'                => [
                         'exports' => 'h5p-jquery'
                     ],
-                    'h5peditor-editor'        => [
+                    'h5peditor-editor'          => [
                         'deps'    => ['h5p-action-bar'],
                         'exports' => 'h5peditor-editor'
                     ],
-                    'h5peditor-init'          => [
-                        'deps'    => ['h5peditor-editor', 'h5peditor-editor-en', 'h5p-display-options'],
+                    'h5peditor-init'            => [
+                        'deps'    => ['h5peditor-editor', 'h5peditor-editor-language', 'h5p-display-options'],
                         'exports' => 'h5peditor-init'
                     ],
-                    'h5p-content-type'        => [
+                    'h5p-content-type'          => [
                         'deps'    => ['h5p-x-api'],
                         'exports' => 'h5p-content-type'
                     ],
-                    'h5p-confirmation-dialog' => [
+                    'h5p-confirmation-dialog'   => [
                         'deps'    => ['h5p-content-type'],
                         'exports' => 'h5p-confirmation-dialog'
                     ],
-                    'h5p-event-dispatcher'    => [
+                    'h5p-event-dispatcher'      => [
                         'deps'    => ['h5p'],
                         'exports' => 'h5p-event-dispatcher'
                     ],
-                    'h5p-display-options'     => [
+                    'h5p-display-options'       => [
                         'deps'    => ['h5peditor-editor'],
                         'exports' => 'h5p-display-options'
                     ],
-                    'h5p-x-api-event'         => [
+                    'h5p-x-api-event'           => [
                         'deps'    => ['h5p-event-dispatcher'],
                         'exports' => 'h5p-x-api-event'
                     ],
-                    'h5p-x-api'               => [
+                    'h5p-x-api'                 => [
                         'deps'    => ['h5p-x-api-event'],
                         'exports' => 'h5p-x-api'
                     ],
-                    'h5peditor-editor-en'     => [
+                    'h5peditor-editor-language' => [
                         'deps'    => ['h5peditor-editor'],
-                        'exports' => 'h5peditor-editor-en'
+                        'exports' => 'h5peditor-editor-language'
                     ],
-                    'h5peditor-editor-nl'     => [
-                        'deps'    => ['h5peditor-editor'],
-                        'exports' => 'h5peditor-editor-nl'
-                    ],
-                    'h5p-action-bar'          => [
+                    'h5p-action-bar'            => [
                         'deps'    => ['h5p-confirmation-dialog'],
                         'exports' => 'h5p-action-bar'
                     ],
-                    'h5p'                     => [
+                    'h5p'                       => [
                         'deps'    => ['h5p-jquery'],
                         'exports' => 'h5p'
                     ],
-                    'TYPO3/CMS/H5p/editor'    => [
+                    'TYPO3/CMS/H5p/editor'      => [
                         'deps'    => ['h5peditor-init'],
                         'exports' => 'TYPO3/CMS/H5p/editor'
                     ],
@@ -1122,30 +1150,5 @@ class H5pModuleController extends ActionController
                     UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER           => '1:/h5p/packages/',
                 ]
             );
-    }
-
-    /**
-     * @param array $parameters
-     * @param Content $content
-     * @return array
-     */
-    private function injectMetadataIntoParameters(array $parameters, Content $content)
-    {
-
-        $metadata = [
-            'title'          => $content->getTitle(),
-            'authors'        => json_decode($content->getAuthors(), true),
-            'source'         => $content->getSource(),
-            'yearFrom'       => $content->getYearFrom(),
-            'yearTo'         => $content->getYearTo(),
-            'license'        => $content->getLicense(),
-            'licenseVersion' => $content->getLicenseVersion(),
-            'licenseExtras'  => $content->getLicenseExtras(),
-            'authorComments' => $content->getAuthorComments(),
-            'changes'        => json_decode($content->getChanges(), true)
-        ];
-
-        $parameters['metadata'] = $metadata;
-        return $parameters;
     }
 }
