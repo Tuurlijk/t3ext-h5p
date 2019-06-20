@@ -13,6 +13,7 @@ namespace MichielRoos\H5p\Domain\Repository;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use MichielRoos\H5p\Domain\Model\Library;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
@@ -33,16 +34,16 @@ class LibraryTranslationRepository extends Repository
     }
 
     /**
-     * @param $libraryUid
+     * @param Library $library
      * @param $language
      * @return object
      */
-    public function findOneByLibraryAndLanguage($libraryUid, $language)
+    public function findOneByLibraryAndLanguage($library, $language)
     {
         $query = $this->createQuery();
         $libraries = $query->matching(
             $query->logicalAnd(
-                $query->equals('uid', $libraryUid),
+                $query->equals('library', $library->getUid()),
                 $query->equals('language_code', $language)
             )
         )->execute();

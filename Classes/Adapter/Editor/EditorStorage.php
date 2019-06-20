@@ -49,7 +49,7 @@ class EditorStorage implements \H5peditorStorage
         $translation = false;
         $library = $this->libraryRepository->findOneByMachinenameMajorVersionAndMinorVersion($machineName, $majorVersion, $minorVersion);
         /** @var LibraryTranslation $translation */
-        $libraryTranslation = $this->libraryTranslationRepository->findOneByLibraryAndLanguage($library->getUid(), $language);
+        $libraryTranslation = $this->libraryTranslationRepository->findOneByLibraryAndLanguage($library, $language);
         if ($libraryTranslation instanceof LibraryTranslation) {
             $translation = $libraryTranslation->getTranslation();
         }
