@@ -1,9 +1,11 @@
-Implement more methods in
+# Store userData
+
+# Implement more methods in
 \MichielRoos\H5p\Adapter\Core\FileStorage
 \MichielRoos\H5p\Adapter\Editor\EditorStorage
 \MichielRoos\H5p\Adapter\Core\Framework
 
-Use storage page id's ?
+# Use storage page id's ?
 Backend module should always open on pid 1 of the site or the oldest page that is a site root?
 
-CachedAsset resource
+# CachedAsset resource
