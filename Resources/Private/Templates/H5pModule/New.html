@@ -2,55 +2,72 @@
 <f:layout name="Backend/Default"/>
 
 <f:section name="content">
-    <h1><f:translate key="module.menu.new">New</f:translate></h1>
-    <f:flashMessages/>
+    <f:if condition="{didConsent}">
+        <f:then>
+            <h1><f:translate key="module.menu.new">New</f:translate></h1>
+            <f:flashMessages/>
 
-    <f:form method="post" enctype="multipart/form-data" id="h5p-content-form" action="create" controller="H5pModule">
-        <div id="post-body-content">
-            <div class="h5p-upload">
-                <f:form.upload name="h5p_file" id="h5p-file"/>
-                <div class="h5p-disable-file-check">
-                    <label><input type="checkbox" name="h5p_disable_file_check" id="h5p-disable-file-check"/> Disable
-                        file extension check</label>
-                    <div class="h5p-warning">Warning! This may have security implications as it allows for uploading php
-                        files. That in turn could make it possible for attackers to execute malicious code on your site.
-                        Please make sure you know exactly what you're uploading.
+            <f:form method="post" enctype="multipart/form-data" id="h5p-content-form" action="create" controller="H5pModule">
+                <div id="post-body-content">
+                    <div class="h5p-upload">
+                        <f:form.upload name="h5p_file" id="h5p-file"/>
+                        <div class="h5p-disable-file-check">
+                            <label><input type="checkbox" name="h5p_disable_file_check" id="h5p-disable-file-check"/> Disable
+                                file extension check</label>
+                            <div class="h5p-warning">Warning! This may have security implications as it allows for uploading php
+                                files. That in turn could make it possible for attackers to execute malicious code on your site.
+                                Please make sure you know exactly what you're uploading.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h5p-create">
+                        <div class="h5p-editor">Waiting for javascript...</div>
                     </div>
                 </div>
-            </div>
-            <div class="h5p-create">
-                <div class="h5p-editor">Waiting for javascript...</div>
-            </div>
-        </div>
-        <div class="postbox h5p-sidebar">
-            <h2>Actions</h2>
-            <div id="minor-publishing" style="display:none">
-                <label><input type="radio" name="action" value="upload"/>Upload</label>
-                <label><input type="radio" name="action" value="create"/>Create</label>
-                <f:form.hidden name="library" value="{library}"/>
-                <f:form.hidden name="parameters" value="{parameters}"/>
-            </div>
-            <div id="major-publishing-actions" class="submitbox">
-                <input type="submit" name="submit-button" value="Create" class="button button-primary button-large"/>
-            </div>
-        </div>
-        <div class="postbox h5p-sidebar">
-            <h2>Display Options</h2>
-            <div class="h5p-action-bar-settings h5p-panel">
-                <label>
-                    <f:form.checkbox name="frame" value="true" checked="checked"/>
-                    Display toolbar below content </label>
-                <label title="If checked a reuse button will always be displayed for this content and allow users to download the content as an .h5p file">
-                    <f:form.checkbox name="download" value="true" checked="checked"/>
-                    Allow users to download the content </label>
-                <label>
-                    <f:form.checkbox name="embed" value="true" checked="checked"/>
-                    Display Embed button </label>
-                <label>
-                    <f:form.checkbox name="copyright" value="true" checked="checked"/>
-                    Display Copyright button </label>
-            </div>
-        </div>
-    </f:form>
+                <div class="postbox h5p-sidebar">
+                    <h2>Actions</h2>
+                    <div id="minor-publishing" style="display:none">
+                        <label><input type="radio" name="action" value="upload"/>Upload</label>
+                        <label><input type="radio" name="action" value="create"/>Create</label>
+                        <f:form.hidden name="library" value="{library}"/>
+                        <f:form.hidden name="parameters" value="{parameters}"/>
+                    </div>
+                    <div id="major-publishing-actions" class="submitbox">
+                        <input type="submit" name="submit-button" value="Create" class="button button-primary button-large"/>
+                    </div>
+                </div>
+                <div class="postbox h5p-sidebar">
+                    <h2>Display Options</h2>
+                    <div class="h5p-action-bar-settings h5p-panel">
+                        <label>
+                            <f:form.checkbox name="frame" value="true" checked="checked"/>
+                            Display toolbar below content </label>
+                        <label title="If checked a reuse button will always be displayed for this content and allow users to download the content as an .h5p file">
+                            <f:form.checkbox name="download" value="true" checked="checked"/>
+                            Allow users to download the content </label>
+                        <label>
+                            <f:form.checkbox name="embed" value="true" checked="checked"/>
+                            Display Embed button </label>
+                        <label>
+                            <f:form.checkbox name="copyright" value="true" checked="checked"/>
+                            Display Copyright button </label>
+                    </div>
+                </div>
+            </f:form>
+        </f:then>
+        <f:else>
+            <f:form method="post" enctype="multipart/form-data" id="h5p-content-form" action="consent" controller="H5pModule">
+                <h1>Activate H5P hub</h1>
+                <p>To be able to start creating interactive content you must first install at least one content type.</p>
+                <p>The H5P Hub is here to simplify this process by automatically installing the content types you choose and providing updates for those already installed.</p>
+                <p>In order for the H5P Hub to be able to do this, communication with H5P.org is required. As this will provide H5P.org with anonymous data on how H5P is used we kindly ask for your consent before proceeding. You can read more on the plugin communication page.</p>
+
+                <div><label>
+                    <f:form.checkbox name="collectStatistics" value="true"/>
+                    Send usage statistics to H5P</label></div>
+                <div><input type="submit" name="submit-button" value="I consent, give me the Hub!" class="button button-primary button-large"/></div>
+            </f:form>
+        </f:else>
+    </f:if>
 </f:section>
 </html>
