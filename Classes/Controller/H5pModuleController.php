@@ -826,12 +826,29 @@ class H5pModuleController extends ActionController
     }
 
     /**
+     * Consent action
+     */
+    public function consentAction()
+    {
+        if ($this->request->getArgument('collectStatistics')) {
+            $this->h5pFramework->setOption('track_user', 1);
+            $this->addFlashMessage('Usage tracking has been enabled.', 'Tracking enabled');
+        }
+        $this->h5pFramework->setOption('hub_is_enabled', 1);
+        $this->addFlashMessage('The hub has been enabled.', 'H5P hub enabled');
+
+        $this->forward('new');
+    }
+
+    /**
      * New action / upload form
      * @param int $contentId
      * @throws \TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException
      */
     public function newAction(int $contentId = 0)
     {
+        $this->view->assign('didConsent', (int)$this->h5pFramework->getOption('hub_is_enabled') === 1);
+
         $this->view->getModuleTemplate()->getPageRenderer()->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
         if ($this->isAccessibleForCurrentUser) {
             $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
