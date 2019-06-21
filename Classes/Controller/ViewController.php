@@ -95,7 +95,7 @@ class ViewController extends ActionController
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
         $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
@@ -203,7 +203,7 @@ class ViewController extends ActionController
 
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         $settings = [
             'baseUrl'            => $url,
@@ -328,7 +328,7 @@ class ViewController extends ActionController
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         if (!array_key_exists('scripts', $settings)) {
             $settings['scripts'] = [];
@@ -361,7 +361,7 @@ class ViewController extends ActionController
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         foreach ($preloadJs as $js) {
             $js = trim($js);

@@ -103,7 +103,7 @@ class LibraryRepository extends Repository
      * @param string $libraryName
      * @param int $majorVersion
      * @param int $minorVersion
-     * @return Library
+     * @return object|null
      */
     public function findOneByMachinenameMajorVersionAndMinorVersion($libraryName, $majorVersion, $minorVersion = 0)
     {
@@ -115,14 +115,17 @@ class LibraryRepository extends Repository
                 $query->equals('minor_version', $minorVersion)
             )
         )->execute();
-        return $libraries->getFirst();
+        if ($libraries) {
+            return $libraries->getFirst();
+        }
+        return null;
     }
 
     /**
      * @param string $libraryName
      * @param int $majorVersion
      * @param int $minorVersion
-     * @return Library
+     * @return object|null
      */
     public function findOneByNameMajorVersionAndMinorVersion($libraryName, $majorVersion, $minorVersion = 0)
     {
@@ -134,7 +137,10 @@ class LibraryRepository extends Repository
                 $query->equals('minor_version', $minorVersion)
             )
         )->execute();
-        return $libraries->getFirst();
+        if ($libraries) {
+            return $libraries->getFirst();
+        }
+        return null;
     }
 
     /**

@@ -13,7 +13,6 @@ namespace MichielRoos\H5p\Domain\Repository;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use MichielRoos\H5p\Domain\Model\LibraryDependency;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
@@ -36,7 +35,7 @@ class LibraryDependencyRepository extends Repository
     /**
      * @param string $library
      * @param string $requiredLibrary
-     * @return LibraryDependency
+     * @return object|null
      */
     public function findOneByLibraryAndRequiredLibrary($library, $requiredLibrary)
     {
@@ -47,6 +46,9 @@ class LibraryDependencyRepository extends Repository
                 $query->equals('required_library', $requiredLibrary)
             )
         )->execute();
-        return $dependencies->getFirst();
+        if ($dependencies) {
+            return $dependencies->getFirst();
+        }
+        return null;
     }
 }

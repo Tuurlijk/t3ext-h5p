@@ -380,7 +380,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return string
      */
-    public function getFolderName(): string
+    public function getFolderName()
     {
         return \H5PCore::libraryToString($this->toAssocArray(), true);
     }
@@ -665,7 +665,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return string
      */
-    public function getString(): string
+    public function getString()
     {
         return \H5PCore::libraryToString($this->toAssocArray(), false);
     }

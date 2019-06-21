@@ -36,7 +36,7 @@ class LibraryTranslationRepository extends Repository
     /**
      * @param Library $library
      * @param $language
-     * @return object
+     * @return object|null
      */
     public function findOneByLibraryAndLanguage($library, $language)
     {
@@ -47,6 +47,9 @@ class LibraryTranslationRepository extends Repository
                 $query->equals('language_code', $language)
             )
         )->execute();
-        return $libraries->getFirst();
+        if ($libraries) {
+            return $libraries->getFirst();
+        }
+        return null;
     }
 }

@@ -12,7 +12,7 @@ return [
             'disabled' => 'hidden',
         ],
         'delete'         => 'deleted',
-        'sortby'         => 'uid',
+        'sortby'         => 'content',
         'searchFields'   => 'library',
         'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],

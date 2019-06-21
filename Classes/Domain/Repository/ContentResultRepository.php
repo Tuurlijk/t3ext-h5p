@@ -35,7 +35,7 @@ class ContentResultRepository extends Repository
     /**
      * @param int $userId
      * @param int $contentId
-     * @return object
+     * @return object|null
      */
     public function findOneByUserAndContentId(int $userId, int $contentId)
     {
@@ -46,6 +46,9 @@ class ContentResultRepository extends Repository
                 $query->equals('content', $contentId)
             )
         )->execute();
-        return $results->getFirst();
+        if ($results) {
+            return $results->getFirst();
+        }
+        return null;
     }
 }

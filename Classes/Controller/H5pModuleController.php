@@ -622,7 +622,7 @@ class H5pModuleController extends ActionController
         $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
         $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
 
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         // Add JavaScript settings
         $settings['editor'] = [
@@ -638,7 +638,7 @@ class H5pModuleController extends ActionController
             'metadataSemantics'  => $this->h5pContentValidator->getMetadataSemantics(),
             'assets'             => [],
             'deleteMessage'      => 'Are you sure you wish to delete this content?',
-            'apiVersion'         => $this->h5pCore::$coreApi,
+            'apiVersion'         => CoreFactory::$coreApi,
             'language'           => $this->language
         ];
 
@@ -682,7 +682,7 @@ class H5pModuleController extends ActionController
 
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         $settings = [
             'baseUrl'            => $url,
@@ -929,7 +929,7 @@ class H5pModuleController extends ActionController
             $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
         }
 
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
+        $cacheBuster = '?v=' . Framework::$version;
 
         $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
         $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);

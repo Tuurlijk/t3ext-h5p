@@ -195,7 +195,7 @@ class ContentResult extends AbstractEntity
      * @return string
      * @throws \Exception
      */
-    public function getFormattedTimeInterval(): string
+    public function getFormattedTimeInterval()
     {
         return $this->getFinishedDateTime()->diff($this->getOpenedDateTime())->format("%H:%M:%S");
     }
