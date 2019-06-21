@@ -2,6 +2,7 @@
 
 return [
     'ctrl'     => [
+        'hideTable'      => true,
         'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarytranslation',
         'label'          => 'library',
         'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getLibraryTranslationTitle',
@@ -12,7 +13,7 @@ return [
             'disabled' => 'hidden',
         ],
         'delete'         => 'deleted',
-        'sortby'         => 'sorting',
+        'sortby'         => 'library',
         'searchFields'   => 'library',
         'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],

@@ -12,7 +12,7 @@ return [
             'disabled' => 'hidden',
         ],
         'delete'         => 'deleted',
-        'sortby'         => 'sorting',
+        'sortby'         => 'updated_at DESC',
         'searchFields'   => 'title',
         'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
@@ -204,7 +204,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'created_at'       => [
+        'created_at'      => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_content.createdAt',
             'config'  => [
@@ -213,7 +213,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'updated_at'       => [
+        'updated_at'      => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_content.updatedAt',
             'config'  => [

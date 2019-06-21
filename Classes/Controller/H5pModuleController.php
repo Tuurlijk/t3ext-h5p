@@ -687,7 +687,7 @@ class H5pModuleController extends ActionController
         $settings = [
             'baseUrl'            => $url,
             'url'                => '/fileadmin/h5p',
-            'postUserStatistics' => $this->h5pFramework->getOption('track_user') && (bool)$backendUser['uid'],
+            'postUserStatistics' => false,
             'ajax'               => [
                 'setFinished'     => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']),
                 'contentUserData' => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_']),

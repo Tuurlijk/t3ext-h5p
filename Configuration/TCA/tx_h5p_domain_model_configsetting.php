@@ -2,19 +2,20 @@
 
 return [
     'ctrl'     => [
-        'title'         => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_configsetting',
-        'label'         => 'config_key',
+        'adminOnly'      => true,
+        'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_configsetting',
+        'label'          => 'config_key',
         'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getConfigSettingTitle',
-        'tstamp'        => 'tstamp',
-        'crdate'        => 'crdate',
-        'dividers2tabs' => true,
-        'enablecolumns' => [
+        'tstamp'         => 'tstamp',
+        'crdate'         => 'crdate',
+        'dividers2tabs'  => true,
+        'enablecolumns'  => [
             'disabled' => 'hidden',
         ],
-        'delete'        => 'deleted',
-        'sortby'        => 'sorting',
-        'searchFields'  => 'config_key, config_value',
-        'iconfile'      => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
+        'delete'         => 'deleted',
+        'sortby'         => 'config_key',
+        'searchFields'   => 'config_key,config_value',
+        'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
     'columns'  => [
         'hidden'       => [

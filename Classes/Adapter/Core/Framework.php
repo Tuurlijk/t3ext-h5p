@@ -1313,7 +1313,20 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryContentCount()
     {
-        return ['none' => 0];
+        $contentCount = ['none' => 0];
+        $allContent = $this->contentRepository->findAll();
+        if ($allContent) {
+            /** @var Content $item */
+            foreach ($allContent as $item) {
+                $libraryTitle = $item->getLibrary()->getTitle() . ' ' . $item->getLibrary()->getMajorVersion() . '.' . $item->getLibrary()->getMinorVersion();
+                if (!array_key_exists($libraryTitle, $contentCount)) {
+                    $contentCount[$libraryTitle] = 1;
+                } else {
+                    $contentCount[$libraryTitle]++;
+                }
+            }
+        }
+        return $contentCount;
     }
 
     /**

@@ -172,6 +172,33 @@
             <trans-unit id="tx_h5p_domain_model_contentdependency.dropCss">
                 <source>Drop CSS</source>
             </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult">
+                <source>H5P content result</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.user">
+                <source>User</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.content">
+                <source>Content</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.score">
+                <source>Score</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.opened">
+                <source>Opened</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.max_score">
+                <source>Max score</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.result">
+                <source>Result</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.finished">
+                <source>Finished</source>
+            </trans-unit>
+            <trans-unit id="tx_h5p_domain_model_contentresult.time">
+                <source>Time</source>
+            </trans-unit>
             <trans-unit id="tx_h5p_domain_model_content">
                 <source>H5P Content</source>
             </trans-unit>

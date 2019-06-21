@@ -19,7 +19,7 @@ if (TYPO3_MODE === 'BE') {
         ],
         [
             'access' => 'user,group',
-            'icon' => 'EXT:h5p/ext_icon.gif',
+            'icon'   => 'EXT:h5p/ext_icon.gif',
             'labels' => 'LLL:EXT:h5p/Resources/Private/Language/BackendModule.xml',
         ]
     );
@@ -28,8 +28,3 @@ if (TYPO3_MODE === 'BE') {
 
 }
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_configsetting');
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_content');
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_contentdependency');
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_contenttypecacheentry');
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_library');
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_librarydependency');

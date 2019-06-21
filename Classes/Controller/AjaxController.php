@@ -14,31 +14,19 @@ namespace MichielRoos\H5p\Controller;
  * The TYPO3 project - inspiring people to share!
  */
 
-use MichielRoos\H5p\Adapter\Core\CoreFactory;
-use MichielRoos\H5p\Adapter\Core\FileStorage;
-use MichielRoos\H5p\Adapter\Core\Framework;
+use MichielRoos\H5p\Domain\Model\Content;
+use MichielRoos\H5p\Domain\Model\ContentResult;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
-use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use MichielRoos\H5p\Domain\Repository\ContentResultRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class AjaxController
  */
 class AjaxController extends ActionController
 {
-    /**
-     * @var \TYPO3\CMS\Extbase\Mvc\View\JsonView
-     */
-    protected $view;
-
-    /**
-     * @var string
-     */
-    protected $defaultViewObjectName = \TYPO3\CMS\Extbase\Mvc\View\JsonView::class;
-
     /**
      * Content repository
      *
@@ -47,72 +35,66 @@ class AjaxController extends ActionController
     protected $contentRepository;
 
     /**
-     * @var ContentObjectRenderer
-     */
-    private $contentObjectRenderer;
-
-    /**
-     * @var Framework
-     */
-    private $h5pFramework;
-
-    /**
-     * @var PageRenderer
-     */
-    private $pageRenderer;
-    /**
      * @var string
      */
     private $language;
-    /**
-     * @var FileStorage|object
-     */
-    private $h5pFileStorage;
-    /**
-     * @var CoreFactory|object
-     */
-    private $h5pCore;
 
     /**
-     * Inject content repository
-     * @param \MichielRoos\H5p\Domain\Repository\ContentRepository $contentRepository
+     * Finish action
      */
-    public function injectContentRepository(ContentRepository $contentRepository)
+    public function finishAction()
     {
-        $this->contentRepository = $contentRepository;
+        $user = null;
+
+        $error = [
+            'message'    => 'Uanble to save result',
+            'errorCode'  => 'error',
+            'statusCode' => 200,
+            'details'    => 'No user is logged in'
+        ];
+
+        if ($GLOBALS['TSFE']->loginUser) {
+            $user = $GLOBALS['TSFE']->fe_user->user;
+            $postData = GeneralUtility::_POST();
+
+            $contentRepository = $this->objectManager->get(ContentRepository::class);
+
+            $content = $contentRepository->findByUid($postData['contentId']);
+            if (!$content instanceof Content) {
+                $error['details'] = 'Content not found';
+                \H5PCore::ajaxError($error['message'], $error['errorCode'], $error['statusCode'], $error['details']);
+                exit;
+            }
+
+            $contentResultRepository = $this->objectManager->get(ContentResultRepository::class);
+
+            /** @var ContentResult $existingContentResult */
+            $existingContentResult = $contentResultRepository->findOneByUserAndContentId($user['uid'], $postData['contentId']);
+            if ($existingContentResult) {
+                $existingContentResult->setScore($postData['score']);
+                $existingContentResult->setMaxScore($postData['maxScore']);
+                $existingContentResult->setOpened($postData['opened']);
+                $existingContentResult->setFinished($postData['finished']);
+                $existingContentResult->setTime($postData['time']);
+                $contentResultRepository->update($existingContentResult);
+            } else {
+                $contentResult = new ContentResult((int)$postData['contentId'], (int)$user['uid'], (int)$postData['score'], (int)$postData['maxScore'], (int)$postData['opened'], (int)$postData['finished'], (int)$postData['time']);
+                $contentResultRepository->add($contentResult);
+            }
+            $persistenceManager = $this->objectManager->get(PersistenceManager::class);
+            $persistenceManager->persistAll();
+            \H5PCore::ajaxSuccess();
+            exit;
+        }
+        \H5PCore::ajaxError($error['message'], $error['errorCode'], $error['statusCode'], $error['details']);
+        exit;
     }
 
     /**
-     * Init
+     * Finish action
      */
-    public function initializeAction()
+    public function contentUserDataAction()
     {
-        $this->contentObjectRenderer = $this->configurationManager->getContentObject();
-
-        $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
-
-        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
-        $storage = $resourceFactory->getDefaultStorage();
-        $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
-        $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
-
-        $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-
-        $cacheBuster = '?v=' . $this->h5pFramework::$version;
-
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
-
-        foreach (\H5PCore::$scripts as $script) {
-            $this->pageRenderer->addJsFooterFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
-        }
-        foreach (\H5PCore::$styles as $style) {
-            $this->pageRenderer->addCssFile($relativeCorePath . $style . $cacheBuster);
-        }
-
-        parent::initializeAction();
     }
 
     /**
@@ -123,19 +105,5 @@ class AjaxController extends ActionController
     protected function getLanguageService()
     {
         return $GLOBALS['LANG'];
-    }
-
-    /**
-     * Finish action
-     */
-    public function finishAction()
-    {
-    }
-
-    /**
-     * Finish action
-     */
-    public function contentUserDataAction()
-    {
     }
 }

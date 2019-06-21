@@ -62,11 +62,11 @@ class TCA
             $row['minor_version'],
             $row['patch_version'],
             $updatedAt->format($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'])
-    );
+        );
     }
 
     /**
-     * Get library dependency title
+     * Get content title
      *
      * @param $parameters
      * @param $parentObject
@@ -98,6 +98,30 @@ class TCA
     protected function getDBHandle()
     {
         return $GLOBALS['TYPO3_DB'];
+    }
+
+    /**
+     * Get content result title
+     *
+     * @param $parameters
+     * @param $parentObject
+     */
+    public function getContentResultTitle(&$parameters, $parentObject)
+    {
+        $contentRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
+            '*',
+            'tx_h5p_domain_model_content',
+            sprintf('uid=%d', $parameters['row']['content'])
+        );
+
+        $parameters['title'] = sprintf(
+            '%s, user: %s, score: %d/%d, time: %d s',
+            $contentRow['title'],
+            $parameters['row']['user'],
+            $parameters['row']['score'],
+            $parameters['row']['max_score'],
+            $parameters['row']['finished'] - $parameters['row']['opened']
+        );
     }
 
     /**

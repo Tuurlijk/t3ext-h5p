@@ -21,6 +21,7 @@ use MichielRoos\H5p\Adapter\Core\Framework;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -86,7 +87,7 @@ class ViewController extends ActionController
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
-        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+        $resourceFactory = ResourceFactory::getInstance();
         $storage = $resourceFactory->getDefaultStorage();
         $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
@@ -177,11 +178,6 @@ class ViewController extends ActionController
             $this->loadJsAndCss($contentLibrary);
         }
 
-//        $uriBuilder = $this->objectManager->get(UriBuilder::class);
-//
-//        $ajaxSetFinishedUri = $uriBuilder->reset()
-//            ->setArguments(['type' => 1560239219921, 'action' => 'setFinished', 'h5pAction' => 'h5p_'])
-//            ->buildFrontendUri();
 //
 //        $contentUserDataUri = $uriBuilder->reset()
 //            ->setArguments(['type' => 1560239219921, 'action' => 'contentUserData', 'h5pAction' => 'h5p_'])
@@ -200,6 +196,11 @@ class ViewController extends ActionController
         $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
         $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
 
+        $ajaxSetFinishedUri = $this->uriBuilder->reset()
+            ->setArguments(['type' => 1561098634614])
+            ->setCreateAbsoluteUri(true)
+            ->uriFor('finish', [], 'Ajax', 'H5p', 'ajax');
+
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
         $cacheBuster = '?v=' . $this->h5pFramework::$version;
@@ -209,7 +210,7 @@ class ViewController extends ActionController
             'url'                => '/fileadmin/h5p',
             'postUserStatistics' => false,
             'ajax'               => [
-                'setFinished'     => '',
+                'setFinished'     => $ajaxSetFinishedUri,
                 'contentUserData' => '',
             ],
             'saveFreq'           => $this->h5pFramework->getOption('save_content_state') ? $this->h5pFramework->getOption('save_content_frequency') : false,
@@ -228,8 +229,17 @@ class ViewController extends ActionController
 
         if ($GLOBALS['TSFE']->loginUser) {
             $user = $GLOBALS['TSFE']->fe_user->user;
+
+            $name = $user['first_name'];
+            if ($user['middle_name']) {
+                $name .= ' ' . $user ['middle_name'];
+            }
+            if ($user['last_name']) {
+                $name .= ' ' . $user ['last_name'];
+            }
+
             $settings['user'] = [
-                'name' => $user['first_name'] . ' ' . $user['middle_name'] . ' ' . $user['last_name'],
+                'name' => $name,
                 'mail' => $user['email']
             ];
             $settings['postUserStatistics'] = $this->h5pFramework->getOption('track_user') && (bool)$user['uid'];
@@ -253,6 +263,7 @@ class ViewController extends ActionController
     /**
      * Get content settings
      *
+     * @param Content $content
      * @return array;
      */
     public function getContentSettings(Content $content)

@@ -33,15 +33,10 @@ api_h5p = PAGE
 api_h5p {
     config {
         disableAllHeaderCode = 1
-        debug = 0
+        debug = 1
         no_cache = 1
-        additionalHeaders {
-            10 {
-                header = Content-Type: application/json
-                replace = 1
-            }
-        }
     }
-    typeNum = 1560239219921
-    10 < tt_content.list.20.tx_h5p_ajax
+
+    typeNum = 1561098634614
+    10 < tt_content.list.20.h5p_ajax
 }

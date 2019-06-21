@@ -2,22 +2,23 @@
 
 return [
     'ctrl'     => [
-        'title'         => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry',
-        'label'         => 'title',
+        'hideTable'      => true,
+        'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry',
+        'label'          => 'title',
         'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getLibraryTitle',
-        'tstamp'        => 'tstamp',
-        'crdate'        => 'crdate',
-        'dividers2tabs' => true,
-        'enablecolumns' => [
+        'tstamp'         => 'tstamp',
+        'crdate'         => 'crdate',
+        'dividers2tabs'  => true,
+        'enablecolumns'  => [
             'disabled' => 'hidden',
         ],
-        'delete'        => 'deleted',
-        'sortby'        => 'sorting',
-        'searchFields'  => 'title,machinename',
-        'iconfile'      => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
+        'delete'         => 'deleted',
+        'sortby'         => 'machine_name',
+        'searchFields'   => 'description,title,machinename',
+        'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
     'columns'  => [
-        'hidden'          => [
+        'hidden'            => [
             'exclude' => 1,
             'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
             'config'  => [
@@ -42,7 +43,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'machine_name'     => [
+        'machine_name'      => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.machineName',
             'config'  => [
@@ -51,7 +52,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'major_version'    => [
+        'major_version'     => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.majorVersion',
             'config'  => [
@@ -60,7 +61,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'minor_version'    => [
+        'minor_version'     => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.minorVersion',
             'config'  => [
@@ -69,7 +70,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'categories'      => [
+        'categories'        => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.categories',
             'config'  => [
@@ -78,7 +79,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'created_at'       => [
+        'created_at'        => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.createdAt',
             'config'  => [
@@ -87,7 +88,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'description'     => [
+        'description'       => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.description',
             'config'  => [
@@ -96,7 +97,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'example'         => [
+        'example'           => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.example',
             'config'  => [
@@ -105,7 +106,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'icon'            => [
+        'icon'              => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.icon',
             'config'  => [
@@ -114,7 +115,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'isrecommended'   => [
+        'isrecommended'     => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.isRecommended',
             'config'  => [
@@ -123,7 +124,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'keywords'        => [
+        'keywords'          => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.keywords',
             'config'  => [
@@ -132,7 +133,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'license'         => [
+        'license'           => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.license',
             'config'  => [
@@ -141,7 +142,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'owner'           => [
+        'owner'             => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.owner',
             'config'  => [
@@ -150,7 +151,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'patch_version'    => [
+        'patch_version'     => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.patchVersion',
             'config'  => [
@@ -159,7 +160,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'popularity'      => [
+        'popularity'        => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.popularity',
             'config'  => [
@@ -168,7 +169,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'screenshots'     => [
+        'screenshots'       => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.screenshots',
             'config'  => [
@@ -177,7 +178,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'summary'         => [
+        'summary'           => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.summary',
             'config'  => [
@@ -186,7 +187,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'updated_at'       => [
+        'updated_at'        => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.updatedAt',
             'config'  => [
@@ -195,7 +196,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'title'           => [
+        'title'             => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.title',
             'config'  => [
@@ -204,7 +205,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'tutorial'        => [
+        'tutorial'          => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.tutorial',
             'config'  => [
