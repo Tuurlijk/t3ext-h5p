@@ -47,7 +47,7 @@ class CoreStorage extends \H5PStorage implements SingletonInterface
 
         if (!$skipContent) {
             $basePath = $this->h5pF->getUploadedH5pFolderPath();
-            $current_path = $basePath . DIRECTORY_SEPARATOR . 'content';
+            $current_path = $basePath . '/content';
 
             // Save content
             if ($content === null) {
@@ -66,7 +66,7 @@ class CoreStorage extends \H5PStorage implements SingletonInterface
                 }
             }
 
-            $content['params'] = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
+            $content['params'] = file_get_contents($current_path . '/content.json');
 
             if (isset($options['disable'])) {
                 $content['disable'] = $options['disable'];

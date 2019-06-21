@@ -47,7 +47,7 @@ class LibraryTranslationRepository extends Repository
                 $query->equals('language_code', $language)
             )
         )->execute();
-        if ($libraries) {
+        if ($libraries->count()) {
             return $libraries->getFirst();
         }
         return null;

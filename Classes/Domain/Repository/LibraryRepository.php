@@ -115,7 +115,7 @@ class LibraryRepository extends Repository
                 $query->equals('minor_version', $minorVersion)
             )
         )->execute();
-        if ($libraries) {
+        if ($libraries->count()) {
             return $libraries->getFirst();
         }
         return null;
@@ -137,7 +137,7 @@ class LibraryRepository extends Repository
                 $query->equals('minor_version', $minorVersion)
             )
         )->execute();
-        if ($libraries) {
+        if ($libraries->count()) {
             return $libraries->getFirst();
         }
         return null;

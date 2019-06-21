@@ -68,17 +68,17 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $machineName;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $majorVersion;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $minorVersion;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $patchVersion;
 

@@ -24,37 +24,37 @@ class ContentResult extends AbstractEntity
 {
 
     /**
-     * @var int
+     * @var integer
      */
     protected $content;
 
     /**
-     * int
+     * @var integer
      */
     protected $user;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $score;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $maxScore;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $opened;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $finished;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $time;
 

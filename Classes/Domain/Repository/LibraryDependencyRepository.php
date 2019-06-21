@@ -46,7 +46,7 @@ class LibraryDependencyRepository extends Repository
                 $query->equals('required_library', $requiredLibrary)
             )
         )->execute();
-        if ($dependencies) {
+        if ($dependencies->count()) {
             return $dependencies->getFirst();
         }
         return null;

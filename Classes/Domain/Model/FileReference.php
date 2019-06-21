@@ -22,7 +22,7 @@ class FileReference extends \TYPO3\CMS\Extbase\Domain\Model\FileReference
     /**
      * Uid of a sys_file
      *
-     * @var int
+     * @var integer
      */
     private $originalFileIdentifier;
 

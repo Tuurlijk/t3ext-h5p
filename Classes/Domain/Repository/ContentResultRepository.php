@@ -46,7 +46,7 @@ class ContentResultRepository extends Repository
                 $query->equals('content', $contentId)
             )
         )->execute();
-        if ($results) {
+        if ($results->count()) {
             return $results->getFirst();
         }
         return null;

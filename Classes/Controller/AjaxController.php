@@ -56,6 +56,9 @@ class AjaxController extends ActionController
         if ($GLOBALS['TSFE']->loginUser) {
             $user = $GLOBALS['TSFE']->fe_user->user;
             $postData = GeneralUtility::_POST();
+            if (!array_key_exists('time', $postData)) {
+                $postData['time'] = 0;
+            }
 
             $contentRepository = $this->objectManager->get(ContentRepository::class);
 

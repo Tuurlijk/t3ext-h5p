@@ -74,9 +74,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
 
         // Ensure base directories exist
         foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
-            $folder = GeneralUtility::makeInstance(Folder::class, $this->storage, $this->basePath . DIRECTORY_SEPARATOR . $name, $name);
+            $folder = GeneralUtility::makeInstance(Folder::class, $this->storage, $this->basePath . '/' . $name, $name);
             if (!$this->storage->hasFolder($folder->getIdentifier())) {
-                $this->storage->createFolder($this->basePath . DIRECTORY_SEPARATOR . $name);
+                $this->storage->createFolder($this->basePath . '/' . $name);
             }
         }
     }
@@ -97,7 +97,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function saveLibrary($library)
     {
         $name = \H5PCore::libraryToString($library, true);
-        $destination = $this->basePath . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $name;
+        $destination = $this->basePath . '/libraries/' . $name;
 
         $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination, $name);
         if ($this->storage->hasFolder($destinationFolder->getIdentifier())) {
@@ -110,13 +110,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
-            $dir = ltrim($dir, DIRECTORY_SEPARATOR);
+            $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
-                $this->storage->createFolder($destination . DIRECTORY_SEPARATOR . $dir);
+                $this->storage->createFolder($destination . '/' . $dir);
             }
             if ($fileInfo->isFile()) {
-                $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), DIRECTORY_SEPARATOR);
-                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . DIRECTORY_SEPARATOR . $targetDirectory, $targetDirectory);
+                $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
+                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . '/' . $targetDirectory, $targetDirectory);
                 $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
             }
         }
@@ -139,7 +139,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function saveContent($source, $content)
     {
-        $destination = $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $content['id'];
+        $destination = $this->basePath . '/content/' . $content['id'];
 
         // Remove any old content
         $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination, $content['id']);
@@ -152,13 +152,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
-            $dir = ltrim($dir, DIRECTORY_SEPARATOR);
+            $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
-                $this->storage->createFolder($destination . DIRECTORY_SEPARATOR . $dir);
+                $this->storage->createFolder($destination . '/' . $dir);
             }
             if ($fileInfo->isFile()) {
-                $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), DIRECTORY_SEPARATOR);
-                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . DIRECTORY_SEPARATOR . $targetDirectory, $targetDirectory);
+                $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
+                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . '/' . $targetDirectory, $targetDirectory);
                 $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
             }
         }
@@ -399,10 +399,10 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         // Prepare directory
         if (empty($contentId)) {
             // Should be in editor tmp folder
-            $targetFalDirectory = $storageId . ':' . $this->basePath . DIRECTORY_SEPARATOR . 'editor' . DIRECTORY_SEPARATOR . $file->getType() . 's';
+            $targetFalDirectory = $storageId . ':' . $this->basePath . '/editor/' . $file->getType() . 's';
         } else {
             // Should be in content folder
-            $targetFalDirectory = $storageId . ':' . $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId . DIRECTORY_SEPARATOR . $file->getType() . 's';
+            $targetFalDirectory = $storageId . ':' . $this->basePath . '/content/' . $contentId . '/' . $file->getType() . 's';
         }
 
         $this->registerUploadField($data, $namespace, $targetFalDirectory, $editorFilename);
@@ -457,12 +457,12 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function cloneContentFile($file, $fromId, $toId)
     {
         if ($fromId === 'editor') {
-            $sourcePath = $this->basePath . DIRECTORY_SEPARATOR . 'editor';
+            $sourcePath = $this->basePath . '/editor';
         } else {
-            $sourcePath = $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $fromId;
+            $sourcePath = $this->basePath . '/content/' . $fromId;
         }
 
-        $destinationPath = $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $toId . DIRECTORY_SEPARATOR . dirname($file);
+        $destinationPath = $this->basePath . '/content/' . $toId . '/' . dirname($file);
         $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destinationPath, '');
         if (!$this->storage->hasFolder($destinationFolder->getIdentifier())) {
             $this->storage->createFolder($destinationPath);
@@ -471,7 +471,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         $sourceFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $sourcePath, '');
 
         if ($this->storage->hasFileInFolder($file, $sourceFolder)) {
-            $sourceFile = $this->storage->getFile($sourcePath . DIRECTORY_SEPARATOR . $file);
+            $sourceFile = $this->storage->getFile($sourcePath . '/' . $file);
             $this->storage->copyFile($sourceFile, $destinationFolder);
         }
     }
@@ -500,10 +500,10 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
 
         $destinationFolder = '';
         if ($contentId !== null) {
-            $destination = $this->basePath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
+            $destination = $this->basePath . '/content/' . $contentId;
             $destinationFolder = $contentId;
         } else {
-            $destination = $this->basePath . DIRECTORY_SEPARATOR . 'editor';
+            $destination = $this->basePath . '/editor';
         }
 
         // Remove any old content
@@ -519,21 +519,21 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
-            $dir = ltrim($dir, DIRECTORY_SEPARATOR);
+            $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
-                $this->storage->createFolder($destination . DIRECTORY_SEPARATOR . $dir);
+                $this->storage->createFolder($destination . '/' . $dir);
             }
             if ($fileInfo->isFile()) {
-                $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), DIRECTORY_SEPARATOR);
-                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . DIRECTORY_SEPARATOR . $targetDirectory, $targetDirectory);
+                $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
+                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . '/' . $targetDirectory, $targetDirectory);
                 $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
             }
         }
 
-        $contentSource = $source . DIRECTORY_SEPARATOR . 'content';
+        $contentSource = $source . '/content';
         // Return the actual content data as JSON, these get handed to the editor for editing by the user
-        $h5pJson = $this->getContent($source . DIRECTORY_SEPARATOR . 'h5p.json');
-        $contentJson = $this->getContent($contentSource . DIRECTORY_SEPARATOR . 'content.json');
+        $h5pJson = $this->getContent($source . '/h5p.json');
+        $contentJson = $this->getContent($contentSource . '/content.json');
 
         /**
          * !!HACK!!: Unfortunately, imported persistent resources always have lowercase file endings.
@@ -622,7 +622,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         $upgradesFilePath = "/h5p/libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
         if ($this->storage->hasFile($upgradesFilePath)) {
             $file = $this->storage->getFile($upgradesFilePath);
-            return DIRECTORY_SEPARATOR . ltrim($file->getPublicUrl(), DIRECTORY_SEPARATOR);
+            return '/' . ltrim($file->getPublicUrl(), '/');
         }
 
         return NULL;

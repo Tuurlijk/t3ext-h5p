@@ -26,7 +26,7 @@ class ContentTypeCacheEntry extends AbstractEntity
      * This is the "Entry ID" we pass to H5P. H5P expects an int here, but we cannot use this as a technical primary
      * key because doctrine doesnt handle it correctly. So this is a unique key.
      *
-     * @var int
+     * @var integer
      * @ORM\Column(nullable=false, columnDefinition="INT AUTO_INCREMENT UNIQUE")
      */
     protected $entryId;
@@ -38,30 +38,30 @@ class ContentTypeCacheEntry extends AbstractEntity
     protected $machineName;
 
     /**
-     * @var int
+     * @var integer
      * @ORM\Column(nullable=false)
      */
     protected $majorVersion;
 
     /**
-     * @var int
+     * @var integer
      * @ORM\Column(nullable=false)
      */
     protected $minorVersion;
 
     /**
-     * @var int
+     * @var integer
      * @ORM\Column(nullable=false)
      */
     protected $patchVersion;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $h5pMajorVersion;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $h5pMinorVersion;
 
@@ -108,7 +108,7 @@ class ContentTypeCacheEntry extends AbstractEntity
     protected $isRecommended;
 
     /**
-     * @var int
+     * @var integer
      * @ORM\Column(nullable=false)
      */
     protected $popularity;

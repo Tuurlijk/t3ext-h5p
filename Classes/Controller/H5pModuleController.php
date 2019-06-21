@@ -326,9 +326,9 @@ class H5pModuleController extends ActionController
         $storage = $resourceFactory->getDefaultStorage();
         $basePath = 'h5p';
         foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
-            $folder = GeneralUtility::makeInstance(Folder::class, $storage, $basePath . DIRECTORY_SEPARATOR . $name, $name);
+            $folder = GeneralUtility::makeInstance(Folder::class, $storage, $basePath . '/' . $name, $name);
             if (!$storage->hasFolder($folder->getIdentifier())) {
-                $storage->createFolder($basePath . DIRECTORY_SEPARATOR . $name, null, true);
+                $storage->createFolder($basePath . '/' . $name, null, true);
             }
         }
     }

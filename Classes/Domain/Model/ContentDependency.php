@@ -23,7 +23,7 @@ class ContentDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $dependencyType;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $weight;
 
