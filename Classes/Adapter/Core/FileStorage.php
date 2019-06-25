@@ -105,10 +105,11 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         }
         $this->storage->createFolder($destination);
 
-        $source = $library['uploadDirectory'];
+        $source = str_replace("\\", '/', $library['uploadDirectory']);
         /** @var \SplFileInfo $fileInfo */
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
+            $pathName = str_replace("\\", '/', $pathName);
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
