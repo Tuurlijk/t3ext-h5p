@@ -628,4 +628,17 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
 
         return NULL;
     }
+
+    /**
+     * Store the given stream into the given file.
+     *
+     * @param string   $path
+     * @param string   $file
+     * @param resource $stream
+     * @return bool
+     */
+    public function saveFileFromZip($path, $file, $stream)
+    {
+        // TODO: Implement saveFileFromZip() method.
+    }
 }
