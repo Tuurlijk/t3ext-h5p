@@ -322,15 +322,19 @@ class H5pModuleController extends ActionController
      */
     protected function prepareStorage()
     {
-        $resourceFactory = ResourceFactory::getInstance();
-        $storage = $resourceFactory->getDefaultStorage();
-        $basePath = 'h5p';
-        foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
-            $folder = GeneralUtility::makeInstance(Folder::class, $storage, $basePath . '/' . $name, $name);
-            if (!$storage->hasFolder($folder->getIdentifier())) {
-                $storage->createFolder($basePath . '/' . $name, null, true);
-            }
-        }
+//        $resourceFactory = ResourceFactory::getInstance();
+//        $storage = $resourceFactory->getDefaultStorage();
+//        $basePath = 'h5p';
+//        $rootLevelFolder = $storage->getRootLevelFolder();
+//        if ($rootLevelFolder->getIdentifier() === '/h5p/') {
+//            $basePath = '';
+//        }
+//        foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
+//            $folder = GeneralUtility::makeInstance(Folder::class, $storage, $basePath . '/' . $name, $name);
+//            if (!$storage->hasFolderInFolder($folder->getIdentifier(), $rootLevelFolder)) {
+//                $storage->createFolder($basePath . '/' . $name, $rootLevelFolder, true);
+//            }
+//        }
     }
 
     /**

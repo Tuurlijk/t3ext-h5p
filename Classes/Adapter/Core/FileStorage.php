@@ -31,9 +31,14 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 class FileStorage implements \H5PFileStorage, SingletonInterface
 {
     /**
-     * @var string|string
+     * @var string
      */
     private $basePath;
+
+    /**
+     * @var string
+     */
+    private $folderPrefix = 'h5p/';
 
     /**
      * @var ResourceStorage
@@ -67,16 +72,28 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function __construct(ResourceStorage $storage, $path = 'h5p')
     {
         $this->storage = $storage;
-        $this->basePath = $path ?: 'h5p';
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->cachedAssetRepository = $this->objectManager->get(CachedAssetRepository::class);
-        $this->persistenceManager = $this->objectManager->get(PersistenceManager::class);
+        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        if ($rootLevelFolder->getIdentifier() === '/h5p/') {
+            $this->folderPrefix = '';
+        }
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->cachedAssetRepository = $objectManager->get(CachedAssetRepository::class);
+        $this->persistenceManager = $objectManager->get(PersistenceManager::class);
 
         // Ensure base directories exist
         foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
-            $folder = GeneralUtility::makeInstance(Folder::class, $this->storage, $this->basePath . '/' . $name, $name);
-            if (!$this->storage->hasFolder($folder->getIdentifier())) {
-                $this->storage->createFolder($this->basePath . '/' . $name);
+            $path = $name;
+            if ($this->folderPrefix) {
+                $path = $this->folderPrefix . $name;
+            }
+            $folder = GeneralUtility::makeInstance(
+                Folder::class,
+                $this->storage,
+                $path,
+                $name
+            );
+            if (!$this->storage->hasFolderInFolder($folder->getIdentifier(), $rootLevelFolder)) {
+                $this->storage->createFolder($path, $rootLevelFolder);
             }
         }
     }
@@ -86,24 +103,29 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *
      * @param array $library
      *  Library properties
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException
      * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException
      * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
      * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientUserPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InvalidPathException
      */
     public function saveLibrary($library)
     {
         $name = \H5PCore::libraryToString($library, true);
-        $destination = $this->basePath . '/libraries/' . $name;
-
-        $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination, $name);
-        if ($this->storage->hasFolder($destinationFolder->getIdentifier())) {
-            $this->storage->deleteFolder($destinationFolder, true);
+        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $destination = 'libraries/' . $name . '/';
+        if ($this->folderPrefix) {
+            $destination = $this->folderPrefix . $destination;
         }
-        $this->storage->createFolder($destination);
+
+        $destinationFolder = GeneralUtility::makeInstance(
+            Folder::class,
+            $this->storage,
+            $destination,
+            $name
+        );
+        if ($this->storage->hasFolderInFolder($destinationFolder->getIdentifier(), $rootLevelFolder)) {
+            $this->storage->getFolderInFolder($destinationFolder->getIdentifier(), $rootLevelFolder)->delete();
+        }
+        $libraryFolder = $this->storage->createFolder($destination, $rootLevelFolder);
 
         $source = str_replace("\\", '/', $library['uploadDirectory']);
         /** @var \SplFileInfo $fileInfo */
@@ -113,12 +135,16 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
-                $this->storage->createFolder($destination . '/' . $dir);
+                $this->storage->createFolder($dir, $libraryFolder);
             }
             if ($fileInfo->isFile()) {
                 $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
-                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . '/' . $targetDirectory, $targetDirectory);
-                $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
+                if (!$libraryFolder->hasFolder($targetDirectory)) {
+                    $destinationFolder = $libraryFolder->createFolder($targetDirectory);
+                } else {
+                    $destinationFolder = $libraryFolder->getSubfolder($targetDirectory);
+                }
+                $destinationFolder->addFile($fileInfo->getPathname(), $fileInfo->getFilename());
             }
         }
     }
@@ -130,37 +156,47 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *  Path on file system to content directory.
      * @param array $content
      *  Content properties
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException
      * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException
      * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
      * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientUserPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InvalidPathException
      */
     public function saveContent($source, $content)
     {
-        $destination = $this->basePath . '/content/' . $content['id'];
+        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $destination = 'content/' . $content['id'] . '/';
+        if ($this->folderPrefix) {
+            $destination = $this->folderPrefix . $destination;
+        }
 
         // Remove any old content
-        $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination, $content['id']);
-        if ($this->storage->hasFolder($destinationFolder->getIdentifier())) {
-            $this->storage->deleteFolder($destinationFolder, true);
+        $destinationFolder = GeneralUtility::makeInstance(
+            Folder::class,
+            $this->storage,
+            $destination,
+            $content['id']
+        );
+        if ($this->storage->hasFolderInFolder($destinationFolder->getIdentifier(), $rootLevelFolder)) {
+            $this->storage->getFolderInFolder($destinationFolder->getIdentifier(), $rootLevelFolder)->delete();
         }
-        $this->storage->createFolder($destination);
+        $contentFolder = $this->storage->createFolder($destination, $rootLevelFolder);
 
         /** @var \SplFileInfo $fileInfo */
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
+            $pathName = str_replace("\\", '/', $pathName);
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
-                $this->storage->createFolder($destination . '/' . $dir);
+                $this->storage->createFolder($dir, $contentFolder);
             }
             if ($fileInfo->isFile()) {
                 $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
-                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . '/' . $targetDirectory, $targetDirectory);
-                $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
+                if (!$contentFolder->hasFolder($targetDirectory)) {
+                    $destinationFolder = $contentFolder->createFolder($targetDirectory);
+                } else {
+                    $destinationFolder = $contentFolder->getSubfolder($targetDirectory);
+                }
+                $destinationFolder->addFile($fileInfo->getPathname(), $fileInfo->getFilename());
             }
         }
     }
@@ -392,6 +428,15 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function saveFile($file, $contentId)
     {
+        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $prefix = '';
+        if ($this->folderPrefix) {
+            $prefix = $this->folderPrefix . $prefix;
+        }
+        if ($rootLevelFolder->getIdentifier() === '/h5p/') {
+            $prefix = 'h5p/' . $prefix;
+        }
+
         $data = [];
         $namespace = key($_FILES);
         $storageId = $this->storage->getUid();
@@ -400,10 +445,10 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         // Prepare directory
         if (empty($contentId)) {
             // Should be in editor tmp folder
-            $targetFalDirectory = $storageId . ':' . $this->basePath . '/editor/' . $file->getType() . 's';
+            $targetFalDirectory = $storageId . ':' . $prefix . 'editor/' . $file->getType() . 's';
         } else {
             // Should be in content folder
-            $targetFalDirectory = $storageId . ':' . $this->basePath . '/content/' . $contentId . '/' . $file->getType() . 's';
+            $targetFalDirectory = $storageId . ':' . $prefix . 'content/' . $contentId . '/' . $file->getType() . 's';
         }
 
         $this->registerUploadField($data, $namespace, $targetFalDirectory, $editorFilename);
@@ -422,11 +467,11 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     /**
      * @param array &$data
      * @param string $namespace
-     * @param string $fieldName
      * @param string $targetDirectory
+     * @param $editorFilename
      * @return void
      */
-    protected function registerUploadField(array &$data, $namespace, $targetDirectory = '1:/_temp_/', $editorFilename)
+    protected function registerUploadField(array &$data, $namespace, $targetDirectory = '1:/_temp_/', $editorFilename = '')
     {
         if (!isset($data['upload'])) {
             $data['upload'] = [];
@@ -454,25 +499,33 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $file path + name
      * @param string|int $fromId Content ID or 'editor' string
      * @param int $toId Target Content ID
+     * @throws \TYPO3\CMS\Core\Resource\Exception\AbstractFileOperationException
+     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException
+     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
+     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
+     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
+        $rootLevelFolder = $this->storage->getRootLevelFolder();
+
         if ($fromId === 'editor') {
-            $sourcePath = $this->basePath . '/editor';
+            $sourcePath = $this->folderPrefix . 'editor';
         } else {
-            $sourcePath = $this->basePath . '/content/' . $fromId;
+            $sourcePath = $this->folderPrefix . 'content/' . $fromId;
         }
 
-        $destinationPath = $this->basePath . '/content/' . $toId . '/' . dirname($file);
-        $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destinationPath, '');
-        if (!$this->storage->hasFolder($destinationFolder->getIdentifier())) {
-            $this->storage->createFolder($destinationPath);
+        $destinationPath = $this->folderPrefix . 'content/' . $toId . '/' . dirname($file);
+
+        if (!$this->storage->hasFolderInFolder($destinationPath, $rootLevelFolder)) {
+            $this->storage->createFolder($destinationPath, $rootLevelFolder);
         }
+        $destinationFolder = $this->storage->getFolderInFolder($destinationPath, $rootLevelFolder);
 
-        $sourceFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $sourcePath, '');
+        $sourceFolder = $this->storage->getFolderInFolder($sourcePath, $rootLevelFolder);
 
-        if ($this->storage->hasFileInFolder($file, $sourceFolder)) {
-            $sourceFile = $this->storage->getFile($sourcePath . '/' . $file);
+        if ($sourceFolder->hasFile($file)) {
+            $sourceFile = $this->storage->getFileInFolder($sourcePath . '/' . $file, $rootLevelFolder);
             $this->storage->copyFile($sourceFile, $destinationFolder);
         }
     }
@@ -499,21 +552,28 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             return null;
         }
 
+        $rootLevelFolder = $this->storage->getRootLevelFolder();
+
         $destinationFolder = '';
         if ($contentId !== null) {
-            $destination = $this->basePath . '/content/' . $contentId;
+            $destination = $this->folderPrefix . 'content/' . $contentId;
             $destinationFolder = $contentId;
         } else {
-            $destination = $this->basePath . '/editor';
+            $destination = $this->folderPrefix . 'editor';
         }
 
         // Remove any old content
         if ($destinationFolder !== '') {
-            $oldFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination, $destinationFolder);
-            if ($this->storage->hasFolder($oldFolder->getIdentifier())) {
+            $oldFolder = GeneralUtility::makeInstance(
+                Folder::class,
+                $this->storage,
+                $destination,
+                $destinationFolder
+            );
+            if ($this->storage->hasFolderInFolder($oldFolder->getIdentifier(), $rootLevelFolder)) {
                 $this->storage->deleteFolder($oldFolder, true);
             }
-            $this->storage->createFolder($destination);
+            $this->storage->createFolder($destination, $rootLevelFolder);
         }
 
         /** @var \SplFileInfo $fileInfo */
@@ -522,11 +582,16 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
             if ($fileInfo->isDir()) {
-                $this->storage->createFolder($destination . '/' . $dir);
+                $this->storage->createFolder($destination . '/' . $dir, $rootLevelFolder);
             }
             if ($fileInfo->isFile()) {
                 $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
-                $destinationFolder = GeneralUtility::makeInstance(Folder::class, $this->storage, $destination . '/' . $targetDirectory, $targetDirectory);
+                $destinationFolder = GeneralUtility::makeInstance(
+                    Folder::class,
+                    $this->storage,
+                    $rootLevelFolder->getIdentifier() . '/' . $destination . $targetDirectory,
+                    $targetDirectory
+                );
                 $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
             }
         }
@@ -632,8 +697,8 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     /**
      * Store the given stream into the given file.
      *
-     * @param string   $path
-     * @param string   $file
+     * @param string $path
+     * @param string $file
      * @param resource $stream
      * @return bool
      */
