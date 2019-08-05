@@ -33,7 +33,6 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -51,10 +50,12 @@ class H5pModuleController extends ActionController
      * @var string
      */
     public $perms_clause;
+
     /**
      * @var string
      */
     protected $relativePath;
+
     /**
      * @var array
      */
@@ -205,7 +206,6 @@ class H5pModuleController extends ActionController
         parent::initializeView($view);
         $this->registerDocheaderButtons();
         $this->generateMenu();
-        $this->prepareStorage();
         $this->view->getModuleTemplate()->setFlashMessageQueue($this->controllerContext->getFlashMessageQueue());
     }
 
@@ -275,26 +275,33 @@ class H5pModuleController extends ActionController
     protected function generateMenu()
     {
         $menuItems = [
-            'choose'    => [
+            'choose' => [
                 'controller' => 'H5pModule',
-                'action'     => 'index',
+                'action'     => 'content',
                 'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.choose')
-            ],
-            'index'     => [
+            ]
+        ];
+        if ($this->isCurrentUserAdmin()) {
+            $menuItems['index'] = [
                 'controller' => 'H5pModule',
                 'action'     => 'index',
                 'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.index')
-            ],
-            'new'       => [
-                'controller' => 'H5pModule',
-                'action'     => 'new',
-                'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new')
-            ],
-            'libraries' => [
-                'controller' => 'H5pModule',
-                'action'     => 'libraries',
-                'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.libraries')
-            ],
+            ];
+        }
+        $menuItems['content'] = [
+            'controller' => 'H5pModule',
+            'action'     => 'content',
+            'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.content')
+        ];
+        $menuItems['new'] = [
+            'controller' => 'H5pModule',
+            'action'     => 'new',
+            'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new')
+        ];
+        $menuItems['libraries'] = [
+            'controller' => 'H5pModule',
+            'action'     => 'libraries',
+            'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.libraries')
         ];
         $uriBuilder = $this->objectManager->get(UriBuilder::class);
         $uriBuilder->setRequest($this->request);
@@ -315,29 +322,6 @@ class H5pModuleController extends ActionController
     }
 
     /**
-     * Ensure base directories exist
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
-     */
-    protected function prepareStorage()
-    {
-//        $resourceFactory = ResourceFactory::getInstance();
-//        $storage = $resourceFactory->getDefaultStorage();
-//        $basePath = 'h5p';
-//        $rootLevelFolder = $storage->getRootLevelFolder();
-//        if ($rootLevelFolder->getIdentifier() === '/h5p/') {
-//            $basePath = '';
-//        }
-//        foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
-//            $folder = GeneralUtility::makeInstance(Folder::class, $storage, $basePath . '/' . $name, $name);
-//            if (!$storage->hasFolderInFolder($folder->getIdentifier(), $rootLevelFolder)) {
-//                $storage->createFolder($basePath . '/' . $name, $rootLevelFolder, true);
-//            }
-//        }
-    }
-
-    /**
      * Shows a list of h5p content
      *
      * @return void
@@ -351,6 +335,27 @@ class H5pModuleController extends ActionController
 
         $contentRepository = $this->objectManager->get(ContentRepository::class);
         $content = $contentRepository->findAll();
+
+        $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
+        $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
+        $this->view->assign('id', $this->id);
+        $this->view->assign('h5pContent', $content);
+    }
+
+    /**
+     * Shows a list of h5p content on selected page
+     *
+     * @return void
+     */
+    public function contentAction()
+    {
+        $this->view->getModuleTemplate()->getPageRenderer()->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
+        if ($this->isAccessibleForCurrentUser) {
+            $this->view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation($this->pageRecord);
+        }
+
+        $contentRepository = $this->objectManager->get(ContentRepository::class);
+        $content = $contentRepository->findByPid($this->id);
 
         $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
         $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);

@@ -304,6 +304,12 @@
             <trans-unit id="module.menu.index">
                 <source>All H5P content</source>
             </trans-unit>
+            <trans-unit id="module.menu.content">
+                <source>H5P content on current page</source>
+            </trans-unit>
+            <trans-unit id="content_on_current_page">
+                <source>Content on current page</source>
+            </trans-unit>
             <trans-unit id="module.menu.libraries">
                 <source>Libraries</source>
             </trans-unit>
