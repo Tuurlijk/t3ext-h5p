@@ -233,7 +233,7 @@ class H5pModuleController extends ActionController
             ->setGetVariables($getVars);
         $buttonBar->addButton($shortcutButton);
 
-        if (in_array($this->request->getControllerActionName(), ['index', 'show'])) {
+        if (in_array($this->request->getControllerActionName(), ['content', 'index', 'show'])) {
             $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
             $icon = $this->view->getModuleTemplate()->getIconFactory()->getIcon('actions-document-new', Icon::SIZE_SMALL);
             $addUserButton = $buttonBar->makeLinkButton()
