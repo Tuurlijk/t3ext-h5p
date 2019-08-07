@@ -95,17 +95,15 @@ class ViewController extends ActionController
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
-        $cacheBuster = '?v=' . Framework::$version;
-
         $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = str_replace('../typo3conf', 'typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
-            $this->pageRenderer->addJsFooterFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
+            $this->pageRenderer->addJsFooterFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
         }
         foreach (\H5PCore::$styles as $style) {
-            $this->pageRenderer->addCssFile($relativeCorePath . $style . $cacheBuster);
+            $this->pageRenderer->addCssFile($relativeCorePath . $style);
         }
 
         parent::initializeAction();
@@ -361,18 +359,17 @@ class ViewController extends ActionController
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
         $preloadJs = explode(',', $library['preloadedJs']);
-        $cacheBuster = '?v=' . Framework::$version;
 
         foreach ($preloadJs as $js) {
             $js = trim($js);
             if ($js) {
-                $this->pageRenderer->addJsFooterFile('/fileadmin/h5p/libraries/' . $name . '/' . $js . $cacheBuster, 'text/javascript', false, false, '');
+                $this->pageRenderer->addJsFooterFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '', true);
             }
         }
         foreach ($preloadCss as $css) {
             $css = trim($css);
             if ($css) {
-                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css . $cacheBuster);
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
             }
         }
     }
