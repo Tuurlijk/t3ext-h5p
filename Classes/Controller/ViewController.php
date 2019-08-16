@@ -145,7 +145,7 @@ class ViewController extends ActionController
         $contentSettings['displayOptions']['copyright'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_COPYRIGHT);
         $contentSettings['displayOptions']['icon'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_ABOUT);
         $this->pageRenderer->addJsInlineCode(
-            'H5PIntegration contents',
+            'H5PIntegration contents cid-' . $content->getUid(),
             'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
         );
 
