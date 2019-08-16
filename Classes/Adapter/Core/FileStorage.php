@@ -81,7 +81,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         $this->persistenceManager = $objectManager->get(PersistenceManager::class);
 
         // Ensure base directories exist
-        foreach (['cachedassets', 'content', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
+        foreach (['cachedassets', 'content', 'editor/audios', 'editor/images', 'exports', 'libraries', 'packages'] as $name) {
             $path = $name;
             if ($this->folderPrefix) {
                 $path = $this->folderPrefix . $name;
