@@ -26,5 +26,13 @@ if (TYPO3_MODE === 'BE') {
 
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('<INCLUDE_TYPOSCRIPT: source="FILE:EXT:h5p/Configuration/TsConfig/ContentElementWizard.ts">');
 
+    /** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */
+    $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
+    $iconRegistry->registerIcon(
+        'h5p-logo',
+        \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+        ['source' => 'EXT:h5p/ext_icon.gif']
+    );
+
 }
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_configsetting');
