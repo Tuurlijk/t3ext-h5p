@@ -20,6 +20,8 @@ use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
+use MichielRoos\H5p\Domain\Repository\ContentResultRepository;
+use MichielRoos\H5p\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -38,6 +40,13 @@ class ViewController extends ActionController
      * @var \MichielRoos\H5p\Domain\Repository\ContentRepository
      */
     protected $contentRepository;
+
+    /**
+     * Content result repository
+     *
+     * @var \MichielRoos\H5p\Domain\Repository\ContentResultRepository
+     */
+    protected $contentResultRepository;
 
     /**
      * @var ContentObjectRenderer
@@ -76,6 +85,15 @@ class ViewController extends ActionController
     public function injectContentRepository(ContentRepository $contentRepository)
     {
         $this->contentRepository = $contentRepository;
+    }
+
+    /**
+     * Inject content result repository
+     * @param \MichielRoos\H5p\Domain\Repository\ContentResultRepository $contentResultRepository
+     */
+    public function injectContentResultRepository(ContentResultRepository $contentResultRepository)
+    {
+        $this->contentResultRepository = $contentResultRepository;
     }
 
     /**
@@ -182,6 +200,56 @@ class ViewController extends ActionController
 //            ->buildFrontendUri();
 
         $this->view->assign('content', $content);
+    }
+
+    /**
+     * Statistics action
+     */
+    public function statisticsAction()
+    {
+        if (!$GLOBALS['TSFE']->loginUser) {
+            $this->view->assign('notLoggedIn', true);
+            return;
+        }
+
+        $user = $GLOBALS['TSFE']->fe_user->user;
+
+        $statistics = $this->contentResultRepository->findByUser((int)$user['uid']) ;
+        if (!$statistics) {
+            $this->view->assign('statisticsNotFound', true);
+            return;
+        }
+
+        $pageIds = [];
+        if (count($statistics)) {
+            foreach ($statistics as $item) {
+                $pageIds[$item->getPid()] = $item->getPid();
+            }
+        }
+
+        if (!count($pageIds)) {
+            $this->view->assign('statisticsNotFound', true);
+            return;
+        }
+
+        $statisticsByPage = [];
+        $pageRepository = $this->objectManager->get(PageRepository::class);
+        $pages = $pageRepository->findByUids($pageIds);
+        foreach ($pages as $page) {
+            $statisticsByPage[$page->getUid()] = [
+                'page' => $page,
+                'statistics' => []
+            ];
+            foreach ($statistics as $item) {
+                if ($item->getPid() === $page->getUid()) {
+                    $statisticsByPage[$page->getUid()]['statistics'][] = $item;
+                }
+            }
+        }
+
+        $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
+        $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
+        $this->view->assign('statisticsByPage', $statisticsByPage);
     }
 
     /**

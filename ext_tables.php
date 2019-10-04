@@ -8,6 +8,13 @@ defined('TYPO3_MODE') or die('¯\_(ツ)_/¯');
     'EXT:h5p/Resources/Public/Icon/h5p.gif'
 );
 
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+    'h5p',
+    'statistics',
+    'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:h5p.statistics',
+    'EXT:h5p/Resources/Public/Icon/h5p.gif'
+);
+
 if (TYPO3_MODE === 'BE') {
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
         'MichielRoos.h5p',

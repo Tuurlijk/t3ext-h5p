@@ -1,0 +1,29 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default"/>
+
+<f:section name="content">
+    <h1>H5P statistics</h1>
+    <f:if condition="{notLoggedIn}">
+        <f:then>
+            <p>User not logged in</p>
+        </f:then>
+        <f:else>
+            <f:if condition="{statisticsNotFound}">
+                <f:then>
+                    <p>No statistics found</p>
+                </f:then>
+                <f:else>
+                    <f:for each="{statisticsByPage}" as="byPage">
+                        <h2>{byPage.page.title}</h2>
+                        <f:for each="{byPage.statistics}" as="result">
+                            <h3>{result.content.title} - {result.content.library.title}</h3>
+                            <p><strong>Score</strong>: {result.score} / {result.maxScore}</p>
+                            <p><strong>Start: </strong><f:format.date format="{dateFormat} {timeFormat}">{result.opened}</f:format.date> <strong>End:</strong> <f:format.date format="{dateFormat} {timeFormat}">{result.finished}</f:format.date></p>
+                        </f:for>
+                    </f:for>
+                </f:else>
+            </f:if>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

@@ -12,6 +12,12 @@
             <trans-unit id="h5p.contentelement">
                 <source>H5P View</source>
             </trans-unit>
+            <trans-unit id="h5p.statistics">
+                <source>H5P Statsistics</source>
+            </trans-unit>
+            <trans-unit id="h5p.statistics.description">
+                <source>Show H5P progress for the currently logged in user.</source>
+            </trans-unit>
             <trans-unit id="tt_content.tx_h5p_content">
                 <source>Content object</source>
             </trans-unit>

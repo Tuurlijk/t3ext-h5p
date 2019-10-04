@@ -19,6 +19,7 @@ use MichielRoos\H5p\Domain\Model\ContentResult;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\ContentResultRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
@@ -69,6 +70,9 @@ class AjaxController extends ActionController
                 exit;
             }
 
+            $frontendUserRepository = $this->objectManager->get(FrontendUserRepository::class);
+            $frontendUser = $frontendUserRepository->findByUid((int)$user['uid']);
+
             $contentResultRepository = $this->objectManager->get(ContentResultRepository::class);
 
             /** @var ContentResult $existingContentResult */
@@ -81,7 +85,8 @@ class AjaxController extends ActionController
                 $existingContentResult->setTime($postData['time']);
                 $contentResultRepository->update($existingContentResult);
             } else {
-                $contentResult = new ContentResult((int)$postData['contentId'], (int)$user['uid'], (int)$postData['score'], (int)$postData['maxScore'], (int)$postData['opened'], (int)$postData['finished'], (int)$postData['time']);
+                $contentResult = new ContentResult($content, $frontendUser, (int)$postData['score'], (int)$postData['maxScore'], (int)$postData['opened'], (int)$postData['finished'], (int)$postData['time']);
+                $contentResult->setPid($GLOBALS['TSFE']->id);
                 $contentResultRepository->add($contentResult);
             }
             $persistenceManager = $this->objectManager->get(PersistenceManager::class);

@@ -1,6 +1,11 @@
 config.tx_extbase {
     persistence {
         classes {
+            MichielRoos\H5p\Domain\Model\Page {
+                mapping {
+                    tableName = pages
+                }
+            }
             MichielRoos\H5p\Domain\Model\FileReference {
                 mapping {
                     tableName = sys_file_reference
