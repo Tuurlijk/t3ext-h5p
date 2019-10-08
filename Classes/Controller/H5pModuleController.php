@@ -52,6 +52,11 @@ class H5pModuleController extends ActionController
     public $perms_clause;
 
     /**
+     * @var bool
+     */
+    protected $h5pContentAllowedOnPage = false;
+
+    /**
      * @var string
      */
     protected $relativePath;
@@ -135,6 +140,15 @@ class H5pModuleController extends ActionController
         if ($backendUser->workspace !== 0) {
             $this->isAccessibleForCurrentUser = false;
         }
+
+        // Get extension configuration
+        $allowContentOnStandardPages = false;
+        $extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['h5p']);
+        if (!isset($extConf['onlyAllowRecordsInSysfolders']) || (int)$extConf['onlyAllowRecordsInSysfolders'] === 0) {
+            $allowContentOnStandardPages = true;
+        }
+        $pageIsSysfolder = (int)$this->pageRecord['doktype'] === 254;
+        $this->h5pContentAllowedOnPage = $allowContentOnStandardPages || $pageIsSysfolder;
 
         // read configuration
         $modTS = $backendUser->getTSConfig('mod.recycler');
@@ -233,14 +247,16 @@ class H5pModuleController extends ActionController
             ->setGetVariables($getVars);
         $buttonBar->addButton($shortcutButton);
 
-        if (in_array($this->request->getControllerActionName(), ['content', 'index', 'show'])) {
-            $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
-            $icon = $this->view->getModuleTemplate()->getIconFactory()->getIcon('actions-document-new', Icon::SIZE_SMALL);
-            $addUserButton = $buttonBar->makeLinkButton()
-                ->setHref($this->getHref('H5pModule', 'new'))
-                ->setTitle($title)
-                ->setIcon($icon);
-            $buttonBar->addButton($addUserButton, ButtonBar::BUTTON_POSITION_LEFT);
+        if ($this->h5pContentAllowedOnPage) {
+            if (in_array($this->request->getControllerActionName(), ['content', 'index', 'show'])) {
+                $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
+                $icon = $this->view->getModuleTemplate()->getIconFactory()->getIcon('actions-document-new', Icon::SIZE_SMALL);
+                $addUserButton = $buttonBar->makeLinkButton()
+                    ->setHref($this->getHref('H5pModule', 'new'))
+                    ->setTitle($title)
+                    ->setIcon($icon);
+                $buttonBar->addButton($addUserButton, ButtonBar::BUTTON_POSITION_LEFT);
+            }
         }
 
         if (in_array($this->request->getControllerActionName(), ['show'])) {
@@ -293,11 +309,13 @@ class H5pModuleController extends ActionController
             'action'     => 'content',
             'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.content')
         ];
-        $menuItems['new'] = [
-            'controller' => 'H5pModule',
-            'action'     => 'new',
-            'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new')
-        ];
+        if ($this->h5pContentAllowedOnPage) {
+            $menuItems['new'] = [
+                'controller' => 'H5pModule',
+                'action'     => 'new',
+                'label'      => $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new')
+            ];
+        }
         $menuItems['libraries'] = [
             'controller' => 'H5pModule',
             'action'     => 'libraries',
@@ -336,6 +354,7 @@ class H5pModuleController extends ActionController
         $contentRepository = $this->objectManager->get(ContentRepository::class);
         $content = $contentRepository->findAll();
 
+        $this->view->assign('h5pContentAllowedOnPage', $this->h5pContentAllowedOnPage);
         $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
         $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
         $this->view->assign('id', $this->id);
@@ -357,6 +376,7 @@ class H5pModuleController extends ActionController
         $contentRepository = $this->objectManager->get(ContentRepository::class);
         $content = $contentRepository->findByPid($this->id);
 
+        $this->view->assign('h5pContentAllowedOnPage', $this->h5pContentAllowedOnPage);
         $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
         $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
         $this->view->assign('id', $this->id);
@@ -885,6 +905,7 @@ class H5pModuleController extends ActionController
     public function newAction(int $contentId = 0)
     {
         $this->view->assign('didConsent', (int)$this->h5pFramework->getOption('hub_is_enabled') === 1);
+        $this->view->assign('h5pContentAllowedOnPage', $this->h5pContentAllowedOnPage);
 
         $this->view->getModuleTemplate()->getPageRenderer()->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
         if ($this->isAccessibleForCurrentUser) {

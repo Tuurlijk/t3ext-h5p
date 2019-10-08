@@ -53,9 +53,16 @@
         </f:then>
         <f:else>
             <p>No H5P content available. You must upload or create new content.</p>
-            <f:form action="new" controller="H5pModule">
-                <f:form.button class="button" type="submit"><f:translate key="module.menu.new">Create</f:translate></f:form.button>
-            </f:form>
+            <f:if condition="{h5pContentAllowedOnPage}">
+                <f:then>
+                    <f:form action="new" controller="H5pModule">
+                        <f:form.button class="button" type="submit"><f:translate key="module.menu.new">Create</f:translate></f:form.button>
+                    </f:form>
+                </f:then>
+                <f:else>
+                    <p>No H5P content allowed on this page, please navigate to a folder and add content there.</p>
+                </f:else>
+            </f:if>
         </f:else>
     </f:if>
 </f:section>

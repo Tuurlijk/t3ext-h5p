@@ -298,6 +298,9 @@
             <trans-unit id="settings.displayCopyright">
                 <source>Display Copyright button</source>
             </trans-unit>
+            <trans-unit id="settings.onlyAllowRecordsInSysfolders">
+                <source>Only allow H5P records in sysfolders: Keep your records organised</source>
+            </trans-unit>
             <trans-unit id="module.menu.choose">
                 <source>...</source>
             </trans-unit>

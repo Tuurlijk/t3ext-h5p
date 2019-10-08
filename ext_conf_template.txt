@@ -1,4 +1,3 @@
-
 # cat=basic/enable/010; type=boolean; label=LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:settings.toolbarBelowContent:
 toolbarBelowContent = 1
 # cat=basic/enable/020; type=boolean; label=LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:settings.allowDownload:
@@ -7,3 +6,5 @@ allowDownload = 1
 displayEmbed = 1
 # cat=basic/enable/040; type=boolean; label=LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:settings.displayCopyright:
 displayCopyright = 1
+# cat=basic/enable/050; type=boolean; label=LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:settings.onlyAllowRecordsInSysfolders:
+onlyAllowRecordsInSysfolders = 0
