@@ -17,8 +17,8 @@
     }
   ],
   "require": {
-    "h5p/h5p-core": "^1.18 || dev-master || dev-directory-separator",
-    "h5p/h5p-editor": "^1.17 || dev-master || dev-directory-separator",
+    "h5p/h5p-core": "^1.23.1 || dev-master || dev-directory-separator",
+    "h5p/h5p-editor": "^1.23.1 || dev-master || dev-directory-separator",
     "guzzlehttp/guzzle": "^6.3",
     "typo3/cms-core": ">=7.6.0 < 9.5.99"
   },
