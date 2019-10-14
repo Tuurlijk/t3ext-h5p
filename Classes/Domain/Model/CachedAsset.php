@@ -14,9 +14,7 @@ namespace MichielRoos\H5p\Domain\Model;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Neos\Flow\ResourceManagement\PersistentResource;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
@@ -29,7 +27,7 @@ class CachedAsset extends AbstractEntity
 {
 
     /**
-     * @var PersistentResource
+     * @var \TYPO3\CMS\Core\Resource\File
      */
     protected $resource;
 
@@ -54,17 +52,17 @@ class CachedAsset extends AbstractEntity
     }
 
     /**
-     * @return PersistentResource
+     * @return \TYPO3\CMS\Core\Resource\File
      */
-    public function getResource()
+    public function getResource(): File
     {
         return $this->resource;
     }
 
     /**
-     * @param PersistentResource $resource
+     * @param \TYPO3\CMS\Core\Resource\File $resource
      */
-    public function setResource(PersistentResource $resource)
+    public function setResource(File $resource)
     {
         $this->resource = $resource;
     }
