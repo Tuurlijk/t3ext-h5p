@@ -15,6 +15,8 @@ namespace MichielRoos\H5p\ViewHelpers\Form;
  */
 
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Property\PropertyMapper;
+use TYPO3\CMS\Extbase\Security\Cryptography\HashService;
 
 /**
  * Class UploadViewHelper
@@ -23,15 +25,30 @@ class UploadViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\UploadViewHelpe
 {
     /**
      * @var \TYPO3\CMS\Extbase\Security\Cryptography\HashService
-     * @inject
      */
     protected $hashService;
+
     /**
      * @var \TYPO3\CMS\Extbase\Property\PropertyMapper
-     * @inject
      */
     protected $propertyMapper;
+    
+    /**
+     * @param \TYPO3\CMS\Extbase\Security\Cryptography\HashService $hashService
+     */
+    public function injectHashService(HashService $hashService)
+    {
+        $this->hashService = $hashService;
+    }
 
+    /**
+     * @param \TYPO3\CMS\Extbase\Property\PropertyMapper $propertyMapper
+     */
+    public function injectPropertyMapper(PropertyMapper $propertyMapper)
+    {
+        $this->propertyMapper = $propertyMapper;
+    }
+    
     /**
      * Render the upload field including possible resource pointer
      *

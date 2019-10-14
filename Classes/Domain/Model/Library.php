@@ -13,6 +13,7 @@ namespace MichielRoos\H5p\Domain\Model;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 /**
@@ -155,10 +156,17 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 //    protected $libraryUpgradeService;
 
     /**
-     * @Inject
      * @var \MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository
      */
     protected $libraryDependencyRepository;
+
+    /**
+     * @param \MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository $libraryDependencyRepository
+     */
+    public function injectLibraryDepencencyRepository(LibraryDependencyRepository $libraryDependencyRepository)
+    {
+        $this->libraryDependencyRepository = $libraryDependencyRepository;
+    }
 
     /**
      * Library constructor.
