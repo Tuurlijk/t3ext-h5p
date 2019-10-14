@@ -98,7 +98,8 @@ CREATE TABLE tx_h5p_domain_model_contentresult (
     finished  int(11) unsigned    NOT NULL DEFAULT '0',
     time      int(11) unsigned    NOT NULL DEFAULT '0',
     INDEX content (content),
-    INDEX content (user),
+    INDEX usr (user),
+    INDEX contentAndUser (content,user),
     PRIMARY KEY (uid),
     KEY user (user)
 );
