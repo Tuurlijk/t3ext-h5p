@@ -113,8 +113,8 @@ class ViewController extends ActionController
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', 'typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
@@ -259,8 +259,8 @@ class ViewController extends ActionController
      */
     public function getCoreSettings()
     {
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
 
         $ajaxSetFinishedUri = $this->uriBuilder->reset()
             ->setArguments(['type' => 1561098634614])
@@ -311,8 +311,8 @@ class ViewController extends ActionController
             $settings['postUserStatistics'] = $this->h5pFramework->getOption('track_user') && (bool)$user['uid'];
         }
 
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
         foreach (H5PCore::$styles as $style) {
             $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;

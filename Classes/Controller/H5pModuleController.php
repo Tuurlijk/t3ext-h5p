@@ -648,8 +648,8 @@ class H5pModuleController extends ActionController
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
         $uriBuilder = GeneralUtility::makeInstance(BackendUriBuilder::class);
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
 
         $cacheBuster = '?v=' . Framework::$version;
 
@@ -706,8 +706,8 @@ class H5pModuleController extends ActionController
         $backendUser = $this->getBackendUser()->user;
 
         $uriBuilder = GeneralUtility::makeInstance(BackendUriBuilder::class);
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
 
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
@@ -742,8 +742,8 @@ class H5pModuleController extends ActionController
             ];
         }
 
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
         foreach (H5PCore::$styles as $style) {
             $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;
@@ -787,8 +787,8 @@ class H5pModuleController extends ActionController
      */
     protected function embedEditorScriptsAndStyles()
     {
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
         $relativeEditorPath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/';
         $relativeScriptPath = $relativeExtensionPath . 'Resources/Public/JavaScript/';
@@ -961,8 +961,8 @@ class H5pModuleController extends ActionController
 
         $cacheBuster = '?v=' . Framework::$version;
 
-        $relativeExtensionPath = ExtensionManagementUtility::extRelPath('h5p');
-        $relativeExtensionPath = str_replace('../typo3conf', '/typo3conf', $relativeExtensionPath);
+        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
+        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
         $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
