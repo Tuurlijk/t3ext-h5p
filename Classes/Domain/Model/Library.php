@@ -752,21 +752,21 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
         $this->cachedAssets->add($cachedAsset);
     }
 
-    /**
-     * @return PersistentResource|null
-     */
-    public function getZippedLibraryFile()
-    {
-        return $this->zippedLibraryFile;
-    }
-
-    /**
-     * @param PersistentResource $zippedLibraryFile
-     */
-    public function setZippedLibraryFile(PersistentResource $zippedLibraryFile)
-    {
-        $this->zippedLibraryFile = $zippedLibraryFile;
-    }
+//    /**
+//     * @return PersistentResource|null
+//     */
+//    public function getZippedLibraryFile()
+//    {
+//        return $this->zippedLibraryFile;
+//    }
+//
+//    /**
+//     * @param PersistentResource $zippedLibraryFile
+//     */
+//    public function setZippedLibraryFile(PersistentResource $zippedLibraryFile)
+//    {
+//        $this->zippedLibraryFile = $zippedLibraryFile;
+//    }
 
     /**
      * @return string

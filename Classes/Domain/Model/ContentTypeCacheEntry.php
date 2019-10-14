@@ -27,31 +27,26 @@ class ContentTypeCacheEntry extends AbstractEntity
      * key because doctrine doesnt handle it correctly. So this is a unique key.
      *
      * @var integer
-     * @ORM\Column(nullable=false, columnDefinition="INT AUTO_INCREMENT UNIQUE")
      */
     protected $entryId;
 
     /**
      * @var string
-     * @ORM\Column(nullable=false)
      */
     protected $machineName;
 
     /**
      * @var integer
-     * @ORM\Column(nullable=false)
      */
     protected $majorVersion;
 
     /**
      * @var integer
-     * @ORM\Column(nullable=false)
      */
     protected $minorVersion;
 
     /**
      * @var integer
-     * @ORM\Column(nullable=false)
      */
     protected $patchVersion;
 
@@ -67,91 +62,76 @@ class ContentTypeCacheEntry extends AbstractEntity
 
     /**
      * @var string
-     * @ORM\Column(nullable=false)
      */
     protected $title;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=false)
      */
     protected $summary;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=false)
      */
     protected $description;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=false)
      */
     protected $icon;
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetimetz", nullable=false)
      */
     protected $createdAt;
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetimetz", nullable=false)
      */
     protected $updatedAt;
 
     /**
      * @var bool
-     * @ORM\Column(nullable=false)
      */
     protected $isRecommended;
 
     /**
      * @var integer
-     * @ORM\Column(nullable=false)
      */
     protected $popularity;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
      */
     protected $screenshots;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
      */
     protected $license;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=false)
      */
     protected $example;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
      */
     protected $tutorial;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
      */
     protected $keywords;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
      */
     protected $categories;
 
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
      */
     protected $owner;
 
