@@ -39,11 +39,6 @@ abstract class H5PEditorEndpoints {
    * Endpoint for retrieveing translation files
    */
   const TRANSLATIONS = 'translations';
-
-  /**
-   * Endpoint for filtering parameters.
-   */
-  const FILTER = 'filter';
 }
 
 
@@ -138,12 +133,6 @@ class H5PEditorAjax {
         $language = func_get_arg(1);
         H5PCore::ajaxSuccess($this->editor->getTranslations($_POST['libraries'], $language));
         break;
-
-      case H5PEditorEndpoints::FILTER:
-        $token = func_get_arg(1);
-        if (!$this->isValidEditorToken($token)) return;
-        $this->filter(func_get_arg(2));
-        break;
     }
   }
 
@@ -197,20 +186,17 @@ class H5PEditorAjax {
     $storage->savePackage(NULL, NULL, TRUE);
 
     // Make content available to editor
-    $files = $this->core->fs->moveContentDirectory($this->core->h5pF->getUploadedH5pFolderPath(), $contentId);
+    $content = $this->core->fs->moveContentDirectory(
+      $this->core->h5pF->getUploadedH5pFolderPath(),
+      $contentId
+    );
 
     // Clean up
     $this->storage->removeTemporarilySavedFiles($this->core->h5pF->getUploadedH5pFolderPath());
 
-    // Mark all files as temporary
-    // TODO: Uncomment once moveContentDirectory() is fixed. JI-366
-    /*foreach ($files as $file) {
-      $this->storage->markFileForCleanup($file, 0);
-    }*/
-
     H5PCore::ajaxSuccess(array(
-      'h5p' => $this->core->mainJsonData,
-      'content' => $this->core->contentJsonData,
+      'h5p' => json_decode($content->h5pJson),
+      'content' => json_decode($content->contentJson),
       'contentTypes' => $this->getContentTypeCache()
     ));
   }
@@ -283,24 +269,6 @@ class H5PEditorAjax {
 
     // Successfully installed. Refresh content types
     H5PCore::ajaxSuccess($this->getContentTypeCache());
-  }
-
-  /**
-   * End-point for filter parameter values according to semantics.
-   *
-   * @param {string} $libraryParameters
-   */
-  private function filter($libraryParameters) {
-    $libraryParameters = json_decode($libraryParameters);
-    if (!$libraryParameters) {
-      H5PCore::ajaxError($this->core->h5pF->t('Could not parse post data.'), 'NO_LIBRARY_PARAMETERS');
-      exit;
-    }
-
-    // Filter parameters and send back to client
-    $validator = new H5PContentValidator($this->core->h5pF, $this->core);
-    $validator->validateLibrary($libraryParameters, (object) array('options' => array($libraryParameters->library)));
-    H5PCore::ajaxSuccess($libraryParameters);
   }
 
   /**

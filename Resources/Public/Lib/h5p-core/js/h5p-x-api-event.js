@@ -312,8 +312,6 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
 
   // Custom verbs used for action toolbar below content
   'downloaded',
-  'copied',
-  'accessed-reuse',
   'accessed-embed',
   'accessed-copyright'
 ];

@@ -459,7 +459,6 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     }
 
     var mime;
-    var aspectRatio;
     var i;
     var matches = url.match(/\.(webm|mp4|ogv|m4a|mp3|ogg|oga|wav)/i);
     if (matches !== null) {
@@ -470,7 +469,6 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       for (i = 0; i < C.providers.length; i++) {
         if (C.providers[i].regexp.test(url)) {
           mime = C.providers[i].name;
-          aspectRatio = C.providers[i].aspectRatio;
           break;
         }
       }
@@ -479,8 +477,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     var file = {
       path: url,
       mime: this.field.type + '/' + (mime ? mime : 'unknown'),
-      copyright: this.copyright,
-      aspectRatio: aspectRatio ? aspectRatio : undefined,
+      copyright: this.copyright
     };
     var index = (this.updateIndex !== undefined ? this.updateIndex : this.params.length);
     this.params[index] = file;
@@ -668,8 +665,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    */
   C.providers = [{
     name: 'YouTube',
-    regexp: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtube.com\/(?:attribution_link\?(?:\S+))?(?:v\/|embed\/|watch\/|(?:user\/(?:\S+)\/)?watch(?:\S+)v\=))|(?:youtu.be\/|y2u.be\/))([A-Za-z0-9_-]{11})/i,
-    aspectRatio: '16:9',
+    regexp: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtube.com\/(?:attribution_link\?(?:\S+))?(?:v\/|embed\/|watch\/|(?:user\/(?:\S+)\/)?watch(?:\S+)v\=))|(?:youtu.be\/|y2u.be\/))([A-Za-z0-9_-]{11})/i
   }];
 
   // Avoid ID attribute collisions

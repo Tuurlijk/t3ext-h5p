@@ -103,7 +103,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
       }
 
       // No upgrades script. Move on
-      return next(null, params, metadata);
+      return next(null, params);
     }
 
     // Run upgrade hooks. Start by going through major versions

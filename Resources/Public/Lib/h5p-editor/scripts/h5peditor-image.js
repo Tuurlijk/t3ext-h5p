@@ -137,7 +137,10 @@ ns.widgets.image.prototype.appendTo = function ($wrapper) {
   });
 
   editImagePopup.on('resetImage', function () {
-    editImagePopup.setImage(self.params.originalImage ? self.params.originalImage : self.params);
+    var imagePath = self.params.originalImage ? self.params.originalImage.path
+      : self.params.path;
+    var imageSrc = H5P.getPath(imagePath, H5PEditor.contentId);
+    editImagePopup.setImage(imageSrc);
   });
 
   editImagePopup.on('canceled', function () {
@@ -153,7 +156,7 @@ ns.widgets.image.prototype.appendTo = function ($wrapper) {
     if (self.params && self.params.path) {
       var imageSrc;
       if (!self.isEditing) {
-        imageSrc = self.params;
+        imageSrc = H5P.getPath(self.params.path, H5PEditor.contentId);
         self.isEditing = true;
       }
       self.$editImage.toggleClass('loading');
