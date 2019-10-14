@@ -429,33 +429,65 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryId($machineName, $majorVersion = null, $minorVersion = null)
     {
-        $where = 'machine_name = :machineName';
-        $arguments = [':machineName' => $machineName];
+        if (version_compare(TYPO3_version, '7.0', '<=')) {
+            $where = 'machine_name = :machineName';
+            $arguments = [':machineName' => $machineName];
 
-        if ($majorVersion !== null) {
-            // Look for major version
-            $where .= ' AND major_version = :major';
-            $arguments[':major'] = $majorVersion;
-            if ($minorVersion !== null) {
-                // Look for minor version
-                $where .= ' AND minor_version = :minor';
-                $arguments[':minor'] = $minorVersion;
+            if ($majorVersion !== null) {
+                // Look for major version
+                $where .= ' AND major_version = :major';
+                $arguments[':major'] = $majorVersion;
+                if ($minorVersion !== null) {
+                    // Look for minor version
+                    $where .= ' AND minor_version = :minor';
+                    $arguments[':minor'] = $minorVersion;
+                }
             }
-        }
 
-        $statement = $this->databaseLink->prepare_SELECTquery(
-            'uid',
-            'tx_h5p_domain_model_library',
-            $where,
-            '',
-            'major_version DESC, minor_version DESC, patch_version DESC',
-            1,
-            $arguments
-        );
-        $statement->execute($arguments);
-        if ($statement->rowCount() > 0) {
-            $row = $statement->fetch();
-            return $row['uid'];
+            $statement = $this->databaseLink->prepare_SELECTquery(
+                'uid',
+                'tx_h5p_domain_model_library',
+                $where,
+                '',
+                'major_version DESC, minor_version DESC, patch_version DESC',
+                1,
+                $arguments
+            );
+            $statement->execute($arguments);
+            if ($statement->rowCount() > 0) {
+                $row = $statement->fetch();
+                return $row['uid'];
+            }
+        } else {
+            $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
+            $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+
+            $where = [];
+            $where[] = $queryBuilder->expr()->eq(
+                'machine_name',
+                $queryBuilder->createNamedParameter((string)$machineName, \PDO::PARAM_STR)
+            );
+            if ($majorVersion !== null) {
+                // Look for major version
+                $where[] = $queryBuilder->expr()->eq(
+                    'major_version',
+                    $queryBuilder->createNamedParameter((string)$majorVersion, \PDO::PARAM_STR)
+                );
+                if ($minorVersion !== null) {
+                    // Look for minor version
+                    $where[] = $queryBuilder->expr()->eq(
+                        'minor_version',
+                        $queryBuilder->createNamedParameter((string)$minorVersion, \PDO::PARAM_STR)
+                    );
+                }
+            }
+
+            $libraryRow = $queryBuilder->select('*')
+                ->from('tx_h5p_domain_model_library')
+                ->where(...$where)
+                ->execute()
+                ->fetch();
+            return $libraryRow['uid'];
         }
 
         return false;
@@ -500,29 +532,55 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function isPatchedLibrary($library)
     {
-        $arguments = [
-            ':machineName'  => $library['machineName'],
-            ':majorVersion' => $library['majorVersion'],
-            ':minorVersion' => $library['minorVersion']
-        ];
-        $statement = $this->databaseLink->prepare_SELECTquery(
-            'patch_version',
-            'tx_h5p_domain_model_library',
-            'machine_name = :machineName
+        if (version_compare(TYPO3_version, '7.0', '<=')) {
+            $arguments = [
+                ':machineName'  => $library['machineName'],
+                ':majorVersion' => $library['majorVersion'],
+                ':minorVersion' => $library['minorVersion']
+            ];
+            $statement = $this->databaseLink->prepare_SELECTquery(
+                'patch_version',
+                'tx_h5p_domain_model_library',
+                'machine_name = :machineName
                 AND major_version = :majorVersion
                 AND minor_version = :minorVersion',
-            '',
-            'major_version DESC, minor_version DESC, patch_version DESC',
-            1,
-            $arguments
-        );
-        $statement->execute($arguments);
-        if ($statement->rowCount() > 0) {
-            $row = $statement->fetch();
-            $result = $row['patch_version'] < $library['patchVersion'];
+                '',
+                'major_version DESC, minor_version DESC, patch_version DESC',
+                1,
+                $arguments
+            );
+            $statement->execute($arguments);
+            if ($statement->rowCount() > 0) {
+                $row = $statement->fetch();
+                $result = $row['patch_version'] < $library['patchVersion'];
+            }
+
+            return $result;
         }
 
-        return $result;
+        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+
+        $where = [];
+        $where[] = $queryBuilder->expr()->eq(
+            'machine_name',
+            $queryBuilder->createNamedParameter((string)$library['machineName'], \PDO::PARAM_STR)
+        );
+        $where[] = $queryBuilder->expr()->eq(
+            'major_version',
+            $queryBuilder->createNamedParameter((string)$library['majorVersion'], \PDO::PARAM_STR)
+        );
+        $where[] = $queryBuilder->expr()->eq(
+            'minor_version',
+            $queryBuilder->createNamedParameter((string)$library['minorVersion'], \PDO::PARAM_STR)
+        );
+
+        $libraryRow = $queryBuilder->select('patch_version')
+            ->from('tx_h5p_domain_model_library')
+            ->where(...$where)
+            ->execute()
+            ->fetch();
+        return $libraryRow['patch_version'] < $library['patchVersion'];
     }
 
     /**
@@ -1038,9 +1096,10 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function loadContent($id)
     {
-        $row = [];
-        $statement = $this->databaseLink->prepare_PREPAREDquery(
-            '
+        if (version_compare(TYPO3_version, '7.0', '<=')) {
+            $row = [];
+            $statement = $this->databaseLink->prepare_PREPAREDquery(
+                '
         SELECT hc.id
               , hc.title
               , hc.parameters AS params
@@ -1058,13 +1117,18 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         FROM tx_h5p_contents hc
         JOIN tx_h5p_libraries hl ON hl.id = hc.library_id
         WHERE hc.id = :id',
-            [':id' => (int)$id]
-        );
-        $result = $statement->execute();
-        if ($this->databaseLink->sql_num_rows($result) > 0) {
-            $row = $this->databaseLink->sql_fetch_assoc($result);
+                [':id' => (int)$id]
+            );
+            $result = $statement->execute();
+            if ($this->databaseLink->sql_num_rows($result) > 0) {
+                $row = $this->databaseLink->sql_fetch_assoc($result);
+            }
+            return $row;
+        } else {
+
+            // FIXME: The table mentioned above does not even exist any more. Is this method called?
+
         }
-        return $row;
     }
 
     /**

@@ -13,6 +13,8 @@ namespace MichielRoos\H5p\Backend;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 class TCA
 {
     /**
@@ -73,11 +75,7 @@ class TCA
      */
     public function getContentTitle(&$parameters, $parentObject)
     {
-        $libraryRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-            '*',
-            'tx_h5p_domain_model_library',
-            sprintf('uid=%d', $parameters['row']['library'])
-        );
+        $libraryRow = $this->getLibraryByUid($parameters['row']['library']);
 
         $updatedAt = \DateTime::createFromFormat('U', (int)$libraryRow['updated_at']);
 
@@ -90,6 +88,37 @@ class TCA
             $libraryRow['patch_version'],
             $updatedAt->format($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'])
         );
+    }
+
+    /**
+     * Fetch library record by uid
+     *
+     * @param $uid
+     * @return mixed
+     */
+    protected function getLibraryByUid($uid)
+    {
+        if (version_compare(TYPO3_version, '7.0', '<=')) {
+            $libraryRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
+                '*',
+                'tx_h5p_domain_model_library',
+                sprintf('uid=%d', (int)$uid)
+            );
+        } else {
+            $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
+            $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+            $libraryRow = $queryBuilder->select('*')
+                ->from('tx_h5p_domain_model_library')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'uid',
+                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    )
+                )
+                ->execute()
+                ->fetch();
+        }
+        return $libraryRow;
     }
 
     /**
@@ -108,11 +137,7 @@ class TCA
      */
     public function getContentResultTitle(&$parameters, $parentObject)
     {
-        $contentRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-            '*',
-            'tx_h5p_domain_model_content',
-            sprintf('uid=%d', $parameters['row']['content'])
-        );
+        $contentRow = $this->getContentByUid($parameters['row']['content']);
 
         $parameters['title'] = sprintf(
             '%s, user: %s, score: %d/%d, time: %d s',
@@ -125,6 +150,37 @@ class TCA
     }
 
     /**
+     * Fetch content record by uid
+     *
+     * @param $uid
+     * @return mixed
+     */
+    protected function getContentByUid($uid)
+    {
+        if (version_compare(TYPO3_version, '7.0', '<=')) {
+            $contentRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
+                '*',
+                'tx_h5p_domain_model_content',
+                sprintf('uid=%d', (int)$uid)
+            );
+        } else {
+            $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_content');
+            $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+            $contentRow = $queryBuilder->select('*')
+                ->from('tx_h5p_domain_model_content')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'uid',
+                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+                    )
+                )
+                ->execute()
+                ->fetch();
+        }
+        return $contentRow;
+    }
+
+    /**
      * Get library dependency title
      *
      * @param $parameters
@@ -132,16 +188,8 @@ class TCA
      */
     public function getLibraryDependencyTitle(&$parameters, $parentObject)
     {
-        $libraryRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-            '*',
-            'tx_h5p_domain_model_library',
-            sprintf('uid=%d', $parameters['row']['library'])
-        );
-        $dependencyRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-            '*',
-            'tx_h5p_domain_model_library',
-            sprintf('uid=%d', $parameters['row']['required_library'])
-        );
+        $libraryRow = $this->getLibraryByUid($parameters['row']['library']);
+        $dependencyRow = $this->getLibraryByUid($parameters['row']['required_library']);
 
         $parameters['title'] = sprintf(
             '%s: %s %d.%d.%d -> %s: %s %d.%d.%d',
@@ -166,11 +214,7 @@ class TCA
      */
     public function getLibraryTranslationTitle(&$parameters, $parentObject)
     {
-        $libraryRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-            '*',
-            'tx_h5p_domain_model_library',
-            sprintf('uid=%d', $parameters['row']['library'])
-        );
+        $libraryRow = $this->getLibraryByUid($parameters['row']['library']);
 
         $parameters['title'] = sprintf(
             '%s: %s %d.%d.%d - %s',
