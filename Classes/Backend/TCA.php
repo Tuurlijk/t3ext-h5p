@@ -98,7 +98,7 @@ class TCA
      */
     protected function getLibraryByUid($uid)
     {
-        if (version_compare(TYPO3_version, '7.0', '<=')) {
+        if (version_compare(TYPO3_version, '8.0', '<')) {
             $libraryRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
                 '*',
                 'tx_h5p_domain_model_library',
@@ -157,7 +157,7 @@ class TCA
      */
     protected function getContentByUid($uid)
     {
-        if (version_compare(TYPO3_version, '7.0', '<=')) {
+        if (version_compare(TYPO3_version, '8.0', '<')) {
             $contentRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
                 '*',
                 'tx_h5p_domain_model_content',

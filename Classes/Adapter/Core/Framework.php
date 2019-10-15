@@ -429,7 +429,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryId($machineName, $majorVersion = null, $minorVersion = null)
     {
-        if (version_compare(TYPO3_version, '7.0', '<=')) {
+        if (version_compare(TYPO3_version, '8.0', '<')) {
             $where = 'machine_name = :machineName';
             $arguments = [':machineName' => $machineName];
 
@@ -532,7 +532,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function isPatchedLibrary($library)
     {
-        if (version_compare(TYPO3_version, '7.0', '<=')) {
+        if (version_compare(TYPO3_version, '8.0', '<')) {
             $arguments = [
                 ':machineName'  => $library['machineName'],
                 ':majorVersion' => $library['majorVersion'],
@@ -1096,7 +1096,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function loadContent($id)
     {
-        if (version_compare(TYPO3_version, '7.0', '<=')) {
+        if (version_compare(TYPO3_version, '8.0', '<')) {
             $row = [];
             $statement = $this->databaseLink->prepare_PREPAREDquery(
                 '
