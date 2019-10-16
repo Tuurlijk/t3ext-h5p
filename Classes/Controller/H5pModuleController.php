@@ -36,6 +36,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
@@ -645,11 +646,8 @@ class H5pModuleController extends ActionController
      */
     public function getEditorSettings($settings)
     {
-        $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
-
         $uriBuilder = GeneralUtility::makeInstance(BackendUriBuilder::class);
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
+        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
 
         $cacheBuster = '?v=' . Framework::$version;
 
@@ -657,12 +655,12 @@ class H5pModuleController extends ActionController
         $settings['editor'] = [
             'filesPath'          => '/fileadmin/h5p/editor',
             'fileIcon'           => [
-                'path'   => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/images/binary-file.png',
+                'path'   => $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/images/binary-file.png',
                 'width'  => 50,
                 'height' => 50,
             ],
             'ajaxPath'           => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['action' => 'h5p_']),
-            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/',
+            'libraryUrl'         => $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/',
             'copyrightSemantics' => $this->h5pContentValidator->getCopyrightSemantics(),
             'metadataSemantics'  => $this->h5pContentValidator->getMetadataSemantics(),
             'assets'             => [],
@@ -671,21 +669,21 @@ class H5pModuleController extends ActionController
             'language'           => $this->language
         ];
 
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        $webCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
         foreach (H5PCore::$styles as $style) {
-            $settings['editor']['assets']['css'][] = $relativeCorePath . $style . $cacheBuster;
+            $settings['editor']['assets']['css'][] = $webCorePath . $style . $cacheBuster;
         }
         foreach (H5PCore::$scripts as $script) {
-            $settings['editor']['assets']['js'][] = $relativeCorePath . $script . $cacheBuster;
+            $settings['editor']['assets']['js'][] = $webCorePath . $script . $cacheBuster;
         }
 
-        $relativeEditorPath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/';
+        $webEditorPAth = $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/';
         foreach (H5peditor::$styles as $style) {
-            $settings['editor']['assets']['css'][] = $relativeEditorPath . $style . $cacheBuster;
+            $settings['editor']['assets']['css'][] = $webEditorPAth . $style . $cacheBuster;
         }
         foreach (H5peditor::$scripts as $script) {
             if (strpos($script, 'h5peditor-editor') === false) {
-                $settings['editor']['assets']['js'][] = $relativeEditorPath . $script . $cacheBuster;
+                $settings['editor']['assets']['js'][] = $webEditorPAth . $script . $cacheBuster;
             }
         }
 
@@ -706,8 +704,7 @@ class H5pModuleController extends ActionController
         $backendUser = $this->getBackendUser()->user;
 
         $uriBuilder = GeneralUtility::makeInstance(BackendUriBuilder::class);
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
+        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
 
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
@@ -731,7 +728,7 @@ class H5pModuleController extends ActionController
             'libraryConfig'      => $this->h5pFramework->getLibraryConfig(),
             'crossorigin'        => defined('H5P_CROSSORIGIN') ? H5P_CROSSORIGIN : null,
             'pluginCacheBuster'  => $cacheBuster,
-            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/js',
+            'libraryUrl'         => $absoluteWebPath . 'Resources/Public/Lib/h5p-core/js',
             'contents'           => []
         ];
 
@@ -742,14 +739,12 @@ class H5pModuleController extends ActionController
             ];
         }
 
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        $webCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
         foreach (H5PCore::$styles as $style) {
-            $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;
+            $settings['core']['styles'][] = $webCorePath . $style . $cacheBuster;
         }
         foreach (H5PCore::$scripts as $script) {
-            $settings['core']['scripts'][] = $relativeCorePath . $script . $cacheBuster;
+            $settings['core']['scripts'][] = $webCorePath . $script . $cacheBuster;
         }
         $settings['loadedJs'] = [];
         $settings['loadedCss'] = [];
@@ -787,32 +782,31 @@ class H5pModuleController extends ActionController
      */
     protected function embedEditorScriptsAndStyles()
     {
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
-        $relativeEditorPath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-editor/';
-        $relativeScriptPath = $relativeExtensionPath . 'Resources/Public/JavaScript/';
+        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
+        $webCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $webEditorPath = $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/';
+        $webScriptPath = $absoluteWebPath . 'Resources/Public/JavaScript/';
 
         $paths = [
-            'h5p-jquery'              => $relativeCorePath . 'js/jquery',
-            'h5p'                     => $relativeCorePath . 'js/h5p',
-            'h5p-event-dispatcher'    => $relativeCorePath . 'js/h5p-event-dispatcher',
-            'h5p-x-api-event'         => $relativeCorePath . 'js/h5p-x-api-event',
-            'h5p-x-api'               => $relativeCorePath . 'js/h5p-x-api',
-            'h5p-content-type'        => $relativeCorePath . 'js/h5p-content-type',
-            'h5p-confirmation-dialog' => $relativeCorePath . 'js/h5p-confirmation-dialog',
-            'h5p-action-bar'          => $relativeCorePath . 'js/h5p-action-bar',
-            'h5peditor-editor'        => $relativeEditorPath . 'scripts/h5peditor-editor',
-            'h5peditor-init'          => $relativeEditorPath . 'scripts/h5peditor-init',
-            'h5p-display-options'     => $relativeCorePath . 'js/h5p-display-options',
-            'TYPO3/CMS/H5p/editor'    => $relativeScriptPath . 'editor',
+            'h5p-jquery'              => $webCorePath . 'js/jquery',
+            'h5p'                     => $webCorePath . 'js/h5p',
+            'h5p-event-dispatcher'    => $webCorePath . 'js/h5p-event-dispatcher',
+            'h5p-x-api-event'         => $webCorePath . 'js/h5p-x-api-event',
+            'h5p-x-api'               => $webCorePath . 'js/h5p-x-api',
+            'h5p-content-type'        => $webCorePath . 'js/h5p-content-type',
+            'h5p-confirmation-dialog' => $webCorePath . 'js/h5p-confirmation-dialog',
+            'h5p-action-bar'          => $webCorePath . 'js/h5p-action-bar',
+            'h5peditor-editor'        => $webEditorPath . 'scripts/h5peditor-editor',
+            'h5peditor-init'          => $webEditorPath . 'scripts/h5peditor-init',
+            'h5p-display-options'     => $webCorePath . 'js/h5p-display-options',
+            'TYPO3/CMS/H5p/editor'    => $webScriptPath . 'editor',
         ];
 
         $languageFile = ExtensionManagementUtility::extPath('h5p') . 'Resources/Public/Lib/h5p-editor/language/' . $this->language . '.js';
         if (file_exists($languageFile)) {
-            $paths['h5peditor-editor-language'] = $relativeEditorPath . 'language/' . $this->language;
+            $paths['h5peditor-editor-language'] = $webEditorPath . 'language/' . $this->language;
         } else {
-            $paths['h5peditor-editor-language'] = $relativeEditorPath . 'language/en';
+            $paths['h5peditor-editor-language'] = $webEditorPath . 'language/en';
         }
 
         $this->view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
@@ -874,10 +868,10 @@ class H5pModuleController extends ActionController
         );
 
         foreach (H5PCore::$styles as $style) {
-            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($relativeCorePath . $style);
+            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webCorePath . $style);
         }
         foreach (H5peditor::$styles as $style) {
-            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($relativeEditorPath . $style);
+            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webEditorPath . $style);
         }
         $this->view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/H5p/editor');
     }
@@ -961,9 +955,8 @@ class H5pModuleController extends ActionController
 
         $cacheBuster = '?v=' . Framework::$version;
 
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        $abosluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
+        $relativeCorePath = $abosluteWebPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');

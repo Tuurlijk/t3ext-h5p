@@ -26,6 +26,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
@@ -113,9 +114,8 @@ class ViewController extends ActionController
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
+        $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFooterFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
@@ -259,8 +259,7 @@ class ViewController extends ActionController
      */
     public function getCoreSettings()
     {
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
+        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
 
         $ajaxSetFinishedUri = $this->uriBuilder->reset()
             ->setArguments(['type' => 1561098634614])
@@ -289,7 +288,7 @@ class ViewController extends ActionController
             'libraryConfig'      => $this->h5pFramework->getLibraryConfig(),
             'crossorigin'        => defined('H5P_CROSSORIGIN') ? H5P_CROSSORIGIN : null,
             'pluginCacheBuster'  => $cacheBuster,
-            'libraryUrl'         => $url . $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/js',
+            'libraryUrl'         => $url . $absoluteWebPath . 'Resources/Public/Lib/h5p-core/js',
             'contents'           => []
         ];
 
@@ -311,9 +310,7 @@ class ViewController extends ActionController
             $settings['postUserStatistics'] = $this->h5pFramework->getOption('track_user') && (bool)$user['uid'];
         }
 
-        $relativeExtensionPath = ExtensionManagementUtility::siteRelPath('h5p');
-        $relativeExtensionPath = str_replace('typo3conf', '/typo3conf', $relativeExtensionPath);
-        $relativeCorePath = $relativeExtensionPath . 'Resources/Public/Lib/h5p-core/';
+        $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
         foreach (H5PCore::$styles as $style) {
             $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;
         }
