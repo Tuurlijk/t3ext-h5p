@@ -631,7 +631,7 @@ class H5pModuleController extends ActionController
             $contentLibrary = $content->getLibrary()->toAssocArray();
             $this->view->assign('content', $content);
             $this->view->assign('library', sprintf('%s %d.%d', $contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']));
-            $parameters = json_decode($content->getFiltered(), true);
+            $parameters = (array)json_decode($content->getFiltered(), true);
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
             $this->view->assign('parameters', json_encode($parameters, true));
         }
