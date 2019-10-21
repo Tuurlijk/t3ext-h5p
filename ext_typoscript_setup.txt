@@ -6,6 +6,7 @@ config.tx_extbase {
                     tableName = pages
                 }
             }
+
             MichielRoos\H5p\Domain\Model\FileReference {
                 mapping {
                     tableName = sys_file_reference
@@ -23,6 +24,20 @@ config.tx_extbase {
 }
 
 plugin.tx_h5p_view {
+    view {
+        templateRootPaths {
+            0 = EXT:h5p/Resources/Private/Templates/
+        }
+
+        layoutRootPaths {
+            0 = EXT:h5p/Resources/Private/Layouts/
+        }
+
+        partialRootPaths {
+            0 = EXT:h5p/Resources/Private/Partials/
+        }
+    }
+
     persistence {
         storagePid = 1
     }
