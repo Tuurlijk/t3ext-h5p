@@ -26,17 +26,25 @@ config.tx_extbase {
 plugin.tx_h5p_view {
     view {
         templateRootPaths {
-            0 = EXT:h5p/Resources/Private/Templates/
+            10 = EXT:h5p/Resources/Private/Templates/
         }
 
         layoutRootPaths {
-            0 = EXT:h5p/Resources/Private/Layouts/
+            10 = EXT:h5p/Resources/Private/Layouts/
         }
 
         partialRootPaths {
-            0 = EXT:h5p/Resources/Private/Partials/
+            10 = EXT:h5p/Resources/Private/Partials/
         }
     }
+
+    persistence {
+        storagePid = 1
+    }
+}
+
+plugin.tx_h5p_statistics {
+    view < plugin.tx_h5p_view.view
 
     persistence {
         storagePid = 1
