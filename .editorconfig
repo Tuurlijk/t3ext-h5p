@@ -1,0 +1,36 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+[*]
+# Get rid of whitespace to avoid diffs with a bunch of EOL changes
+trim_trailing_whitespace = true
+charset = utf-8
+# Unix-style newlines with a newline ending every file
+end_of_line = lf
+insert_final_newline = false
+indent_style = space
+indent_size = 4
+max_line_length = 160
+
+# package.json or .travis.yml
+[{package.json, .travis.yml}]
+indent_size = 2
+
+[{**.xml, **.xlf}]
+indent_size = 2
+
+[{*.rst, *.rst.txt}]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 3
+
+# MD-Files
+[*.md]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
