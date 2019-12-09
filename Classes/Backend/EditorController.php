@@ -105,7 +105,7 @@ class EditorController extends ActionController
                 exit;
                 break;
 
-            // Why h5P why . . .
+            // Why H5P why . . .
             case 'libraries':
                 $machineName = $parameters['machineName'] ?: '';
 

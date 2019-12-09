@@ -7,6 +7,7 @@ H5PEditor.language.core = {
   notImageOrDimensionsField: '":path" nie jest obrazem ani polem wartości.',
   requiredProperty: 'property: jest wymagana i musi mieć wartość.',
   onlyNumbers: 'property: może zawierać tylko cyfry.',
+  illegalDecimalNumber: ':property can only contain numbers with max :decimals decimals.',
   exceedsMax: 'property: przekracza maksymalną wartość :max.',
   listExceedsMax: 'Lista przekracza maksimum :max elementów.',
   belowMin: 'property: mniej niż minimum: min.',
@@ -190,9 +191,9 @@ H5PEditor.language.core = {
   pasteAndReplaceFromClipboard: 'Replace existing content with H5P Content from the clipboard',
   pasteNoContent: 'W schowku nie ma zasobu H5P',
   pasteError: 'Nie można wkleić ze schowka',
-  pasteContentNotSupported: 'Zasób, który próbujesz wkleić, nie jest wspierany w tym kontekście',
-  pasteTooOld: 'Zasób, który próbujesz wkleić, jest w starszej wersji (:clip) niż wspierany w tym kontekście (:local). Jeśli możesz, spróbuj najpierw zaktualizować zasób, a dopiero potem go skopiować i wkleić tutaj.',
-  pasteTooNew: 'Zasób, który próbujesz wkleić, jest w nowszej wersji (:clip) niż wspierany w tym kontekście (:local). Jeśli możesz, spróbuj najpierw zaktualizować typ zasobu, a dopiero potem wkleić go tutaj.',
+  pasteContentNotSupported: 'The content in the H5P clipboard is not supported in this context',
+  pasteTooOld: 'The content in the H5P clipboard is of a lower version (:clip) than what is supported in this context (:local), if possible try to have the content you want to paste upgraded, copy it again and try pasting it here.',
+  pasteTooNew: 'The content in the H5P clipboard is of a higher version (:clip) than what is supported in this context (:local), if possible try to have this content upgraded first, and then try pasting the content here again.',
   ok: 'OK',
   avTablistLabel: 'Insert using',
   tabTitleBasicFileUpload: 'File Upload',
@@ -207,5 +208,9 @@ H5PEditor.language.core = {
   changeLanguage: 'Change language to :language?',
   thisWillPotentially: "This will potentially reset all the text and translations. You can't undo this. The content itself will not be changed. Do you want to proceed?",
   notAllTextsChanged: 'Not all texts were changed, there is only partial coverage for :language.',
-  contributeTranslations: 'If you want to complete the translation for :language you can learn about <a href=":url" target="_new">contributing translations to H5P</a>'
+  contributeTranslations: 'If you want to complete the translation for :language you can learn about <a href=":url" target="_new">contributing translations to H5P</a>',
+  unknownLibrary: 'Unfortunately, the selected content type \'%lib\' isn\'t installed on this system.',
+  proceedButtonLabel: 'Proceed to save',
+  enterFullscreenButtonLabel: 'Enter fullscreen',
+  exitFullscreenButtonLabel: 'Exit fullscreen'
 };

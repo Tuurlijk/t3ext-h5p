@@ -86,6 +86,7 @@ class EditorStorage implements \H5peditorStorage
     public function keepFile($fileId)
     {
         // TODO: Implement keepFile() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -180,6 +181,7 @@ class EditorStorage implements \H5peditorStorage
     public function alterLibraryFiles(&$files, $libraries)
     {
         // TODO: Implement alterLibraryFiles() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -225,6 +227,7 @@ class EditorStorage implements \H5peditorStorage
     public static function markFileForCleanup($file, $content_id)
     {
         // TODO: Implement markFileForCleanup() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -234,6 +237,11 @@ class EditorStorage implements \H5peditorStorage
      */
     public static function removeTemporarilySavedFiles($filePath)
     {
-        // TODO: Implement removeTemporarilySavedFiles() method.
+        if (is_dir($filePath)) {
+            \H5PCore::deleteFileTree($filePath);
+        }
+        else {
+            unlink($filePath);
+        }
     }
 }

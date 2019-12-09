@@ -951,6 +951,12 @@ class H5pModuleController extends ActionController
 
         if (!$content instanceof Content) {
             $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
+            $this->forward('error');
+        }
+
+        if (!$content->getLibrary()) {
+            $this->addFlashMessage('Content element has no H5P library', 'H5P library not found on content', FlashMessage::ERROR);
+            $this->forward('error');
         }
 
         $cacheBuster = '?v=' . Framework::$version;
@@ -1126,6 +1132,14 @@ class H5pModuleController extends ActionController
                 $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
             }
         }
+    }
+
+    /**
+     * Error action
+     */
+    public function errorAction()
+    {
+
     }
 
     /**

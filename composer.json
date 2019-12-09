@@ -1,6 +1,7 @@
 {
   "name": "michielroos/h5p",
   "type": "typo3-cms-extension",
+  "version": "v0.2.16",
   "description": "Create and add rich content to your website for free. Some examples of what you get with H5P are Interactive Video, Quizzes, Collage and Timeline.",
   "keywords": [
     "h5p",
@@ -17,8 +18,8 @@
     }
   ],
   "require": {
-    "h5p/h5p-core": "1.22.0 || dev-master || dev-directory-separator",
-    "h5p/h5p-editor": "1.22.0 || dev-master || dev-directory-separator",
+    "h5p/h5p-core": "1.22.0 || dev-master || dev-directory-separator || ^1.24",
+    "h5p/h5p-editor": "1.22.0 || dev-master || dev-directory-separator || ^1.24",
     "guzzlehttp/guzzle": "^6.3",
     "typo3/cms-core": ">=7.6.0 < 9.5.99"
   },

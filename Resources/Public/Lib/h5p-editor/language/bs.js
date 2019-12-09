@@ -7,6 +7,7 @@ H5PEditor.language.core = {
   notImageOrDimensionsField: '":path" nije slika niti polje sa dimenzijama.',
   requiredProperty: ':property polje mora biti popunjeno.',
   onlyNumbers: ':property polje može sadržavati samo brojeve.',
+  illegalDecimalNumber: ':property can only contain numbers with max :decimals decimals.',
   exceedsMax: ':property sadržaj polja je veći od maksimuma :max.',
   listExceedsMax: 'Lista je veća od maksimuma :max.',
   belowMin: ':property sadržaj polja je manji od minimuma :min.',
@@ -190,9 +191,9 @@ H5PEditor.language.core = {
   pasteAndReplaceFromClipboard: 'Replace existing content with H5P Content from the clipboard',
   pasteNoContent: 'No H5P content on the clipboard',
   pasteError: 'Cannot paste from clipboard',
-  pasteContentNotSupported: 'The content you’re trying to paste is not supported in this context',
-  pasteTooOld: 'The content you’re trying to paste is of a lower version (:clip) than what is supported in this context (:local), if possible try to have the content you want to paste upgraded, copy it again and try pasting it here.',
-  pasteTooNew: 'The content you’re trying to paste is of a higher version (:clip) than what is supported in this context (:local), if possible try to have this content upgraded first, and then try pasting the content here again.',
+  pasteContentNotSupported: 'The content in the H5P clipboard is not supported in this context',
+  pasteTooOld: 'The content in the H5P clipboard is of a lower version (:clip) than what is supported in this context (:local), if possible try to have the content you want to paste upgraded, copy it again and try pasting it here.',
+  pasteTooNew: 'The content in the H5P clipboard is of a higher version (:clip) than what is supported in this context (:local), if possible try to have this content upgraded first, and then try pasting the content here again.',
   ok: 'OK',
   avTablistLabel: 'Insert using',
   tabTitleBasicFileUpload: 'File Upload',
@@ -207,5 +208,9 @@ H5PEditor.language.core = {
   changeLanguage: 'Change language to :language?',
   thisWillPotentially: "This will potentially reset all the text and translations. You can't undo this. The content itself will not be changed. Do you want to proceed?",
   notAllTextsChanged: 'Not all texts were changed, there is only partial coverage for :language.',
-  contributeTranslations: 'If you want to complete the translation for :language you can learn about <a href=":url" target="_new">contributing translations to H5P</a>'
+  contributeTranslations: 'If you want to complete the translation for :language you can learn about <a href=":url" target="_new">contributing translations to H5P</a>',
+  unknownLibrary: 'Unfortunately, the selected content type \'%lib\' isn\'t installed on this system.',
+  proceedButtonLabel: 'Proceed to save',
+  enterFullscreenButtonLabel: 'Enter fullscreen',
+  exitFullscreenButtonLabel: 'Exit fullscreen'
 };

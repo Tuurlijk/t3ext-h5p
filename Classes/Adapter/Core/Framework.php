@@ -54,7 +54,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     /**
      * @var string
      */
-    public static $version = '1.0.2';
+    public static $version = '0.2.17';
 
     /**
      * @var ContentTypeCacheEntryRepository
@@ -261,6 +261,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function setLibraryTutorialUrl($machineName, $tutorialUrl)
     {
         // TODO: Implement setLibraryTutorialUrl() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -412,6 +413,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function getAdminUrl()
     {
         // TODO: Implement getAdminUrl() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -679,12 +681,15 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     /**
      * Delete all dependencies belonging to given library
      *
-     * @param int $libraryId
-     *   Library identifier
+     * @param int $libraryId Library identifier
+     * @throws IllegalObjectTypeException
      */
     public function deleteLibraryDependencies($libraryId)
     {
-        // TODO: Implement deleteLibraryDependencies() method.
+        $dependencies = $this->libraryDependencyRepository->findByLibrary($libraryId);
+        foreach ($dependencies as $dependency) {
+            $this->libraryDependencyRepository->remove($dependency);
+        }
     }
 
     /**
@@ -762,6 +767,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function resetContentUserData($contentId)
     {
         // TODO: Implement resetContentUserData() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -842,6 +848,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function deleteContentData($contentId)
     {
         // TODO: Implement deleteContentData() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -944,6 +951,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     );
          */
         // TODO: Implement getLibraryUsage() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1046,6 +1054,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function alterLibrarySemantics(&$semantics, $machineName, $majorVersion, $minorVersion)
     {
         // TODO: Implement alterLibrarySemantics() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1054,6 +1063,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function lockDependencyStorage()
     {
         // TODO: Implement lockDependencyStorage() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1062,6 +1072,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function unlockDependencyStorage()
     {
         // TODO: Implement unlockDependencyStorage() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1073,6 +1084,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function deleteLibrary($library)
     {
         // TODO: Implement deleteLibrary() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1251,11 +1263,20 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * library. This means that the content dependencies will have to be rebuilt,
      * and the parameters re-filtered.
      *
-     * @param int $library_id
+     * @param array $library_id
+     * @throws IllegalObjectTypeException
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
      */
-    public function clearFilteredParameters($library_id)
+    public function clearFilteredParameters($library_ids)
     {
-        // TODO: Implement clearFilteredParameters() method.
+        foreach ($library_ids as $library_id) {
+            $contentRecords = $this->contentRepository->findByLibrary((int)$library_id);
+            /** @var Content $contentRecord */
+            foreach ($contentRecords as $contentRecord) {
+                $contentRecord->setFiltered('');
+                $this->contentRepository->update($contentRecord);
+            }
+        }
     }
 
     /**
@@ -1267,6 +1288,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function getNumNotFiltered()
     {
         // TODO: Implement getNumNotFiltered() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1311,6 +1333,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function getNumAuthors()
     {
         // TODO: Implement getNumAuthors() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1369,6 +1392,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function deleteCachedAssets($library_id)
     {
         // TODO: Implement deleteCachedAssets() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1399,6 +1423,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function afterExportCreated($content, $filename)
     {
         // TODO: Implement afterExportCreated() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1455,7 +1480,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryConfig($libraries = NULL)
     {
-        // TODO: Implement getLibraryConfig() method.
+        return defined('H5P_LIBRARY_CONFIG') ? H5P_LIBRARY_CONFIG : null;
     }
 
     /**
@@ -1466,6 +1491,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function libraryHasUpgrade($library)
     {
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
         // TODO: Implement libraryHasUpgrade() method.
     }
 

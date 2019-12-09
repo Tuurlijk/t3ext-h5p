@@ -210,6 +210,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function deleteContent($content)
     {
         // TODO: Implement deleteContent() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -223,6 +224,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function cloneContent($id, $newId)
     {
         // TODO: Implement cloneContent() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -250,6 +252,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function exportContent($id, $target)
     {
         // TODO: Implement exportContent() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -263,6 +266,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function exportLibrary($library, $target)
     {
         // TODO: Implement exportLibrary() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -276,6 +280,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function saveExport($source, $filename)
     {
         // TODO: Implement saveExport() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -286,6 +291,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function deleteExport($filename)
     {
         // TODO: Implement deleteExport() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -297,6 +303,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function hasExport($filename)
     {
         // TODO: Implement hasExport() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -415,6 +422,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function deleteCachedAssets($keys)
     {
         // TODO: Implement deleteCachedAssets() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -625,6 +633,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function getContent($file_path)
     {
         // TODO: Implement getContent() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -638,6 +647,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function getContentFile($file, $contentId)
     {
         // TODO: Implement getContentFile() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -650,6 +660,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function removeContentFile($file, $contentId)
     {
         // TODO: Implement removeContentFile() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -661,6 +672,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function hasWriteAccess()
     {
         // TODO: Implement hasWriteAccess() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -673,6 +685,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function hasPresave($libraryName, $developmentPath = null)
     {
         // TODO: Implement hasPresave() method.
+        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -685,10 +698,15 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function getUpgradeScript($machineName, $majorVersion, $minorVersion)
     {
-        $upgradesFilePath = "/h5p/libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
+        $folderPrefix = $this->folderPrefix ?: '';
+        $upgradesFilePath = "/{$folderPrefix}libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
         if ($this->storage->hasFile($upgradesFilePath)) {
             $file = $this->storage->getFile($upgradesFilePath);
-            return '/' . ltrim($file->getPublicUrl(), '/');
+            $path = '/' . ltrim($file->getPublicUrl(), '/');
+            if ($this->folderPrefix) {
+                $path = str_replace('/fileadmin/' . $folderPrefix, '/', $path);
+            }
+            return $path;
         }
 
         return NULL;
@@ -704,6 +722,14 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function saveFileFromZip($path, $file, $stream)
     {
-        // TODO: Implement saveFileFromZip() method.
+        $filePath = $path . '/' . $file;
+
+        // Make sure the directory exists first
+        $matches = array();
+        preg_match('/(.+)\/[^\/]*$/', $filePath, $matches);
+        GeneralUtility::mkdir_deep($matches[1]);
+
+        // Store in local storage folder
+        return file_put_contents($filePath, $stream);
     }
 }

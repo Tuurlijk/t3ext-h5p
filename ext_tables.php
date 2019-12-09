@@ -22,7 +22,7 @@ if (TYPO3_MODE === 'BE') {
         'Manager',
         '',
         [
-            'H5pModule' => 'content,index,new,edit,create,libraries,show,update,consent',
+            'H5pModule' => 'content,index,new,edit,create,libraries,show,update,consent,error',
         ],
         [
             'access' => 'user,group',
