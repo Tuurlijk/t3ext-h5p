@@ -867,9 +867,6 @@ class H5pModuleController extends ActionController
             ]
         );
 
-        foreach (H5PCore::$styles as $style) {
-            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webCorePath . $style);
-        }
         foreach (H5peditor::$styles as $style) {
             $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webEditorPath . $style);
         }
