@@ -958,9 +958,6 @@ class H5pModuleController extends ActionController
         foreach (\H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
         }
-        foreach (\H5PCore::$styles as $style) {
-            $this->pageRenderer->addCssFile($relativeCorePath . $style . $cacheBuster);
-        }
 
         $this->pageRenderer->addJsInlineCode(
             'H5PIntegration',
