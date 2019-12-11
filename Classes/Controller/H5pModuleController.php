@@ -868,7 +868,7 @@ class H5pModuleController extends ActionController
         );
 
         foreach (H5peditor::$styles as $style) {
-            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webEditorPath . $style);
+            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webEditorPath . $style, 'stylesheet', 'all', '', false, false, '', true);
         }
         $this->view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/H5p/editor');
     }
@@ -950,13 +950,11 @@ class H5pModuleController extends ActionController
             $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', FlashMessage::ERROR);
         }
 
-        $cacheBuster = '?v=' . Framework::$version;
-
         $abosluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
         $relativeCorePath = $abosluteWebPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
-            $this->pageRenderer->addJsFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
+            $this->pageRenderer->addJsFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
         }
 
         $this->pageRenderer->addJsInlineCode(
@@ -1111,13 +1109,13 @@ class H5pModuleController extends ActionController
         foreach ($preloadJs as $js) {
             $js = trim($js);
             if ($js) {
-                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '');
+                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '', true);
             }
         }
         foreach ($preloadCss as $css) {
             $css = trim($css);
             if ($css) {
-                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css, 'stylesheet', 'all', '', false, false, '', true);
             }
         }
     }
