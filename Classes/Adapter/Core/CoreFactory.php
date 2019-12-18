@@ -28,7 +28,7 @@ class CoreFactory extends \H5PCore implements SingletonInterface
     public function orderDependenciesByWeight(array $dependencies)
     {
         uasort($dependencies, static function ($a, $b) {
-            if ($a['weight'] === $b['wieight']) {
+            if ($a['weight'] === $b['weight']) {
                 return 0;
             }
             return ($a['weight'] > $b['weight']) ? 1 : -1;
