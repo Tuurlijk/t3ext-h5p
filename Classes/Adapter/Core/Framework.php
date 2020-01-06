@@ -54,7 +54,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     /**
      * @var string
      */
-    public static $version = '0.2.17';
+    public static $version = '0.3.0';
 
     /**
      * @var ContentTypeCacheEntryRepository
