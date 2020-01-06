@@ -868,10 +868,10 @@ class H5pModuleController extends ActionController
         );
 
         foreach (H5PCore::$styles as $style) {
-            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webCorePath . $style);
+            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webCorePath . $style, 'stylesheet', 'all', '', false, false, '', true);
         }
         foreach (H5peditor::$styles as $style) {
-            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webEditorPath . $style);
+            $this->view->getModuleTemplate()->getPageRenderer()->addCssFile($webEditorPath . $style, 'stylesheet', 'all', '', false, false, '', true);
         }
         $this->view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/H5p/editor');
     }
@@ -965,10 +965,10 @@ class H5pModuleController extends ActionController
         $relativeCorePath = $abosluteWebPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
-            $this->pageRenderer->addJsFile($relativeCorePath . $script . $cacheBuster, 'text/javascript', false, false, '');
+            $this->pageRenderer->addJsFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
         }
         foreach (\H5PCore::$styles as $style) {
-            $this->pageRenderer->addCssFile($relativeCorePath . $style . $cacheBuster);
+            $this->pageRenderer->addCssFile($relativeCorePath . $style, 'stylesheet', 'all', '', false, false, '', true);
         }
 
         $this->pageRenderer->addJsInlineCode(
@@ -1123,13 +1123,13 @@ class H5pModuleController extends ActionController
         foreach ($preloadJs as $js) {
             $js = trim($js);
             if ($js) {
-                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '');
+                $this->pageRenderer->addJsFile('/fileadmin/h5p/libraries/' . $name . '/' . $js, 'text/javascript', false, false, '', true);
             }
         }
         foreach ($preloadCss as $css) {
             $css = trim($css);
             if ($css) {
-                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
+                $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css, 'stylesheet', 'all', '', false, false, '', true);
             }
         }
     }
