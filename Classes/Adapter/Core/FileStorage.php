@@ -589,7 +589,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
                 $destinationFolder = GeneralUtility::makeInstance(
                     Folder::class,
                     $this->storage,
-                    $rootLevelFolder->getIdentifier() . '/' . $destination . $targetDirectory,
+                    $rootLevelFolder->getIdentifier() . '/' . $destination . '/' . $targetDirectory,
                     $targetDirectory
                 );
                 $this->storage->addFile($fileInfo->getPathname(), $destinationFolder, $fileInfo->getFilename());
