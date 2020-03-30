@@ -1406,11 +1406,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         if ($allContent) {
             /** @var Content $item */
             foreach ($allContent as $item) {
-                $libraryTitle = $item->getLibrary()->getTitle() . ' ' . $item->getLibrary()->getMajorVersion() . '.' . $item->getLibrary()->getMinorVersion();
-                if (!array_key_exists($libraryTitle, $contentCount)) {
-                    $contentCount[$libraryTitle] = 1;
-                } else {
-                    $contentCount[$libraryTitle]++;
+                if ($item->hasLibrary()) {
+                    $libraryTitle = $item->getLibrary()->getTitle() . ' ' . $item->getLibrary()->getMajorVersion() . '.' . $item->getLibrary()->getMinorVersion();
+                    if (!array_key_exists($libraryTitle, $contentCount)) {
+                        $contentCount[$libraryTitle] = 1;
+                    } else {
+                        $contentCount[$libraryTitle]++;
+                    }
                 }
             }
         }
