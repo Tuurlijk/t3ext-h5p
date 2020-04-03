@@ -188,7 +188,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function updateFromContentData(array $contentData, Library $library)
     {
         $this->setUpdatedAt(new \DateTime());
-        $this->setFiltered('');
+        $this->setFiltered('{}');
         $this->setLibrary($library);
         if (isset($contentData['disable'])) {
             $this->setHidden($contentData['disable']);
@@ -365,7 +365,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     public function getFiltered()
     {
-        return $this->filtered;
+        return $this->filtered ? : '{}';
     }
 
     /**
@@ -525,7 +525,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     public function getParameters()
     {
-        return $this->parameters;
+        return $this->parameters ? : '{}';
     }
 
     /**
