@@ -24,6 +24,7 @@ use MichielRoos\H5p\Adapter\Core\Framework;
 use MichielRoos\H5p\Adapter\Editor\EditorAjax;
 use MichielRoos\H5p\Adapter\Editor\EditorStorage;
 use MichielRoos\H5p\Domain\Model\Content;
+use MichielRoos\H5p\Domain\Model\Library;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
 use MichielRoos\H5p\Property\TypeConverter\UploadedFileReferenceConverter;
@@ -628,9 +629,12 @@ class H5pModuleController extends ActionController
             }
 
             // load JS and CSS requirements
-            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $contentLibrary = $content->getLibrary();
+            if ($contentLibrary instanceof Library) {
+                $contentLibraryArray = $contentLibrary->toAssocArray();
+                $this->view->assign('library', sprintf('%s %d.%d', $contentLibraryArray['machineName'], $contentLibraryArray['majorVersion'], $contentLibraryArray['minorVersion']));
+            }
             $this->view->assign('content', $content);
-            $this->view->assign('library', sprintf('%s %d.%d', $contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']));
             $parameters = (array)json_decode($content->getFiltered(), true);
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
             $this->view->assign('parameters', json_encode($parameters, true));
