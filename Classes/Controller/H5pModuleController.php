@@ -34,6 +34,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -41,6 +42,8 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 
 /**
@@ -398,6 +401,38 @@ class H5pModuleController extends ActionController
         }
         $libraryRepository = $this->objectManager->get(LibraryRepository::class);
         $libraries = $libraryRepository->findAll();
+
+        // Check if any libraries need an update
+        $librariesThatNeedUpdate = [];
+        $resourceFactory = ResourceFactory::getInstance();
+        $storage = $resourceFactory->getDefaultStorage();
+        if ($storage !== null) {
+            foreach ($libraries as $library) {
+                try {
+                    $libraryJson = $storage->getFile('/h5p/libraries/' . $library->getFolderName() . '/library.json');
+                    if ($libraryJson instanceof FileInterface && $libraryJson->getSize() > 0) {
+                        $libraryContent = json_decode($libraryJson->getContents(), true);
+                        $preloadedCss = self::pathsToCsv($libraryContent, 'preloadedCss');
+                        $preloadedJs = self::pathsToCsv($libraryContent, 'preloadedJs');
+                        if (($preloadedCss !== '' && $library->getPreloadedCss() !== $preloadedCss)
+                            || ($preloadedJs !== '' && $library->getPreloadedJs() !== $preloadedJs)) {
+                            $library->setPreloadedCss($preloadedCss);
+                            $library->setPreloadedJs($preloadedJs);
+                            $librariesThatNeedUpdate[] = $library;
+                        }
+                    }
+                } catch (\Exception $e) {
+                }
+            }
+        }
+        if (count($librariesThatNeedUpdate) > 0) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $persistenceManager = $objectManager->get(PersistenceManager::class);
+            foreach ($librariesThatNeedUpdate as $library) {
+                $persistenceManager->add($library);
+            }
+            $persistenceManager->persistAll();
+        }
 
         $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
         $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
@@ -1190,5 +1225,28 @@ class H5pModuleController extends ActionController
                     UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER           => '1:/h5p/packages/',
                 ]
             );
+    }
+
+    /**
+     * Convert list of file paths to csv
+     *
+     * @param array $library
+     *  Library data as found in library.json files
+     * @param string $key
+     *  Key that should be found in $libraryData
+     *
+     * @return string
+     *  file paths separated by ', '
+     */
+    private static function pathsToCsv($library, $key)
+    {
+        if (isset($library[$key])) {
+            $paths = [];
+            foreach ($library[$key] as $file) {
+                $paths[] = $file['path'];
+            }
+            return implode(', ', $paths);
+        }
+        return '';
     }
 }
