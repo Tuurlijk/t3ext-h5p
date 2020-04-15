@@ -161,14 +161,6 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $libraryDependencyRepository;
 
     /**
-     * @param \MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository $libraryDependencyRepository
-     */
-    public function injectLibraryDepencencyRepository(LibraryDependencyRepository $libraryDependencyRepository)
-    {
-        $this->libraryDependencyRepository = $libraryDependencyRepository;
-    }
-
-    /**
      * Library constructor.
      */
     public function __construct()
@@ -179,6 +171,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Creates a library from a metadata array.
      *
      * @param array $libraryData
+     *
      * @return Library
      * @throws \Exception
      */
@@ -226,6 +219,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *  Library data as found in library.json files
      * @param string $key
      *  Key that should be found in $libraryData
+     *
      * @return string
      *  file paths separated by ', '
      */
@@ -243,6 +237,7 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 
     /**
      * @param array $libraryData
+     *
      * @throws \Exception
      */
     public function updateFromLibraryData(array $libraryData)
@@ -274,15 +269,35 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
                     $content->getEmbedType();
                 }
             }
+        } elseif (isset($libraryData['embedTypes'])) {
+            $this->setEmbedTypes(implode(', ', $libraryData['embedTypes']));
+            $contents = $this->getContents();
+            if (is_array($contents)) {
+                /** @var Content $content */
+                foreach ($contents as $content) {
+                    /** Embed types might have changed, so we trigger a redetermination */
+                    $content->getEmbedType();
+                }
+            }
         }
         if (isset($libraryData['__preloadedJs'])) {
             $this->setPreloadedJs($libraryData['__preloadedJs']);
+        } elseif (isset($libraryData['embedTypes'])) {
+            $this->setPreloadedJs(self::pathsToCsv($libraryData, 'preloadedJs'));
         }
         if (isset($libraryData['__preloadedCss'])) {
             $this->setPreloadedCss($libraryData['__preloadedCss']);
+        } elseif (isset($libraryData['preloadedCss'])) {
+            $this->setPreloadedCss(self::pathsToCsv($libraryData, 'preloadedCss'));
         }
         if (isset($libraryData['__dropLibraryCss'])) {
             $this->setDropLibraryCss($libraryData['__dropLibraryCss']);
+        } elseif (isset($libraryData['dropLibraryCss'])) {
+            $libs = [];
+            foreach ($libraryData['dropLibraryCss'] as $lib) {
+                $libs[] = $lib['machineName'];
+            }
+            $this->setDropLibraryCss(implode(', ', $libs));
         }
     }
 
@@ -300,6 +315,14 @@ class Library extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function setContents(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $contents)
     {
         $this->contents = $contents;
+    }
+
+    /**
+     * @param \MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository $libraryDependencyRepository
+     */
+    public function injectLibraryDepencencyRepository(LibraryDependencyRepository $libraryDependencyRepository)
+    {
+        $this->libraryDependencyRepository = $libraryDependencyRepository;
     }
 
     /**
