@@ -72,7 +72,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function __construct(ResourceStorage $storage, $path = 'h5p')
     {
         $this->storage = $storage;
-        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $rootLevelFolder = $this->getRootLevelFolder();
         if ($rootLevelFolder->getIdentifier() === '/h5p/') {
             $this->folderPrefix = '';
         }
@@ -99,6 +99,24 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     }
 
     /**
+     * Get the rootlevel folder of the fileMount named h5p
+     *
+     * @return Folder
+     */
+    private function getRootLevelFolder() {
+        $fileMounts = $this->storage->getFileMounts();
+        if (!empty($fileMounts)) {
+            foreach ($fileMounts as $fileMount) {
+                $folder = $fileMount['folder'];
+                if ($folder->getIdentifier() === '/h5p/') {
+                    return $folder;
+                }
+            }
+        }
+        return $this->storage->getRootLevelFolder();
+    }
+
+    /**
      * Store the library folder.
      *
      * @param array $library
@@ -110,7 +128,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
     public function saveLibrary($library)
     {
         $name = \H5PCore::libraryToString($library, true);
-        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $rootLevelFolder = $this->getRootLevelFolder();
         $destination = 'libraries/' . $name . '/';
         if ($this->folderPrefix) {
             $destination = $this->folderPrefix . $destination;
@@ -162,7 +180,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function saveContent($source, $content)
     {
-        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $rootLevelFolder = $this->getRootLevelFolder();
         $destination = 'content/' . $content['id'] . '/';
         if ($this->folderPrefix) {
             $destination = $this->folderPrefix . $destination;
@@ -436,7 +454,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function saveFile($file, $contentId)
     {
-        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $rootLevelFolder = $this->getRootLevelFolder();
         $prefix = '';
         if ($this->folderPrefix) {
             $prefix = $this->folderPrefix . $prefix;
@@ -515,7 +533,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
-        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $rootLevelFolder = $this->getRootLevelFolder();
 
         if ($fromId === 'editor') {
             $sourcePath = $this->folderPrefix . 'editor';
@@ -560,7 +578,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             return null;
         }
 
-        $rootLevelFolder = $this->storage->getRootLevelFolder();
+        $rootLevelFolder = $this->getRootLevelFolder();
 
         $destinationFolder = '';
         if ($contentId !== null) {
@@ -572,6 +590,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
 
         // Remove any old content
         if ($destinationFolder !== '') {
+            /** @var Folder $oldFolder */
             $oldFolder = GeneralUtility::makeInstance(
                 Folder::class,
                 $this->storage,
