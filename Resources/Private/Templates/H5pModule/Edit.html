@@ -26,16 +26,16 @@
             <h2>Display Options</h2>
             <div class="h5p-action-bar-settings h5p-panel">
                 <label>
-                    <f:form.checkbox name="frame" value="true" checked="checked"/>
+                    <f:form.checkbox name="frame" value="true" checked="{f:if(condition: displayOptions.frame, then: 'checked', else: '')}"/>
                     Display toolbar below content </label>
                 <label title="If checked a reuse button will always be displayed for this content and allow users to download the content as an .h5p file">
-                    <f:form.checkbox name="download" value="true" checked="checked"/>
+                    <f:form.checkbox name="download" value="true" checked="{f:if(condition: displayOptions.download, then: 'checked', else: '')}"/>
                     Allow users to download the content </label>
                 <label>
-                    <f:form.checkbox name="embed" value="true" checked="checked"/>
+                    <f:form.checkbox name="embed" value="true" checked="{f:if(condition: displayOptions.embed, then: 'checked', else: '')}"/>
                     Display Embed button </label>
                 <label>
-                    <f:form.checkbox name="copyright" value="true" checked="checked"/>
+                    <f:form.checkbox name="copyright" value="true" checked="{f:if(condition: displayOptions.copyright, then: 'checked', else: '')}"/>
                     Display Copyright button </label>
             </div>
         </div>

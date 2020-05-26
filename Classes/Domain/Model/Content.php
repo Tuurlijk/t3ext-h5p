@@ -50,7 +50,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $createdAt;
 
     /**
-     * @var bool
+     * @var int
      */
     protected $disable;
 
@@ -191,7 +191,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
         $this->setFiltered('{}');
         $this->setLibrary($library);
         if (isset($contentData['disable'])) {
-            $this->setHidden($contentData['disable']);
+            $this->setDisable($contentData['disable']);
         }
 
         if (isset($contentData['params'])) {
@@ -313,19 +313,19 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isDisable()
+    public function getDisable()
     {
-        return $this->disable;
+        return (int)$this->disable;
     }
 
     /**
-     * @param bool $disable
+     * @param int $disable
      */
     public function setDisable($disable)
     {
-        $this->disable = $disable;
+        $this->disable = (int)$disable;
     }
 
     /**
