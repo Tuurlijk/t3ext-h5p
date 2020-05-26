@@ -502,8 +502,7 @@ class H5pModuleController extends ActionController
             $this->forward('new');
         }
 
-        // Set disabled features
-        $this->get_disabled_content_features($this->h5pCore, $content);
+        $this->setDisabledContentFeatures($this->h5pCore, $content);
 
         try {
             // Save new content
@@ -534,7 +533,7 @@ class H5pModuleController extends ActionController
      * @return void
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
      */
-    private function get_disabled_content_features($core, &$content)
+    private function setDisabledContentFeatures($core, &$content)
     {
         $set = [
             H5PCore::DISPLAY_OPTION_FRAME     => (bool)$this->request->getArgument('frame'),
@@ -612,8 +611,7 @@ class H5pModuleController extends ActionController
             $this->forward('new');
         }
 
-        // Set disabled features
-        $this->get_disabled_content_features($this->h5pCore, $content);
+        $this->setDisabledContentFeatures($this->h5pCore, $content);
 
         try {
             // Save new content
@@ -671,6 +669,8 @@ class H5pModuleController extends ActionController
             }
             $this->view->assign('content', $content);
             $parameters = (array)json_decode($content->getFiltered(), true);
+            $displayOptions = $this->h5pCore->getDisplayOptionsForEdit($content->getDisable());
+            $this->view->assign('displayOptions', $displayOptions);
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
             $this->view->assign('parameters', json_encode($parameters, true));
         }
