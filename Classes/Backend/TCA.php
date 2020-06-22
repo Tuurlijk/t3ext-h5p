@@ -98,26 +98,18 @@ class TCA
      */
     protected function getLibraryByUid($uid)
     {
-        if (version_compare(TYPO3_version, '8.0', '<')) {
-            $libraryRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-                '*',
-                'tx_h5p_domain_model_library',
-                sprintf('uid=%d', (int)$uid)
-            );
-        } else {
-            $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
-            $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
-            $libraryRow = $queryBuilder->select('*')
-                ->from('tx_h5p_domain_model_library')
-                ->where(
-                    $queryBuilder->expr()->eq(
-                        'uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
-                    )
+        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+        $libraryRow = $queryBuilder->select('*')
+            ->from('tx_h5p_domain_model_library')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'uid',
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
                 )
-                ->execute()
-                ->fetch();
-        }
+            )
+            ->execute()
+            ->fetch();
         return $libraryRow;
     }
 
@@ -157,26 +149,18 @@ class TCA
      */
     protected function getContentByUid($uid)
     {
-        if (version_compare(TYPO3_version, '8.0', '<')) {
-            $contentRow = $this->getDBHandle()->exec_SELECTgetSingleRow(
-                '*',
-                'tx_h5p_domain_model_content',
-                sprintf('uid=%d', (int)$uid)
-            );
-        } else {
-            $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_content');
-            $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
-            $contentRow = $queryBuilder->select('*')
-                ->from('tx_h5p_domain_model_content')
-                ->where(
-                    $queryBuilder->expr()->eq(
-                        'uid',
-                        $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
-                    )
+        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_content');
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+        $contentRow = $queryBuilder->select('*')
+            ->from('tx_h5p_domain_model_content')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'uid',
+                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
                 )
-                ->execute()
-                ->fetch();
-        }
+            )
+            ->execute()
+            ->fetch();
         return $contentRow;
     }
 

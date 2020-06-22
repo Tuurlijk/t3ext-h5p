@@ -17,6 +17,7 @@ namespace MichielRoos\H5p\Property\TypeConverter;
 use TYPO3\CMS\Core\Resource\File as FalFile;
 use TYPO3\CMS\Core\Resource\FileReference as FalFileReference;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Security\FileNameValidator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -99,7 +100,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     {
         $this->resourceFactory = $resourceFactory;
     }
-    
+
     /**
      * @param \TYPO3\CMS\Extbase\Security\Cryptography\HashService $hashService
      */
@@ -107,7 +108,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     {
         $this->hashService = $hashService;
     }
-    
+
     /**
      * @param \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager
      */
@@ -115,7 +116,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     {
         $this->persistenceManager = $persistenceManager;
     }
-    
+
     /**
      * Actually convert from $source to $targetType, taking into account the fully
      * built $convertedChildProperties and $configuration.
@@ -186,7 +187,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      */
     protected function importUploadedResource(array $uploadInfo, PropertyMappingConfigurationInterface $configuration)
     {
-        if (!GeneralUtility::verifyFilenameAgainstDenyPattern($uploadInfo['name'])) {
+        if (!GeneralUtility::makeInstance(FileNameValidator::class)->isValid($uploadInfo['name'])) {
             throw new TypeConverterException('Uploading files with PHP file extensions is not allowed!', 1399312430);
         }
 

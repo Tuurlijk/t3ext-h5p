@@ -14,6 +14,8 @@ namespace MichielRoos\H5p\Domain\Model;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Extbase\Annotation as Extbase;
+
 /**
  * Class Content
  */
@@ -115,7 +117,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Package
      *
      * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
-     * @validate \MichielRoos\H5p\Validation\Validator\PackageValidator
+     * @Extbase\Validate("\MichielRoos\H5p\Validation\Validator\PackageValidator")
      */
     protected $package;
 

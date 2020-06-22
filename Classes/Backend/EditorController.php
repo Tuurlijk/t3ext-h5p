@@ -13,7 +13,6 @@ namespace MichielRoos\H5p\Backend;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Devlog\Devlog\Domain\Repository\EntryRepository;
 use H5peditor;
 use H5PEditorAjax;
 use H5PEditorEndpoints;
@@ -25,17 +24,19 @@ use MichielRoos\H5p\Adapter\Editor\EditorStorage;
 use MichielRoos\H5p\Domain\Repository\ContentTypeCacheEntryRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Lang\LanguageService;
 
 /**
  * Class EditorController
  * @package MichielRoos\H5p\Backend
  */
-class EditorController extends ActionController
+class EditorController extends ActionController implements SingletonInterface
 {
     /**
      * @var H5PEditorAjax
@@ -76,10 +77,9 @@ class EditorController extends ActionController
      * Catch all editor action
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public function defaultAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function defaultAction(ServerRequestInterface $request) :ResponseInterface
     {
         if ($this->h5pAjaxEditor === null) {
             $this->initializeAction();
@@ -91,7 +91,6 @@ class EditorController extends ActionController
         if (substr($action, 0, strlen($prefix)) == $prefix) {
             $action = substr($action, strlen($prefix));
         }
-        $data = '{message: "Action not yet implemented! - typo3conf/ext/h5p/Classes/Backend/EditorController.php:114"}';
 
         switch ($action) {
             case H5PEditorEndpoints::FILES:
@@ -137,9 +136,9 @@ class EditorController extends ActionController
                 break;
             default;
         }
+
         // Send the response
-        $response->getBody()->write($data);
-        return $response;
+        return (new JsonResponse())->setPayload(['message' =>  'Action not yet implemented! - typo3conf/ext/h5p/Classes/Backend/EditorController.php:114']);
     }
 
     /**
@@ -149,7 +148,7 @@ class EditorController extends ActionController
     {
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
-        $resourceFactory = ResourceFactory::getInstance();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $storage = $resourceFactory->getDefaultStorage();
         $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
@@ -167,20 +166,8 @@ class EditorController extends ActionController
      */
     protected function getLanguageService()
     {
-        return $GLOBALS['LANG'];
-    }
-
-    /**
-     * Performs initializations of certain objects during calls in an AJAX context.
-     *
-     * In this particular context, the Extbase bootstrapping does not occur.
-     * Some objects must be instantiated "manually".
-     *
-     * @return void
-     */
-    protected function initializeForAjaxAction()
-    {
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-//        $this->entryRepository = $this->objectManager->get(EntryRepository::class);
+        $languageService = GeneralUtility::makeInstance(LanguageService::class);
+        $languageService->init($GLOBALS['BE_USER']->uc['lang']);
+        return $languageService;
     }
 }
