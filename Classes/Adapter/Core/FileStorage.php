@@ -600,7 +600,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             if ($this->storage->hasFolderInFolder($oldFolder->getIdentifier(), $rootLevelFolder)) {
                 $this->storage->deleteFolder($oldFolder, true);
             }
-            $this->storage->createFolder($destination, $rootLevelFolder);
+            if (!$this->storage->hasFolder($destination)) {
+                $this->storage->createFolder($destination, $rootLevelFolder);
+            }
         }
 
         /** @var \SplFileInfo $fileInfo */
@@ -608,7 +610,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
-            if ($fileInfo->isDir()) {
+            if ($fileInfo->isDir() && !$this->storage->hasFolder($destination . '/' . $dir)) {
                 $this->storage->createFolder($destination . '/' . $dir, $rootLevelFolder);
             }
             if ($fileInfo->isFile()) {

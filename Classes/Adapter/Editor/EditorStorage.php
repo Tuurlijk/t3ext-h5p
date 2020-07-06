@@ -240,7 +240,7 @@ class EditorStorage implements \H5peditorStorage
         if (is_dir($filePath)) {
             \H5PCore::deleteFileTree($filePath);
         }
-        else {
+        elseif (is_file($filePath)) {
             unlink($filePath);
         }
     }
