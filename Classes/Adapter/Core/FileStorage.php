@@ -610,11 +610,18 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
+            if (strpos($dir, 'content') === 0) {
+                $dir = substr_replace($dir, '', 0, strlen('content'));
+                $dir = ltrim($dir, '/');
+            }
             if ($fileInfo->isDir() && !$this->storage->hasFolder($destination . '/' . $dir)) {
                 $this->storage->createFolder($destination . '/' . $dir, $rootLevelFolder);
-            }
-            if ($fileInfo->isFile()) {
+            } elseif ($fileInfo->isFile()) {
                 $targetDirectory = ltrim(str_replace($source, '', $fileInfo->getPath()), '/');
+                if (strpos($targetDirectory, 'content') === 0) {
+                    $targetDirectory = substr_replace($targetDirectory, '', 0, strlen('content'));
+                    $targetDirectory = ltrim($targetDirectory, '/');
+                }
                 $destinationFolder = GeneralUtility::makeInstance(
                     Folder::class,
                     $this->storage,
