@@ -134,11 +134,17 @@ class EditorController extends ActionController implements SingletonInterface
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_UPLOAD, $token, $uploadPath, $contentId);
                 exit;
                 break;
+            case H5PEditorEndpoints::FILTER:
+                $token = $parameters['token'] ?: 'dummy';
+                $libraryParameters = GeneralUtility::_POST('libraryParameters');
+                $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILTER, $token, $libraryParameters);
+                exit;
+                break;
             default;
         }
 
         // Send the response
-        return (new JsonResponse())->setPayload(['message' =>  'Action not yet implemented! - typo3conf/ext/h5p/Classes/Backend/EditorController.php:114']);
+        return (new JsonResponse())->setPayload(['message' =>  sprintf("Action \'%s\' not yet implemented! %s %s", $action, __METHOD__, __LINE__)]);
     }
 
     /**
