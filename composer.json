@@ -20,7 +20,7 @@
     "h5p/h5p-core": "^1.24",
     "h5p/h5p-editor": "^1.24",
     "guzzlehttp/guzzle": "^6.3",
-    "typo3/cms-core": ">=7.6.0 < 9.5.99"
+    "typo3/cms-core": ">=7.6.0 < 10.4.99"
   },
   "replace": {
     "typo3-ter/h5p": "self.version"
