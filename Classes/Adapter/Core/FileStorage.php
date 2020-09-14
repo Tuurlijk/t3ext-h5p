@@ -454,7 +454,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         $this->registerUploadField($data, $namespace, $targetFalDirectory, $editorFilename);
 
         $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-        $fileProcessor->init([], []);
+        if (method_exists($fileProcessor, 'init')) {
+            $fileProcessor->init([], []);
+        }
         $fileProcessor->setActionPermissions();
         $fileProcessor->start($data);
         $fileProcessor->setExistingFilesConflictMode(DuplicationBehavior::REPLACE);
