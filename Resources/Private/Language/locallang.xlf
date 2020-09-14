@@ -13,9 +13,6 @@
             <trans-unit id="tx_h5p_library.drop_library_css">
                 <source>Drop library CSS</source>
             </trans-unit>
-            <trans-unit id="tx_h5p_library.drop_library_js">
-                <source>Drop library JS</source>
-            </trans-unit>
             <trans-unit id="tx_h5p_library.embed_types">
                 <source>Embed types</source>
             </trans-unit>

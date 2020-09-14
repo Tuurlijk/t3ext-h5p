@@ -43,15 +43,6 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'drop_library_js'  => [
-            'exclude' => 0,
-            'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_library.drop_library_js',
-            'config'  => [
-                'type' => 'input',
-                'size' => 80,
-                'eval' => 'trim',
-            ]
-        ],
         'embed_types'      => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_library.embed_types',
