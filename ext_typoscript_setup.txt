@@ -19,7 +19,7 @@ config.tx_extbase {
     }
 
     objects {
-        TYPO3\CMS\Extbase\Domain\Model\FileReference.className = \MichielRoos\H5p\Domain\Model\FileReference
+        TYPO3\CMS\Extbase\Domain\Model\FileReference.className = MichielRoos\H5p\Domain\Model\FileReference
     }
 }
 
