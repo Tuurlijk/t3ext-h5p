@@ -224,7 +224,7 @@ return [
         ],
     ],
     'types'    => [
-        '1' => ['showitem' => 'title']
+        '1' => ['showitem' => 'title,embed_type']
     ],
     'palettes' => [
         '1' => ['showitem' => '']
