@@ -11,10 +11,10 @@ $EM_CONF['h5p'] = [
     'dependencies'     => '',
     'state'            => 'stable',
     'uploadfolder'     => 0,
-    'version'          => '10.0.4',
+    'version'          => '0.3.12',
     'constraints'      => [
         'depends'      => [
-            'typo3' => '7.0.0-10.4.99',
+            'typo3' => '7.0.0-9.5.99',
         ], 'conflicts' => [],
         'suggests'     => [],
     ],
