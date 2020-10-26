@@ -13,7 +13,6 @@ namespace MichielRoos\H5p\Backend;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Devlog\Devlog\Domain\Repository\EntryRepository;
 use H5peditor;
 use H5PEditorAjax;
 use H5PEditorEndpoints;
@@ -102,14 +101,10 @@ class EditorController extends ActionController
                 $contentId = $parameters['contentId'];
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILES, $token, $contentId);
                 exit;
-                break;
             case H5PEditorEndpoints::CONTENT_TYPE_CACHE:
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::CONTENT_TYPE_CACHE);
                 exit;
-                break;
-
-            // Why H5P why . . .
-            case 'libraries':
+            case H5PEditorEndpoints::LIBRARIES:
                 $machineName = $parameters['machineName'] ?: '';
 
                 if ($machineName === '') {
@@ -124,26 +119,22 @@ class EditorController extends ActionController
                     $this->h5pAjaxEditor->action(H5PEditorEndpoints::SINGLE_LIBRARY, $machineName, $majorVersion, $minorVersion, $languageCode, $prefix, $fileDir, $defaultLanguage);
                 }
                 exit;
-                break;
             case H5PEditorEndpoints::LIBRARY_INSTALL:
                 $id = $parameters['id'];
                 $token = $parameters['token'] ?: 'dummy';
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_INSTALL, $token, $id);
                 exit;
-                break;
             case H5PEditorEndpoints::LIBRARY_UPLOAD:
                 $contentId = $parameters['contentId'];
                 $uploadPath = $_FILES['h5p']['tmp_name'];
                 $token = $parameters['token'] ?: 'dummy';
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_UPLOAD, $token, $uploadPath, $contentId);
                 exit;
-                break;
             case H5PEditorEndpoints::FILTER:
                 $token = $parameters['token'] ?: 'dummy';
                 $libraryParameters = GeneralUtility::_POST('libraryParameters');
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILTER, $token, $libraryParameters);
                 exit;
-                break;
             default;
         }
         // Send the response
