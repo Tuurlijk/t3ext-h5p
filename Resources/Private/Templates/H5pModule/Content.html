@@ -22,7 +22,7 @@
                         <f:for each="{paginatedH5pContent}" as="content">
                             <tr>
                                 <td>
-                                    <a href="{f:uri.action(action: 'show', arguments: {contentId: content.uid}, additionalParams: '{id: id}')}">
+                                    <a href="{f:uri.action(action: 'show', arguments: '{contentId: content.uid}', additionalParams: '{id: id}')}">
                                         <strong>{content.title}</strong>
                                     </a>
                                 </td>
@@ -31,8 +31,8 @@
                                 <td><f:format.date format="{dateFormat} {timeFormat}">{content.updatedAt}</f:format.date></td>
                                 <td class="col-control">
                                     <div class="btn-group" role="group">
-                                        <a class="btn btn-default" href="{f:uri.action(action: 'show', arguments: {contentId: content.uid}, additionalParams: '{id: id}')}"><core:icon identifier="actions-document-info" /></a>
-                                        <a class="btn btn-default" href="{f:uri.action(action: 'edit', arguments: {contentId: content.uid}, additionalParams: '{id: id}')}"><core:icon identifier="actions-document-open" /></a>
+                                        <a class="btn btn-default" href="{f:uri.action(action: 'show', arguments: '{contentId: content.uid}', additionalParams: '{id: id}')}"><core:icon identifier="actions-document-info" /></a>
+                                        <a class="btn btn-default" href="{f:uri.action(action: 'edit', arguments: '{contentId: content.uid}', additionalParams: '{id: id}')}"><core:icon identifier="actions-document-open" /></a>
                                     </div>
                                 </td>
                             </tr>

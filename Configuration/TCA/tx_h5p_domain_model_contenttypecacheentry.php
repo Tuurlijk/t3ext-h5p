@@ -115,7 +115,7 @@ return [
                 'eval' => 'trim',
             ]
         ],
-        'isrecommended'     => [
+        'is_recommended'     => [
             'exclude' => 0,
             'label'   => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_contenttypecacheentry.isRecommended',
             'config'  => [
