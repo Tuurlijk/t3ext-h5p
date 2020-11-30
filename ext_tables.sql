@@ -178,6 +178,7 @@ CREATE TABLE tx_h5p_domain_model_library (
     preloaded_js     text,
     preloaded_css    text,
     drop_library_css text,
+    drop_library_js  text,
     semantics        text                NOT NULL,
     tutorial_url     VARCHAR(1023)       NOT NULL default '',
     has_icon         int(10) unsigned    NOT NULL DEFAULT '0',
