@@ -19,6 +19,7 @@ $EM_CONF['h5p'] = [
         'suggests'     => [],
     ],
     'autoload'         => [
+        'classmap'=> ["Resources/Public/Lib"],
         'psr-4' => ['MichielRoos\\H5p\\' => 'Classes']
     ],
     'conflicts'        => '',
