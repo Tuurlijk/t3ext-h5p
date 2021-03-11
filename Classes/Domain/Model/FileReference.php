@@ -24,7 +24,7 @@ class FileReference extends \TYPO3\CMS\Extbase\Domain\Model\FileReference
      *
      * @var integer
      */
-    private $originalFileIdentifier;
+    protected $originalFileIdentifier;
 
     /**
      * @param \TYPO3\CMS\Core\Resource\ResourceInterface $originalResource
