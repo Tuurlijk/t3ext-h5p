@@ -34,6 +34,7 @@ use MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryTranslationRepository;
 use stdClass;
+use TYPO3\CMS\Core\Http\Client\GuzzleClientFactory;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -213,7 +214,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function fetchExternalData($url, $data = null, $blocking = true, $stream = '')
     {
-        $client = new Client();
+        $client = GuzzleClientFactory::getClient();
         $options = [
             // if $blocking is set, we want to do a synchronous request
             'synchronous' => $blocking,
