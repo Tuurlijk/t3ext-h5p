@@ -95,7 +95,8 @@ class EditorController extends ActionController implements SingletonInterface
         switch ($action) {
             case H5PEditorEndpoints::FILES:
                 $token = $parameters['token'] ?: 'dummy';
-                $contentId = $parameters['contentId'];
+                $requestBody =  $request->getParsedBody();
+                $contentId = $requestBody['contentId'];
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILES, $token, $contentId);
                 exit;
                 break;
