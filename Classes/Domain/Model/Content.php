@@ -206,7 +206,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
             $this->setAuthors(empty($contentData['metadata']->authors) ? null : json_encode($contentData['metadata']->authors));
             $this->setSource(empty($contentData['metadata']->source) ? null : $contentData['metadata']->source);
             $this->setLicense(empty($contentData['metadata']->license) ? '' : $contentData['metadata']->license);
-            $this->setLicenseVersion(empty($contentData['metadata']->licenseVersion) ? null : $contentData['metadata']->licenseVersion);
+            $this->setLicenseVersion(empty($contentData['metadata']->licenseVersion) ? '' : $contentData['metadata']->licenseVersion);
             $this->setLicenseExtras(empty($contentData['metadata']->licenseExtras) ? null : $contentData['metadata']->licenseExtras);
             $this->setAuthorComments(empty($contentData['metadata']->authorComments) ? null : $contentData['metadata']->authorComments);
             $this->setChanges(empty($contentData['metadata']->changes) ? null : json_encode($contentData['metadata']->changes));
