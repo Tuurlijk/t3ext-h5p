@@ -98,7 +98,8 @@ class EditorController extends ActionController
         switch ($action) {
             case H5PEditorEndpoints::FILES:
                 $token = $parameters['token'] ?: 'dummy';
-                $contentId = $parameters['contentId'];
+                $requestBody =  $request->getParsedBody();
+                $contentId = $requestBody['contentId'];
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILES, $token, $contentId);
                 exit;
             case H5PEditorEndpoints::CONTENT_TYPE_CACHE:
