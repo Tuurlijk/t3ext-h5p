@@ -519,7 +519,10 @@ class H5pModuleController extends ActionController
     {
 
         // Content id
-        $contentId = $this->request->getArgument('contentId');
+        $contentId = null;
+        if ($this->request->hasArgument('contentId')) {
+            $contentId = $this->request->getArgument('contentId');
+        }
 
         // Keep track of the old library and params
         $oldLibrary = NULL;
@@ -582,7 +585,7 @@ class H5pModuleController extends ActionController
         try {
             // Save new content
             $content['id'] = $contentId;
-            $content['id'] = $this->h5pCore->saveContent($content);
+            $content['id'] = $this->h5pCore->saveContent($content, $contentId);
         } catch (\Exception $e) {
             $this->addFlashMessage($e->getMessage(), $e->getCode(), FlashMessage::ERROR);
             $this->forward('new');
@@ -633,7 +636,9 @@ class H5pModuleController extends ActionController
             $this->view->assign('library', sprintf('%s %d.%d', $contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']));
             $parameters = (array)json_decode($content->getFiltered(), true);
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
-            $this->view->assign('parameters', json_encode($parameters, true));
+            $parameters = json_encode($parameters, JSON_THROW_ON_ERROR);
+            $parameters = str_replace('"image":[]', '"image":{}', $parameters);
+            $this->view->assign('parameters', $parameters);
         }
 
         $this->embedEditorScriptsAndStyles();
@@ -687,9 +692,13 @@ class H5pModuleController extends ActionController
             }
         }
 
-        //        if ($id !== NULL) {
-//            $settings['editor']['nodeVersionId'] = $id;
-//        }
+        $id = NULL;
+        if ($this->request->hasArgument('contentId')) {
+            $id = $this->request->getArgument('contentId');
+        }
+        if ($id !== NULL) {
+            $settings['editor']['nodeVersionId'] = $id;
+        }
         return $settings;
     }
 
@@ -716,7 +725,7 @@ class H5pModuleController extends ActionController
             'postUserStatistics' => false,
             'ajax'               => [
                 'setFinished'     => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'setFinished', 'action' => 'h5p_']),
-                'contentUserData' => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_']),
+                'contentUserData' => (string)$uriBuilder->buildUriFromRoute('h5p_editor_action', ['type' => 'contentUserData', 'action' => 'h5p_', 'content_id' => ':contentId', 'data_type' => ':dataType', 'sub_content_id' => ':subContentId']),
             ],
             'saveFreq'           => $this->h5pFramework->getOption('save_content_state') ? $this->h5pFramework->getOption('save_content_frequency') : false,
             'siteUrl'            => $url,
