@@ -28,6 +28,7 @@ defined('TYPO3_MODE') or die('¯\_(ツ)_/¯');
                 'items'         => [
                     ['', 0]
                 ],
+                'default'       => 0,
                 'size'          => 1,
                 'minitems'      => 0,
                 'maxitems'      => 1,
@@ -71,11 +72,11 @@ $GLOBALS['TCA']['tt_content']['types']['h5p_view']['showitem'] = '';
     '--palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.general;general,
      --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.header;header,
      --palette--;LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options;h5p,
-     --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.appearance, 
-     --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.frames;frames, 
-     --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, 
-     --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.visibility;visibility, 
-     --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.access;access, 
+     --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.appearance,
+     --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.frames;frames,
+     --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,
+     --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.visibility;visibility,
+     --palette--;LLL:EXT:cms/locallang_ttc.xlf:palette.access;access,
      --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.extended
     ',
     'h5p_view',
