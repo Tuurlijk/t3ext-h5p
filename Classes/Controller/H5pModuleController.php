@@ -634,10 +634,19 @@ class H5pModuleController extends ActionController
             $contentLibrary = $content->getLibrary()->toAssocArray();
             $this->view->assign('content', $content);
             $this->view->assign('library', sprintf('%s %d.%d', $contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']));
-            $parameters = (array)json_decode($content->getFiltered(), true);
+            $parameters = (array)json_decode($content->getFiltered());
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
             $parameters = json_encode($parameters, JSON_THROW_ON_ERROR);
-            $parameters = str_replace('"image":[]', '"image":{}', $parameters);
+            // Unbreak wrongly encoded parameters (Content.php updateFromContentData())
+            $parameters = str_replace([
+                '"globalBackgroundSelector":[]',
+                '"slideBackgroundSelector":[]',
+                '"image":[]'
+            ], [
+                '"globalBackgroundSelector":{}',
+                '"slideBackgroundSelector":{}',
+                '"image":{}'
+            ], $parameters);
             $this->view->assign('parameters', $parameters);
         }
 
