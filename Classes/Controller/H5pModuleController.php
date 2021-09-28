@@ -1,4 +1,5 @@
 <?php
+
 namespace MichielRoos\H5p\Controller;
 
 /*
@@ -441,6 +442,29 @@ class H5pModuleController extends ActionController
     }
 
     /**
+     * Convert list of file paths to csv
+     *
+     * @param array $library
+     *  Library data as found in library.json files
+     * @param string $key
+     *  Key that should be found in $libraryData
+     *
+     * @return string
+     *  file paths separated by ', '
+     */
+    private static function pathsToCsv($library, $key)
+    {
+        if (isset($library[$key])) {
+            $paths = [];
+            foreach ($library[$key] as $file) {
+                $paths[] = $file['path'];
+            }
+            return implode(', ', $paths);
+        }
+        return '';
+    }
+
+    /**
      * Create action
      *
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
@@ -672,12 +696,21 @@ class H5pModuleController extends ActionController
                 $this->view->assign('library', sprintf('%s %d.%d', $contentLibraryArray['machineName'], $contentLibraryArray['majorVersion'], $contentLibraryArray['minorVersion']));
             }
             $this->view->assign('content', $content);
-            $parameters = (array)json_decode($content->getFiltered(), true);
+            $parameters = (array)json_decode($content->getFiltered());
             $displayOptions = $this->h5pCore->getDisplayOptionsForEdit($content->getDisable());
             $this->view->assign('displayOptions', $displayOptions);
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
             $parameters = json_encode($parameters, JSON_THROW_ON_ERROR);
-            $parameters = str_replace('"image":[]', '"image":{}', $parameters);
+            // Unbreak wrongly encoded parameters (Content.php updateFromContentData())
+            $parameters = str_replace([
+                '"globalBackgroundSelector":[]',
+                '"slideBackgroundSelector":[]',
+                '"image":[]'
+            ], [
+                '"globalBackgroundSelector":{}',
+                '"slideBackgroundSelector":{}',
+                '"image":{}'
+            ], $parameters);
             $this->view->assign('parameters', $parameters);
         }
 
@@ -1225,28 +1258,5 @@ class H5pModuleController extends ActionController
                     UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER           => '1:/h5p/packages/',
                 ]
             );
-    }
-
-    /**
-     * Convert list of file paths to csv
-     *
-     * @param array $library
-     *  Library data as found in library.json files
-     * @param string $key
-     *  Key that should be found in $libraryData
-     *
-     * @return string
-     *  file paths separated by ', '
-     */
-    private static function pathsToCsv($library, $key)
-    {
-        if (isset($library[$key])) {
-            $paths = [];
-            foreach ($library[$key] as $file) {
-                $paths[] = $file['path'];
-            }
-            return implode(', ', $paths);
-        }
-        return '';
     }
 }
