@@ -6,7 +6,6 @@
 
     <f:if condition="{f:count(subject: h5pContent)}">
         <f:then>
-            <f:widget.paginate objects="{h5pContent}" as="paginatedH5pContent" configuration="{itemsPerPage: 50, insertBelow: 1}">
                 <div class="table-fit">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -19,7 +18,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <f:for each="{paginatedH5pContent}" as="content">
+                        <f:for each="{paginator.paginatedItems}" as="content">
                             <tr>
                                 <td>
                                     <a href="{f:uri.action(action: 'show', arguments: '{contentId: content.uid}', additionalParams: '{id: id}')}">
@@ -49,7 +48,6 @@
                         </tbody>
                     </table>
                 </div>
-            </f:widget.paginate>
         </f:then>
         <f:else>
             <p>No H5P content available. You must upload or create new content.</p>
