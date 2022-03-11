@@ -41,10 +41,7 @@ class ContentResultRepository extends Repository
     {
         $query = $this->createQuery();
         $results = $query->matching(
-            $query->logicalAnd(
-                $query->equals('user', $userId),
-                $query->equals('content', $contentId)
-            )
+            $query->logicalAnd([$query->equals('user', $userId), $query->equals('content', $contentId)])
         )->execute();
         if ($results->count()) {
             return $results->getFirst();

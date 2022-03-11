@@ -13,6 +13,8 @@ namespace MichielRoos\H5p\Domain\Repository;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
@@ -35,8 +37,8 @@ class PageRepository extends Repository
     /**
      * Find by uids
      * @param array $uids
-     * @return array|\TYPO3\CMS\Extbase\Persistence\QueryResultInterface
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
+     * @return array|QueryResultInterface
+     * @throws InvalidQueryException
      */
     public function findByUids(array $uids)
     {

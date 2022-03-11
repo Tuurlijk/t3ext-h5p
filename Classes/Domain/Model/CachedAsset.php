@@ -27,12 +27,12 @@ class CachedAsset extends AbstractEntity
 {
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\File
+     * @var File
      */
     protected $resource;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<Library>
+     * @var ObjectStorage<Library>
      */
     protected $libraries;
 
@@ -52,7 +52,7 @@ class CachedAsset extends AbstractEntity
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Resource\File
+     * @return File
      */
     public function getResource(): File
     {
@@ -60,7 +60,7 @@ class CachedAsset extends AbstractEntity
     }
 
     /**
-     * @param \TYPO3\CMS\Core\Resource\File $resource
+     * @param File $resource
      */
     public function setResource(File $resource)
     {
@@ -68,7 +68,7 @@ class CachedAsset extends AbstractEntity
     }
 
     /**
-     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage
+     * @return ObjectStorage
      */
     public function getLibraries()
     {
@@ -76,7 +76,7 @@ class CachedAsset extends AbstractEntity
     }
 
     /**
-     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage $libraries
+     * @param ObjectStorage $libraries
      */
     public function setLibraries(ObjectStorage $libraries)
     {

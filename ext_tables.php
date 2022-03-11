@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') or die('¯\_(ツ)_/¯');
+defined('TYPO3') or die('¯\_(ツ)_/¯');
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
     'h5p',
@@ -17,17 +17,17 @@ defined('TYPO3_MODE') or die('¯\_(ツ)_/¯');
 
 if (TYPO3_MODE === 'BE') {
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-        'MichielRoos.h5p',
+        'h5p',
         'web',
         'Manager',
         '',
         [
-            'H5pModule' => 'content,index,new,edit,create,libraries,show,update,consent,error',
+            \MichielRoos\H5p\Controller\H5pModuleController::class => 'content,index,new,edit,create,libraries,show,update,consent,error',
         ],
         [
             'access' => 'user,group',
             'icon'   => 'EXT:h5p/ext_icon.gif',
-            'labels' => 'LLL:EXT:h5p/Resources/Private/Language/BackendModule.xml',
+            'labels' => 'LLL:EXT:h5p/Resources/Private/Language/BackendModule.xlf',
         ]
     );
 
@@ -43,7 +43,7 @@ if (TYPO3_MODE === 'BE') {
 
     call_user_func(
         function ($extKey) {
-            $extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$extKey]);
+            $extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class)->get($extKey);
             if (!isset($extConf['onlyAllowRecordsInSysfolders']) || (int)$extConf['onlyAllowRecordsInSysfolders'] === 0) {
                 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_h5p_domain_model_content');
             }

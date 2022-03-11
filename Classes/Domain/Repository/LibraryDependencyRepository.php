@@ -41,10 +41,7 @@ class LibraryDependencyRepository extends Repository
     {
         $query = $this->createQuery();
         $dependencies = $query->matching(
-            $query->logicalAnd(
-                $query->equals('library', $library),
-                $query->equals('required_library', $requiredLibrary)
-            )
+            $query->logicalAnd([$query->equals('library', $library), $query->equals('required_library', $requiredLibrary)])
         )->execute();
         if ($dependencies->count()) {
             return $dependencies->getFirst();

@@ -1,4 +1,5 @@
 <?php
+
 namespace MichielRoos\H5p\Domain\Model;
 
 /*
@@ -14,37 +15,39 @@ namespace MichielRoos\H5p\Domain\Model;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Annotation as Extbase;
 
 /**
  * Class Content
  */
-class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class Content extends AbstractEntity
 {
     /**
      * @var string
      */
-    protected $author;
+    protected $author = '';
 
     /**
      * @var string
      */
-    protected $authorComments;
+    protected $authorComments = '';
 
     /**
      * @var string
      */
-    protected $authors;
+    protected $authors = '';
 
     /**
      * @var string
      */
-    protected $changes;
+    protected $changes = '';
 
     /**
      * @var string
      */
-    protected $contentType;
+    protected $contentType = '';
 
     /**
      * @var \DateTime
@@ -54,57 +57,57 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @var int
      */
-    protected $disable;
+    protected $disable = false;
 
     /**
      * @var string
      */
-    protected $embedType;
+    protected $embedType = '';
 
     /**
      * @var string
      */
-    protected $description;
+    protected $description = '';
 
     /**
      * @var string
      */
-    protected $filtered;
+    protected string $filtered = '{}';
 
     /**
      * @var bool
      */
-    protected $hidden;
+    protected $hidden = false;
 
     /**
      * @var string
      */
-    protected $keywords;
+    protected $keywords = '';
 
     /**
-     * @var \MichielRoos\H5p\Domain\Model\Library
+     * @var Library
      */
-    protected $library;
-
-    /**
-     * @var string
-     */
-    protected $license;
+    protected $library = 0;
 
     /**
      * @var string
      */
-    protected $licenseVersion;
+    protected $license = '';
 
     /**
      * @var string
      */
-    protected $licenseExtras;
+    protected $licenseVersion = '';
 
     /**
      * @var string
      */
-    protected $slug;
+    protected $licenseExtras = '';
+
+    /**
+     * @var string
+     */
+    protected $slug = '';
 
     /**
      * Title
@@ -116,7 +119,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Package
      *
-     * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     * @var FileReference
      * @Extbase\Validate("\MichielRoos\H5p\Validation\Validator\PackageValidator")
      */
     protected $package;
@@ -124,7 +127,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @var string
      */
-    protected $parameters;
+    protected string $parameters = '{}';
 
     /**
      * @var \DateTime
@@ -134,7 +137,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @var string
      */
-    protected $source;
+    protected $source = '';
 
     /**
      * @var integer
@@ -214,6 +217,22 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function determineEmbedType()
     {
         $this->setEmbedType(\H5PCore::determineEmbedType('div', $this->getLibrary()->getEmbedTypes()));
+    }
+
+    /**
+     * @return Library
+     */
+    public function getLibrary()
+    {
+        return $this->library;
+    }
+
+    /**
+     * @param Library $library
+     */
+    public function setLibrary($library)
+    {
+        $this->library = $library;
     }
 
     /**
@@ -365,7 +384,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     public function getFiltered()
     {
-        return $this->filtered ? : '{}';
+        return $this->filtered ?: '{}';
     }
 
     /**
@@ -406,22 +425,6 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function setKeywords($keywords)
     {
         $this->keywords = $keywords;
-    }
-
-    /**
-     * @return \MichielRoos\H5p\Domain\Model\Library
-     */
-    public function getLibrary()
-    {
-        return $this->library;
-    }
-
-    /**
-     * @param \MichielRoos\H5p\Domain\Model\Library $library
-     */
-    public function setLibrary($library)
-    {
-        $this->library = $library;
     }
 
     /**
@@ -505,7 +508,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     * @return FileReference
      */
     public function getPackage()
     {
@@ -513,7 +516,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @param \TYPO3\CMS\Extbase\Domain\Model\FileReference $package
+     * @param FileReference $package
      */
     public function setPackage($package)
     {
@@ -525,7 +528,7 @@ class Content extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     public function getParameters()
     {
-        return $this->parameters ? : '{}';
+        return $this->parameters ?: '{}';
     }
 
     /**

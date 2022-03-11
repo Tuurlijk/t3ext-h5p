@@ -13,7 +13,11 @@ namespace MichielRoos\H5p\Adapter\Core;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use MichielRoos\H5p\Exception\MethodNotImplementedException;
+use MichielRoos\H5p\Utility\MaintenanceUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use MichielRoos\H5p\Domain\Model\CachedAsset;
@@ -182,7 +186,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     /**
      * Set the current package file to operate on
      *
-     * @param \MichielRoos\H5p\Domain\Model\FileReference $file
+     * @param FileReference $file
      */
     public function setPackageFile(FileReference $file)
     {
@@ -266,13 +270,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param string $machineName
      * @param string $tutorialUrl
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function setLibraryTutorialUrl($machineName, $tutorialUrl)
     {
         // TODO: Implement setLibraryTutorialUrl() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -422,13 +426,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @return string
      *   URL to admin page
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function getAdminUrl()
     {
         // TODO: Implement getAdminUrl() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -446,8 +450,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getLibraryId($machineName, $majorVersion = null, $minorVersion = null)
     {
-        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
-        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
         $where = [];
         $where[] = $queryBuilder->expr()->eq(
@@ -516,8 +520,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function isPatchedLibrary($library)
     {
-        $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
-        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction::class));
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
+        $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
         $where = [];
         $where[] = $queryBuilder->expr()->eq(
@@ -592,8 +596,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *     - languageCode: Translation in json format
      * @param bool $new
      * @return void
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
      * @throws \Exception
      */
     public function saveLibraryData(&$libraryData, $new = true)
@@ -662,7 +666,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   Main id for the content if this is a system that supports versions
      * @return int
      * @throws Exception\NotImplementedException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+     * @throws IllegalObjectTypeException
      * @throws \Exception
      */
     public function insertContent($contentData, $contentMainId = null)
@@ -693,7 +697,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   Main id for the content if this is a system that supports versions
      * @return int
      * @throws IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
+     * @throws UnknownObjectException
      * @throws \Exception
      */
     public function updateContent($contentData, $contentMainId = null)
@@ -721,13 +725,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @param int $contentId
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function resetContentUserData($contentId)
     {
         // TODO: Implement resetContentUserData() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -747,8 +751,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   - dynamic
      *
      * @throws Exception
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException*@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException *@throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function saveLibraryDependencies($libraryId, $dependencies, $dependency_type)
     {
@@ -806,13 +810,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param int $contentId
      *   Id identifying the content
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function deleteContentData($contentId)
     {
         // TODO: Implement deleteContentData() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -895,8 +899,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   Associative array containing:
      *   - content: Number of content using the library
      *   - libraries: Number of libraries depending on the library
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function getLibraryUsage($libraryId, $skipContent = false)
     {
@@ -919,7 +923,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     );
          */
         // TODO: Implement getLibraryUsage() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1025,13 +1029,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param int $minorVersion
      *   The library's minor version
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function alterLibrarySemantics(&$semantics, $machineName, $majorVersion, $minorVersion)
     {
         // TODO: Implement alterLibrarySemantics() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1040,7 +1044,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function lockDependencyStorage()
     {
         // TODO: Implement lockDependencyStorage() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1049,7 +1053,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function unlockDependencyStorage()
     {
         // TODO: Implement unlockDependencyStorage() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1058,13 +1062,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param stdClass $library
      *   Library object with id, name, major version and minor version.
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function deleteLibrary($library)
     {
         // TODO: Implement deleteLibrary() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1086,12 +1090,12 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   - libraryMinorVersion: The library's minorVersion
      *   - libraryEmbedTypes: CSV of the main library's embed types
      *   - libraryFullscreen: 1 if fullscreen is supported. 0 otherwise.
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function loadContent($id)
     {
         // TODO: Implement loadContent() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1174,8 +1178,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param mixed $value Data
      *   Whatever we want to store as the setting
      *
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException*@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException *@throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function setOption($name, $value)
     {
@@ -1224,7 +1228,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param array $library_id
      *
      * @throws IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException*@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws UnknownObjectException *@throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function clearFilteredParameters($library_ids)
     {
@@ -1243,13 +1247,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * and parameters re-filtered.
      *
      * @return int
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function getNumNotFiltered()
     {
         // TODO: Implement getNumNotFiltered() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1296,13 +1300,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     /**
      * Aggregate the current number of H5P authors
      * @return int
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function getNumAuthors()
     {
         // TODO: Implement getNumAuthors() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1315,7 +1319,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param array $libraries
      *  List of dependencies(libraries) used to create the key
      *
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException*@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws UnknownObjectException *@throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function saveCachedAssets($key, $libraries)
     {
@@ -1359,13 +1363,13 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @return array
      *  List of hash keys removed
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function deleteCachedAssets($library_id)
     {
         // TODO: Implement deleteCachedAssets() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1398,7 +1402,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function afterExportCreated($content, $filename)
     {
         // TODO: Implement afterExportCreated() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -1420,7 +1424,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @param object $contentTypeCache Json with an array called 'libraries'
      *  containing the new content type cache that should replace the old one.
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+     * @throws IllegalObjectTypeException
      */
     public function replaceContentTypeCache($contentTypeCache)
     {
@@ -1466,12 +1470,12 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param array $library
      *
      * @return boolean
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function libraryHasUpgrade($library)
     {
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
         // TODO: Implement libraryHasUpgrade() method.
     }
 

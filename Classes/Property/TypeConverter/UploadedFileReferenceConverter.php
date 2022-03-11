@@ -13,7 +13,13 @@ namespace MichielRoos\H5p\Property\TypeConverter;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Extbase\Domain\Model\AbstractFileFolder;
+use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidHashException;
+use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\File as FalFile;
 use TYPO3\CMS\Core\Resource\FileReference as FalFileReference;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -74,27 +80,27 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     protected $priority = 30;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceFactory
+     * @var ResourceFactory
      */
     protected $resourceFactory;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Security\Cryptography\HashService
+     * @var HashService
      */
     protected $hashService;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
+     * @var PersistenceManager
      */
     protected $persistenceManager;
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\FileInterface[]
+     * @var FileInterface[]
      */
     protected $convertedResources = [];
 
     /**
-     * @param \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory
+     * @param ResourceFactory $resourceFactory
      */
     public function injectResourceFactory(ResourceFactory $resourceFactory)
     {
@@ -102,7 +108,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     }
 
     /**
-     * @param \TYPO3\CMS\Extbase\Security\Cryptography\HashService $hashService
+     * @param HashService $hashService
      */
     public function injectHashService(HashService $hashService)
     {
@@ -110,7 +116,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     }
 
     /**
-     * @param \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager
+     * @param PersistenceManager $persistenceManager
      */
     public function injectPersistenceManager(PersistenceManager $persistenceManager)
     {
@@ -124,12 +130,12 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      * @param string|int $source
      * @param string $targetType
      * @param array $convertedChildProperties
-     * @param \TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface $configuration
-     * @return \TYPO3\CMS\Extbase\Domain\Model\AbstractFileFolder
-     * @throws \TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException
-     * @throws \TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException
-     * @throws \TYPO3\CMS\Extbase\Security\Exception\InvalidHashException
+     * @param PropertyMappingConfigurationInterface $configuration
+     * @return AbstractFileFolder
+     * @throws FileDoesNotExistException
+     * @throws ResourceDoesNotExistException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws InvalidHashException
      * @api
      */
     public function convertFrom($source, $targetType, array $convertedChildProperties = [], PropertyMappingConfigurationInterface $configuration = null)
@@ -182,8 +188,8 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      * @param PropertyMappingConfigurationInterface $configuration
      * @return \MichielRoos\H5p\Domain\Model\FileReference
      * @throws TypeConverterException
-     * @throws \TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException
-     * @throws \TYPO3\CMS\Extbase\Security\Exception\InvalidHashException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws InvalidHashException
      */
     protected function importUploadedResource(array $uploadInfo, PropertyMappingConfigurationInterface $configuration)
     {
@@ -201,7 +207,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
         }
 
         $uploadFolderId = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class, self::CONFIGURATION_UPLOAD_FOLDER) ?: $this->defaultUploadFolder;
-        $conflictMode = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class, self::CONFIGURATION_UPLOAD_CONFLICT_MODE) ?: \TYPO3\CMS\Core\Resource\DuplicationBehavior::RENAME;
+        $conflictMode = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class, self::CONFIGURATION_UPLOAD_CONFLICT_MODE) ?: DuplicationBehavior::RENAME;
 
         $uploadFolder = $this->resourceFactory->retrieveFileOrFolderObject($uploadFolderId);
         $uploadedFile = $uploadFolder->addUploadedFile($uploadInfo, $conflictMode);

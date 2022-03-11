@@ -42,10 +42,7 @@ class LibraryTranslationRepository extends Repository
     {
         $query = $this->createQuery();
         $libraries = $query->matching(
-            $query->logicalAnd(
-                $query->equals('library', $library->getUid()),
-                $query->equals('language_code', $language)
-            )
+            $query->logicalAnd([$query->equals('library', $library->getUid()), $query->equals('language_code', $language)])
         )->execute();
         if ($libraries->count()) {
             return $libraries->getFirst();

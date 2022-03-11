@@ -13,7 +13,18 @@ namespace MichielRoos\H5p\Adapter\Core;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
+use MichielRoos\H5p\Exception\MethodNotImplementedException;
+use MichielRoos\H5p\Utility\MaintenanceUtility;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Core\Resource\Exception;
+use TYPO3\CMS\Core\Resource\Exception\AbstractFileOperationException;
+use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException;
+use TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientUserPermissionsException;
+use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
 use MichielRoos\H5p\Domain\Model\CachedAsset;
 use MichielRoos\H5p\Domain\Repository\CachedAssetRepository;
 use TYPO3\CMS\Core\Core\Environment;
@@ -67,9 +78,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param ResourceStorage $storage
      * @param string $path
      *
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException*@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws ExistingTargetFolderException
+     * @throws InsufficientFolderAccessPermissionsException
+     * @throws InsufficientFolderWritePermissionsException *@throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function __construct(ResourceStorage $storage, $path = 'h5p')
     {
@@ -123,9 +134,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *
      * @param array $library
      *  Library properties
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
+     * @throws ExistingTargetFolderException
+     * @throws InsufficientFolderAccessPermissionsException
+     * @throws InsufficientFolderWritePermissionsException
      */
     public function saveLibrary($library)
     {
@@ -176,9 +187,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *  Path on file system to content directory.
      * @param array $content
      *  Content properties
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
+     * @throws ExistingTargetFolderException
+     * @throws InsufficientFolderAccessPermissionsException
+     * @throws InsufficientFolderWritePermissionsException
      */
     public function saveContent($source, $content)
     {
@@ -227,13 +238,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param array $content
      *  Content properties
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function deleteContent($content)
     {
         // TODO: Implement deleteContent() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -244,13 +255,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param int $newId
      *  The cloned content's identifier
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function cloneContent($id, $newId)
     {
         // TODO: Implement cloneContent() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -275,13 +286,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $target
      *  Where the content folder will be saved
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function exportContent($id, $target)
     {
         // TODO: Implement exportContent() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -292,13 +303,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $target
      *  Where the library folder will be saved
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function exportLibrary($library, $target)
     {
         // TODO: Implement exportLibrary() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -309,13 +320,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $filename
      *  Name of export file.
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function saveExport($source, $filename)
     {
         // TODO: Implement saveExport() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -323,13 +334,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *
      * @param string $filename
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function deleteExport($filename)
     {
         // TODO: Implement deleteExport() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -338,13 +349,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $filename
      *
      * @return bool
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function hasExport($filename)
     {
         // TODO: Implement hasExport() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -355,7 +366,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *  A set of all the assets required for content to display
      * @param string $key
      *  Hashed key for cached asset
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+     * @throws IllegalObjectTypeException
      */
     public function cacheAssets(&$files, $key)
     {
@@ -460,13 +471,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param array $keys
      *   The hash keys of removed files
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function deleteCachedAssets($keys)
     {
         // TODO: Implement deleteCachedAssets() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -476,7 +487,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param \H5peditorFile $file
      * @param int $contentId
      * @return \H5peditorFile
-     * @throws \TYPO3\CMS\Core\Resource\Exception
+     * @throws Exception
      */
     public function saveFile($file, $contentId)
     {
@@ -550,11 +561,11 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $file path + name
      * @param string|int $fromId Content ID or 'editor' string
      * @param int $toId Target Content ID
-     * @throws \TYPO3\CMS\Core\Resource\Exception\AbstractFileOperationException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
+     * @throws AbstractFileOperationException
+     * @throws ExistingTargetFileNameException
+     * @throws ExistingTargetFolderException
+     * @throws InsufficientFolderAccessPermissionsException
+     * @throws InsufficientFolderWritePermissionsException
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
@@ -589,13 +600,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $contentId Id of content
      *
      * @return object Object containing h5p json and content json data
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFileNameException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\FileOperationErrorException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InsufficientUserPermissionsException
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InvalidPathException
+     * @throws ExistingTargetFileNameException
+     * @throws ExistingTargetFolderException
+     * @throws FileOperationErrorException
+     * @throws InsufficientFolderAccessPermissionsException
+     * @throws InsufficientFolderWritePermissionsException
+     * @throws InsufficientUserPermissionsException
+     * @throws InvalidPathException
      */
     public function moveContentDirectory($source, $contentId = null)
     {
@@ -683,13 +694,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $file_path
      *
      * @return string contents
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function getContent($file_path)
     {
         // TODO: Implement getContent() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -700,12 +711,12 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param int $contentId
      *
      * @return string|int File ID or NULL if not found
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function getContentFile($file, $contentId)
     {
         // TODO: Implement getContentFile() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -715,12 +726,12 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $file path + name
      * @param int $contentId
      *
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function removeContentFile($file, $contentId)
     {
         // TODO: Implement removeContentFile() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -728,13 +739,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * the required folders
      *
      * @return bool True if server has the proper write access
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function hasWriteAccess()
     {
         // TODO: Implement hasWriteAccess() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**
@@ -744,13 +755,13 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param string $developmentPath
      *
      * @return bool
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
-     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
+     * @throws MethodNotImplementedException
+     * @throws MethodNotImplementedException
      */
     public function hasPresave($libraryName, $developmentPath = null)
     {
         // TODO: Implement hasPresave() method.
-        \MichielRoos\H5p\Utility\MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
     }
 
     /**

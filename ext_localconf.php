@@ -1,38 +1,38 @@
 <?php
-defined('TYPO3_MODE') or die('¯\_(ツ)_/¯');
+defined('TYPO3') or die('¯\_(ツ)_/¯');
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-    'MichielRoos.h5p',
+    'h5p',
     'view',
     [
-        'View' => 'index',
+        \MichielRoos\H5p\Controller\ViewController::class => 'index',
     ],
     [
-        'View' => 'index',
+        \MichielRoos\H5p\Controller\ViewController::class => 'index',
     ],
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
 );
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-    'MichielRoos.h5p',
+    'h5p',
     'statistics',
     [
-        'View' => 'statistics',
+        \MichielRoos\H5p\Controller\ViewController::class => 'statistics',
     ],
     [
-        'View' => 'statistics',
+        \MichielRoos\H5p\Controller\ViewController::class => 'statistics',
     ],
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
 );
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-    'MichielRoos.h5p',
+    'h5p',
     'ajax',
     [
-        'Ajax' => 'index,finish,contentUserData',
+        \MichielRoos\H5p\Controller\AjaxController::class => 'index,finish,contentUserData',
     ],
     [
-        'Ajax' => 'index,finish,contentUserData',
+        \MichielRoos\H5p\Controller\AjaxController::class => 'index,finish,contentUserData',
     ]
 );
 

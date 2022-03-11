@@ -13,7 +13,8 @@ namespace MichielRoos\H5p\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Context\Context;
 use H5PCore;
 use MichielRoos\H5p\Adapter\Core\CoreFactory;
 use MichielRoos\H5p\Adapter\Core\FileStorage;
@@ -39,14 +40,14 @@ class ViewController extends ActionController
     /**
      * Content repository
      *
-     * @var \MichielRoos\H5p\Domain\Repository\ContentRepository
+     * @var ContentRepository
      */
     protected $contentRepository;
 
     /**
      * Content result repository
      *
-     * @var \MichielRoos\H5p\Domain\Repository\ContentResultRepository
+     * @var ContentResultRepository
      */
     protected $contentResultRepository;
 
@@ -82,7 +83,7 @@ class ViewController extends ActionController
 
     /**
      * Inject content repository
-     * @param \MichielRoos\H5p\Domain\Repository\ContentRepository $contentRepository
+     * @param ContentRepository $contentRepository
      */
     public function injectContentRepository(ContentRepository $contentRepository)
     {
@@ -91,7 +92,7 @@ class ViewController extends ActionController
 
     /**
      * Inject content result repository
-     * @param \MichielRoos\H5p\Domain\Repository\ContentResultRepository $contentResultRepository
+     * @param ContentResultRepository $contentResultRepository
      */
     public function injectContentResultRepository(ContentResultRepository $contentResultRepository)
     {
@@ -141,14 +142,14 @@ class ViewController extends ActionController
     /**
      * Index action
      */
-    public function indexAction()
+    public function indexAction(): ResponseInterface
     {
         $data = $this->contentObjectRenderer->data;
         /** @var Content $content */
         $content = $this->contentRepository->findByUid($data['tx_h5p_content']);
         if (!$content) {
             $this->view->assign('contentNotFound', true);
-            return;
+            return $this->htmlResponse(null);
         }
 
         $this->pageRenderer->addJsInlineCode(
@@ -201,16 +202,17 @@ class ViewController extends ActionController
 //            ->buildFrontendUri();
 
         $this->view->assign('content', $content);
+        return $this->htmlResponse();
     }
 
     /**
      * Statistics action
      */
-    public function statisticsAction()
+    public function statisticsAction(): ResponseInterface
     {
-        if (!$GLOBALS['TSFE']->loginUser) {
+        if (!GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
             $this->view->assign('notLoggedIn', true);
-            return;
+            return $this->htmlResponse(null);
         }
 
         $user = $GLOBALS['TSFE']->fe_user->user;
@@ -218,7 +220,7 @@ class ViewController extends ActionController
         $statistics = $this->contentResultRepository->findByUser((int)$user['uid']) ;
         if (!$statistics) {
             $this->view->assign('statisticsNotFound', true);
-            return;
+            return $this->htmlResponse(null);
         }
 
         $pageIds = [];
@@ -230,7 +232,7 @@ class ViewController extends ActionController
 
         if (!count($pageIds)) {
             $this->view->assign('statisticsNotFound', true);
-            return;
+            return $this->htmlResponse(null);
         }
 
         $statisticsByPage = [];
@@ -251,6 +253,7 @@ class ViewController extends ActionController
         $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
         $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
         $this->view->assign('statisticsByPage', $statisticsByPage);
+        return $this->htmlResponse();
     }
 
     /**
@@ -293,7 +296,7 @@ class ViewController extends ActionController
             'contents'           => []
         ];
 
-        if ($GLOBALS['TSFE']->loginUser) {
+        if (GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
             $user = $GLOBALS['TSFE']->fe_user->user;
 
             $name = $user['first_name'];

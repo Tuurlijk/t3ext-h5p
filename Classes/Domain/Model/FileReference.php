@@ -1,6 +1,7 @@
 <?php
 namespace MichielRoos\H5p\Domain\Model;
 
+use TYPO3\CMS\Core\Resource\ResourceInterface;
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -13,7 +14,6 @@ namespace MichielRoos\H5p\Domain\Model;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 /**
  * Class FileReference
  */
@@ -27,9 +27,9 @@ class FileReference extends \TYPO3\CMS\Extbase\Domain\Model\FileReference
     protected $originalFileIdentifier;
 
     /**
-     * @param \TYPO3\CMS\Core\Resource\ResourceInterface $originalResource
+     * @param ResourceInterface $originalResource
      */
-    public function setOriginalResource(\TYPO3\CMS\Core\Resource\ResourceInterface $originalResource)
+    public function setOriginalResource(ResourceInterface $originalResource)
     {
         $this->setFileReference($originalResource);
     }

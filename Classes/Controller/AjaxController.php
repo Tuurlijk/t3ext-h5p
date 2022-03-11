@@ -13,7 +13,8 @@ namespace MichielRoos\H5p\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Core\Context\Context;
+use Psr\Http\Message\ResponseInterface;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Model\ContentResult;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
@@ -32,7 +33,7 @@ class AjaxController extends ActionController
     /**
      * Content repository
      *
-     * @var \MichielRoos\H5p\Domain\Repository\ContentRepository
+     * @var ContentRepository
      */
     protected $contentRepository;
 
@@ -55,7 +56,7 @@ class AjaxController extends ActionController
             'details'    => 'No user is logged in'
         ];
 
-        if ($GLOBALS['TSFE']->loginUser) {
+        if (GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
             $user = $GLOBALS['TSFE']->fe_user->user;
             $postData = GeneralUtility::_POST();
             if (!array_key_exists('time', $postData)) {
@@ -102,8 +103,9 @@ class AjaxController extends ActionController
     /**
      * Finish action
      */
-    public function contentUserDataAction()
+    public function contentUserDataAction(): ResponseInterface
     {
+        return $this->htmlResponse();
     }
 
     /**

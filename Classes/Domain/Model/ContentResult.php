@@ -13,7 +13,7 @@ namespace MichielRoos\H5p\Domain\Model;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
@@ -24,12 +24,12 @@ class ContentResult extends AbstractEntity
 {
 
     /**
-     * @var \MichielRoos\H5p\Domain\Model\Content
+     * @var Content
      */
     protected $content;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser
+     * @var FrontendUser
      */
     protected $user;
 
@@ -60,15 +60,15 @@ class ContentResult extends AbstractEntity
 
     /**
      * ContentResult constructor.
-     * @param \MichielRoos\H5p\Domain\Model\Content $content
-     * @param \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $user
+     * @param Content $content
+     * @param FrontendUser $user
      * @param int $score
      * @param int $maxScore
      * @param int $opened
      * @param int $finished
      * @param int $time
      */
-    public function __construct(\MichielRoos\H5p\Domain\Model\Content $content, \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $user, int $score, int $maxScore, int $opened, int $finished, int $time = 0)
+    public function __construct(Content $content, FrontendUser $user, int $score, int $maxScore, int $opened, int $finished, int $time = 0)
     {
         $this->setContent($content);
         $this->setUser($user);
@@ -80,7 +80,7 @@ class ContentResult extends AbstractEntity
     }
 
     /**
-     * @return \MichielRoos\H5p\Domain\Model\Content
+     * @return Content
      */
     public function getContent(): Content
     {
@@ -88,7 +88,7 @@ class ContentResult extends AbstractEntity
     }
 
     /**
-     * @param \MichielRoos\H5p\Domain\Model\Content $content
+     * @param Content $content
      */
     public function setContent(Content $content)
     {
@@ -96,17 +96,17 @@ class ContentResult extends AbstractEntity
     }
 
     /**
-     * @return \TYPO3\CMS\Extbase\Domain\Model\FrontendUser
+     * @return FrontendUser
      */
-    public function getUser(): \TYPO3\CMS\Extbase\Domain\Model\FrontendUser
+    public function getUser(): FrontendUser
     {
         return $this->user;
     }
 
     /**
-     * @param \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $user
+     * @param FrontendUser $user
      */
-    public function setUser(\TYPO3\CMS\Extbase\Domain\Model\FrontendUser $user)
+    public function setUser(FrontendUser $user)
     {
         $this->user = $user;
     }

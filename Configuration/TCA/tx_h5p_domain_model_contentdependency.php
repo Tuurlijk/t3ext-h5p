@@ -7,7 +7,6 @@ return [
         'label'         => 'library',
         'tstamp'        => 'tstamp',
         'crdate'        => 'crdate',
-        'dividers2tabs' => true,
         'enablecolumns' => [
             'disabled' => 'hidden',
         ],
@@ -19,7 +18,7 @@ return [
     'columns'  => [
         'hidden'          => [
             'exclude' => 1,
-            'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
+            'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
             'config'  => [
                 'type' => 'check'
             ]
@@ -71,7 +70,7 @@ return [
         ]
     ],
     'types'    => [
-        '1' => ['showitem' => '--palette--;;library, weight, drop_css']
+        '1' => ['showitem' => '--palette--;;library,weight,drop_css']
     ],
     'palettes' => [
         'library' => ['showitem' => 'library,required_library,dependency_type']

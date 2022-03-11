@@ -1,7 +1,8 @@
 <?php
 namespace MichielRoos\H5p\Domain\Model;
 
-class ConfigSetting extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+class ConfigSetting extends AbstractEntity
 {
 
     /**

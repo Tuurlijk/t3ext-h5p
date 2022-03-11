@@ -1,6 +1,7 @@
 <?php
 namespace MichielRoos\H5p\Domain\Model;
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -13,20 +14,19 @@ namespace MichielRoos\H5p\Domain\Model;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 /**
  * Class LibraryDependency
  * @package MichielRoos\H5p\Domain\Model
  */
-class LibraryDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class LibraryDependency extends AbstractEntity
 {
     /**
-     * @var \MichielRoos\H5p\Domain\Model\Library
+     * @var Library
      */
     protected $library;
 
     /**
-     * @var \MichielRoos\H5p\Domain\Model\Library
+     * @var Library
      */
     protected $requiredLibrary;
 
@@ -37,8 +37,8 @@ class LibraryDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 
     /**
      * LibraryDependency constructor.
-     * @param \MichielRoos\H5p\Domain\Model\Library $library
-     * @param \MichielRoos\H5p\Domain\Model\Library $requiredLibrary
+     * @param Library $library
+     * @param Library $requiredLibrary
      * @param string $dependencyType
      */
     public function __construct(Library $library, Library $requiredLibrary, string $dependencyType)
@@ -49,7 +49,7 @@ class LibraryDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return \MichielRoos\H5p\Domain\Model\Library
+     * @return Library
      */
     public function getLibrary()
     {
@@ -57,7 +57,7 @@ class LibraryDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @param \MichielRoos\H5p\Domain\Model\Library $library
+     * @param Library $library
      */
     public function setLibrary(Library $library)
     {
@@ -65,7 +65,7 @@ class LibraryDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @return \MichielRoos\H5p\Domain\Model\Library
+     * @return Library
      */
     public function getRequiredLibrary()
     {
@@ -73,7 +73,7 @@ class LibraryDependency extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * @param \MichielRoos\H5p\Domain\Model\Library $requiredLibrary
+     * @param Library $requiredLibrary
      */
     public function setRequiredLibrary(Library $requiredLibrary)
     {
