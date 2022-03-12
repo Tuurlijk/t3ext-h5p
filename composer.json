@@ -34,7 +34,7 @@
             "extension-key": "h5p"
         },
         "branch-alias": {
-            "dev-master": "11.x-dev"
+            "dev-master": "11.5-dev"
         }
     },
     "autoload": {

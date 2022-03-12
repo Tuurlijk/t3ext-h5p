@@ -17,8 +17,8 @@ use MichielRoos\H5p\Exception\MethodNotImplementedException;
 use MichielRoos\H5p\Utility\MaintenanceUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Http\Client\GuzzleClientFactory;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use MichielRoos\H5p\Domain\Model\CachedAsset;
 use MichielRoos\H5p\Domain\Model\ConfigSetting;
@@ -225,7 +225,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function fetchExternalData($url, $data = null, $blocking = true, $stream = '')
     {
-        $client = new Client();
+        $client = GuzzleClientFactory::getClient();
         $options = [
             // if $blocking is set, we want to do a synchronous request
             'synchronous' => $blocking,
