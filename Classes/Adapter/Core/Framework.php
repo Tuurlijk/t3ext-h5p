@@ -14,7 +14,6 @@ namespace MichielRoos\H5p\Adapter\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use MichielRoos\H5p\Domain\Model\CachedAsset;
 use MichielRoos\H5p\Domain\Model\ConfigSetting;
@@ -34,6 +33,7 @@ use MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryTranslationRepository;
 use stdClass;
+use TYPO3\CMS\Core\Http\Client\GuzzleClientFactory;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -221,7 +221,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function fetchExternalData($url, $data = null, $blocking = true, $stream = '')
     {
-        $client = new Client();
+        $client = new GuzzleClientFactory();
         $options = [
             // if $blocking is set, we want to do a synchronous request
             'synchronous' => $blocking,
