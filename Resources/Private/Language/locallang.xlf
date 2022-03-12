@@ -313,6 +313,9 @@
       <trans-unit id="content_on_current_page">
         <source>Content on current page</source>
       </trans-unit>
+      <trans-unit id="action.index.title">
+        <source>Content</source>
+      </trans-unit>
       <trans-unit id="module.menu.libraries">
         <source>Libraries</source>
       </trans-unit>
