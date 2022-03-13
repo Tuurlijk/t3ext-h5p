@@ -11,15 +11,17 @@ $EM_CONF['h5p'] = [
     'dependencies'     => '',
     'state'            => 'stable',
     'uploadfolder'     => 0,
-    'version'          => '10.0.11',
+    'version'          => '10.0.12',
     'constraints'      => [
-        'depends'      => [
+        'depends'   => [
             'typo3' => '10.4.0-10.4.99',
-        ], 'conflicts' => [],
-        'suggests'     => [],
+        ],
+        'conflicts' => [],
+        'suggests'  => [],
     ],
     'autoload'         => [
-        'psr-4' => ['MichielRoos\\H5p\\' => 'Classes']
+        'classmap' => ["Resources/Public/Lib"],
+        'psr-4'    => ['MichielRoos\\H5p\\' => 'Classes']
     ],
     'conflicts'        => '',
     'suggests'         => [],
