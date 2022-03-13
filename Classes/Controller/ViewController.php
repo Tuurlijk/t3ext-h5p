@@ -1,18 +1,7 @@
 <?php
+
 namespace MichielRoos\H5p\Controller;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Context\Context;
 use H5PCore;
@@ -37,39 +26,13 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  */
 class ViewController extends ActionController
 {
-    /**
-     * Content repository
-     *
-     * @var ContentRepository
-     */
-    protected $contentRepository;
+    protected ContentRepository $contentRepository;
+    protected ContentResultRepository $contentResultRepository;
+    private ContentObjectRenderer $contentObjectRenderer;
+    private Framework $h5pFramework;
+    private PageRenderer $pageRenderer;
 
-    /**
-     * Content result repository
-     *
-     * @var ContentResultRepository
-     */
-    protected $contentResultRepository;
-
-    /**
-     * @var ContentObjectRenderer
-     */
-    private $contentObjectRenderer;
-
-    /**
-     * @var Framework
-     */
-    private $h5pFramework;
-
-    /**
-     * @var PageRenderer
-     */
-    private $pageRenderer;
-
-    /**
-     * @var string
-     */
-    private $language;
+    private string $language;
 
     /**
      * @var FileStorage|object
@@ -85,7 +48,7 @@ class ViewController extends ActionController
      * Inject content repository
      * @param ContentRepository $contentRepository
      */
-    public function injectContentRepository(ContentRepository $contentRepository)
+    public function injectContentRepository(ContentRepository $contentRepository): void
     {
         $this->contentRepository = $contentRepository;
     }
@@ -94,7 +57,7 @@ class ViewController extends ActionController
      * Inject content result repository
      * @param ContentResultRepository $contentResultRepository
      */
-    public function injectContentResultRepository(ContentResultRepository $contentResultRepository)
+    public function injectContentResultRepository(ContentResultRepository $contentResultRepository): void
     {
         $this->contentResultRepository = $contentResultRepository;
     }
@@ -102,7 +65,7 @@ class ViewController extends ActionController
     /**
      * Init
      */
-    public function initializeAction()
+    public function initializeAction(): void
     {
         $this->contentObjectRenderer = $this->configurationManager->getContentObject();
 
@@ -134,9 +97,9 @@ class ViewController extends ActionController
      *
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
-        return $GLOBALS['LANG'];
+        return GeneralUtility::makeInstance(LanguageService::class);
     }
 
     /**
@@ -174,7 +137,8 @@ class ViewController extends ActionController
             $contentLibrary = $content->getLibrary()->toAssocArray();
 
             // JS and CSS required by all libraries
-            $contentLibraryWithDependencies = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
+            $contentLibraryWithDependencies = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'],
+                $contentLibrary['minorVersion']);
             $this->h5pCore->findLibraryDependencies($dependencies, $contentLibraryWithDependencies);
             if (is_array($dependencies)) {
                 $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
@@ -206,62 +170,13 @@ class ViewController extends ActionController
     }
 
     /**
-     * Statistics action
-     */
-    public function statisticsAction(): ResponseInterface
-    {
-        if (!GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
-            $this->view->assign('notLoggedIn', true);
-            return $this->htmlResponse(null);
-        }
-
-        $user = $GLOBALS['TSFE']->fe_user->user;
-
-        $statistics = $this->contentResultRepository->findByUser((int)$user['uid']) ;
-        if (!$statistics) {
-            $this->view->assign('statisticsNotFound', true);
-            return $this->htmlResponse(null);
-        }
-
-        $pageIds = [];
-        if (count($statistics)) {
-            foreach ($statistics as $item) {
-                $pageIds[$item->getPid()] = $item->getPid();
-            }
-        }
-
-        if (!count($pageIds)) {
-            $this->view->assign('statisticsNotFound', true);
-            return $this->htmlResponse(null);
-        }
-
-        $statisticsByPage = [];
-        $pageRepository = $this->objectManager->get(PageRepository::class);
-        $pages = $pageRepository->findByUids($pageIds);
-        foreach ($pages as $page) {
-            $statisticsByPage[$page->getUid()] = [
-                'page' => $page,
-                'statistics' => []
-            ];
-            foreach ($statistics as $item) {
-                if ($item->getPid() === $page->getUid()) {
-                    $statisticsByPage[$page->getUid()]['statistics'][] = $item;
-                }
-            }
-        }
-
-        $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
-        $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
-        $this->view->assign('statisticsByPage', $statisticsByPage);
-        return $this->htmlResponse();
-    }
-
-    /**
      * Get generic h5p settings
      *
      * @return array;
+     * @throws \TYPO3\CMS\Core\Context\Exception\AspectNotFoundException
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function getCoreSettings()
+    public function getCoreSettings(): array
     {
         $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
 
@@ -332,8 +247,9 @@ class ViewController extends ActionController
      *
      * @param Content $content
      * @return array;
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function getContentSettings(Content $content)
+    public function getContentSettings(Content $content): array
     {
         $settings = [
             'url'            => '/fileadmin/h5p',
@@ -390,7 +306,7 @@ class ViewController extends ActionController
      * @param array $library
      * @param array $settings
      */
-    private function setJsAndCss(array $library, array &$settings)
+    private function setJsAndCss(array $library, array &$settings): void
     {
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
@@ -423,7 +339,7 @@ class ViewController extends ActionController
      * Load JS and CSS
      * @param array $library
      */
-    private function loadJsAndCss($library)
+    private function loadJsAndCss($library): void
     {
         $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
@@ -441,5 +357,56 @@ class ViewController extends ActionController
                 $this->pageRenderer->addCssFile('/fileadmin/h5p/libraries/' . $name . '/' . $css);
             }
         }
+    }
+
+    /**
+     * Statistics action
+     */
+    public function statisticsAction(): ResponseInterface
+    {
+        if (!GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
+            $this->view->assign('notLoggedIn', true);
+            return $this->htmlResponse(null);
+        }
+
+        $user = $GLOBALS['TSFE']->fe_user->user;
+
+        $statistics = $this->contentResultRepository->findByUser((int)$user['uid']);
+        if (!$statistics) {
+            $this->view->assign('statisticsNotFound', true);
+            return $this->htmlResponse(null);
+        }
+
+        $pageIds = [];
+        if (count($statistics)) {
+            foreach ($statistics as $item) {
+                $pageIds[$item->getPid()] = $item->getPid();
+            }
+        }
+
+        if (!count($pageIds)) {
+            $this->view->assign('statisticsNotFound', true);
+            return $this->htmlResponse(null);
+        }
+
+        $statisticsByPage = [];
+        $pageRepository = $this->objectManager->get(PageRepository::class);
+        $pages = $pageRepository->findByUids($pageIds);
+        foreach ($pages as $page) {
+            $statisticsByPage[$page->getUid()] = [
+                'page'       => $page,
+                'statistics' => []
+            ];
+            foreach ($statistics as $item) {
+                if ($item->getPid() === $page->getUid()) {
+                    $statisticsByPage[$page->getUid()]['statistics'][] = $item;
+                }
+            }
+        }
+
+        $this->view->assign('dateFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy']);
+        $this->view->assign('timeFormat', $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm']);
+        $this->view->assign('statisticsByPage', $statisticsByPage);
+        return $this->htmlResponse();
     }
 }

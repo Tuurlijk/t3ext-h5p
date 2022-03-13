@@ -1,18 +1,6 @@
 <?php
 namespace MichielRoos\H5p\Adapter\Core;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
 
 use TYPO3\CMS\Core\SingletonInterface;
 
@@ -38,7 +26,7 @@ class CoreStorage extends \H5PStorage implements SingletonInterface
      * TRUE if one or more libraries were updated
      * FALSE otherwise
      */
-    public function savePackage($content = null, $contentMainId = null, $skipContent = false, $options = [])
+    public function savePackage($content = null, $contentMainId = null, $skipContent = false, $options = []): bool
     {
         if ($this->h5pC->mayUpdateLibraries()) {
             // Save the libraries we processed during validation
@@ -118,7 +106,7 @@ class CoreStorage extends \H5PStorage implements SingletonInterface
      *
      * @return int Number of libraries saved
      */
-    private function saveLibraries()
+    private function saveLibraries(): int
     {
         // Keep track of the number of libraries that have been saved
         $newOnes = 0;
@@ -237,5 +225,7 @@ class CoreStorage extends \H5PStorage implements SingletonInterface
         if (isset($message)) {
             $this->h5pF->setInfoMessage($message);
         }
+
+        return $newOnes + $oldOnes;
     }
 }

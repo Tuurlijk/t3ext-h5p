@@ -1,19 +1,7 @@
 <?php
+
 namespace MichielRoos\H5p\Property\TypeConverter;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
-use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Extbase\Domain\Model\AbstractFileFolder;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
@@ -43,24 +31,24 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     /**
      * Folder where the file upload should go to (including storage).
      */
-    const CONFIGURATION_UPLOAD_FOLDER = 1;
+    public const CONFIGURATION_UPLOAD_FOLDER = 1;
 
     /**
      * How to handle a upload when the name of the uploaded file conflicts.
      */
-    const CONFIGURATION_UPLOAD_CONFLICT_MODE = 2;
+    public const CONFIGURATION_UPLOAD_CONFLICT_MODE = 2;
 
     /**
      * Whether to replace an already present resource.
      * Useful for "maxitems = 1" fields and properties
      * with no ObjectStorage annotation.
      */
-    const CONFIGURATION_ALLOWED_FILE_EXTENSIONS = 4;
+    public const CONFIGURATION_ALLOWED_FILE_EXTENSIONS = 4;
 
     /**
      * @var string
      */
-    protected $defaultUploadFolder = '1:/user_upload/';
+    protected string $defaultUploadFolder = '1:/user_upload/';
 
     /**
      * @var array<string>
@@ -79,30 +67,18 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      */
     protected $priority = 30;
 
-    /**
-     * @var ResourceFactory
-     */
-    protected $resourceFactory;
+    protected ResourceFactory $resourceFactory;
 
-    /**
-     * @var HashService
-     */
-    protected $hashService;
+    protected HashService $hashService;
 
-    /**
-     * @var PersistenceManager
-     */
-    protected $persistenceManager;
+    protected PersistenceManager $persistenceManager;
 
-    /**
-     * @var FileInterface[]
-     */
-    protected $convertedResources = [];
+    protected array $convertedResources = [];
 
     /**
      * @param ResourceFactory $resourceFactory
      */
-    public function injectResourceFactory(ResourceFactory $resourceFactory)
+    public function injectResourceFactory(ResourceFactory $resourceFactory): void
     {
         $this->resourceFactory = $resourceFactory;
     }
@@ -110,7 +86,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     /**
      * @param HashService $hashService
      */
-    public function injectHashService(HashService $hashService)
+    public function injectHashService(HashService $hashService): void
     {
         $this->hashService = $hashService;
     }
@@ -118,7 +94,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     /**
      * @param PersistenceManager $persistenceManager
      */
-    public function injectPersistenceManager(PersistenceManager $persistenceManager)
+    public function injectPersistenceManager(PersistenceManager $persistenceManager): void
     {
         $this->persistenceManager = $persistenceManager;
     }
@@ -130,12 +106,12 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      * @param string|int $source
      * @param string $targetType
      * @param array $convertedChildProperties
-     * @param PropertyMappingConfigurationInterface $configuration
+     * @param PropertyMappingConfigurationInterface|null $configuration
      * @return AbstractFileFolder
      * @throws FileDoesNotExistException
-     * @throws ResourceDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
      * @throws InvalidHashException
+     * @throws ResourceDoesNotExistException
      * @api
      */
     public function convertFrom($source, $targetType, array $convertedChildProperties = [], PropertyMappingConfigurationInterface $configuration = null)
@@ -148,7 +124,8 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
                         $fileUid = substr($resourcePointer, 5);
                         return $this->createFileReferenceFromFalFileObject($this->resourceFactory->getFileObject($fileUid));
                     }
-                    return $this->createFileReferenceFromFalFileReferenceObject($this->resourceFactory->getFileReferenceObject($resourcePointer), $resourcePointer);
+                    return $this->createFileReferenceFromFalFileReferenceObject($this->resourceFactory->getFileReferenceObject($resourcePointer),
+                        $resourcePointer);
                 } catch (\InvalidArgumentException $e) {
                     // Nothing to do. No file is uploaded and resource pointer is invalid. Discard!
                 }
@@ -182,6 +159,45 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     }
 
     /**
+     * @param FalFile $file
+     * @param int $resourcePointer
+     * @return \MichielRoos\H5p\Domain\Model\FileReference
+     */
+    protected function createFileReferenceFromFalFileObject(FalFile $file, $resourcePointer = null): \MichielRoos\H5p\Domain\Model\FileReference
+    {
+        $fileReference = $this->resourceFactory->createFileReferenceObject(
+            [
+                'uid_local' => $file->getUid(),
+                'uid_foreign' => uniqid('NEW_', true),
+                'uid' => uniqid('NEW_', true),
+                'crop' => null,
+            ]
+        );
+        return $this->createFileReferenceFromFalFileReferenceObject($fileReference, $resourcePointer);
+    }
+
+    /**
+     * @param FalFileReference $falFileReference
+     * @param int $resourcePointer
+     * @return \MichielRoos\H5p\Domain\Model\FileReference
+     */
+    protected function createFileReferenceFromFalFileReferenceObject(
+        FalFileReference $falFileReference,
+        $resourcePointer = null
+    ): \MichielRoos\H5p\Domain\Model\FileReference {
+        if ($resourcePointer === null) {
+            /** @var $fileReference \MichielRoos\H5p\Domain\Model\FileReference */
+            $fileReference = $this->objectManager->get(FileReference::class);
+        } else {
+            $fileReference = $this->persistenceManager->getObjectByIdentifier($resourcePointer, FileReference::class);
+        }
+
+        $fileReference->setOriginalResource($falFileReference);
+
+        return $fileReference;
+    }
+
+    /**
      * Import a resource and respect configuration given for properties
      *
      * @param array $uploadInfo
@@ -191,8 +207,10 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      * @throws InvalidArgumentForHashGenerationException
      * @throws InvalidHashException
      */
-    protected function importUploadedResource(array $uploadInfo, PropertyMappingConfigurationInterface $configuration)
-    {
+    protected function importUploadedResource(
+        array $uploadInfo,
+        PropertyMappingConfigurationInterface $configuration
+    ): \MichielRoos\H5p\Domain\Model\FileReference {
         if (!GeneralUtility::makeInstance(FileNameValidator::class)->isValid($uploadInfo['name'])) {
             throw new TypeConverterException('Uploading files with PHP file extensions is not allowed!', 1399312430);
         }
@@ -206,8 +224,10 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
             }
         }
 
-        $uploadFolderId = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class, self::CONFIGURATION_UPLOAD_FOLDER) ?: $this->defaultUploadFolder;
-        $conflictMode = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class, self::CONFIGURATION_UPLOAD_CONFLICT_MODE) ?: DuplicationBehavior::RENAME;
+        $uploadFolderId = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class,
+            self::CONFIGURATION_UPLOAD_FOLDER) ?: $this->defaultUploadFolder;
+        $conflictMode = $configuration->getConfigurationValue(UploadedFileReferenceConverter::class,
+            self::CONFIGURATION_UPLOAD_CONFLICT_MODE) ?: DuplicationBehavior::RENAME;
 
         $uploadFolder = $this->resourceFactory->retrieveFileOrFolderObject($uploadFolderId);
         $uploadedFile = $uploadFolder->addUploadedFile($uploadInfo, $conflictMode);
@@ -216,45 +236,6 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
             ? $this->hashService->validateAndStripHmac($uploadInfo['submittedFile']['resourcePointer'])
             : null;
 
-        $fileReferenceModel = $this->createFileReferenceFromFalFileObject($uploadedFile, $resourcePointer);
-
-        return $fileReferenceModel;
-    }
-
-    /**
-     * @param FalFile $file
-     * @param int $resourcePointer
-     * @return \MichielRoos\H5p\Domain\Model\FileReference
-     */
-    protected function createFileReferenceFromFalFileObject(FalFile $file, $resourcePointer = null)
-    {
-        $fileReference = $this->resourceFactory->createFileReferenceObject(
-            [
-                'uid_local'   => $file->getUid(),
-                'uid_foreign' => uniqid('NEW_'),
-                'uid'         => uniqid('NEW_'),
-                'crop'        => null,
-            ]
-        );
-        return $this->createFileReferenceFromFalFileReferenceObject($fileReference, $resourcePointer);
-    }
-
-    /**
-     * @param FalFileReference $falFileReference
-     * @param int $resourcePointer
-     * @return \MichielRoos\H5p\Domain\Model\FileReference
-     */
-    protected function createFileReferenceFromFalFileReferenceObject(FalFileReference $falFileReference, $resourcePointer = null)
-    {
-        if ($resourcePointer === null) {
-            /** @var $fileReference \MichielRoos\H5p\Domain\Model\FileReference */
-            $fileReference = $this->objectManager->get(FileReference::class);
-        } else {
-            $fileReference = $this->persistenceManager->getObjectByIdentifier($resourcePointer, FileReference::class);
-        }
-
-        $fileReference->setOriginalResource($falFileReference);
-
-        return $fileReference;
+        return $this->createFileReferenceFromFalFileObject($uploadedFile, $resourcePointer);
     }
 }

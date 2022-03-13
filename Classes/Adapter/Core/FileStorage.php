@@ -1,18 +1,6 @@
 <?php
 namespace MichielRoos\H5p\Adapter\Core;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
@@ -80,9 +68,10 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *
      * @throws ExistingTargetFolderException
      * @throws InsufficientFolderAccessPermissionsException
-     * @throws InsufficientFolderWritePermissionsException *@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws InsufficientFolderWritePermissionsException
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function __construct(ResourceStorage $storage, $path = 'h5p')
+    public function __construct(ResourceStorage $storage, string $path = 'h5p')
     {
         $this->storage = $storage;
         $rootLevelFolder = $this->getRootLevelFolder();
@@ -116,7 +105,8 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *
      * @return Folder
      */
-    private function getRootLevelFolder() {
+    private function getRootLevelFolder(): Folder
+    {
         $fileMounts = $this->storage->getFileMounts();
         if (!empty($fileMounts)) {
             foreach ($fileMounts as $fileMount) {
@@ -270,7 +260,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @return string
      *  Path
      */
-    public function getTmpPath()
+    public function getTmpPath(): string
     {
         $relativeFilename = 'typo3temp/var/h5p/' . sha1(microtime());
         $destination = Environment::getPublicPath() . '/' . $relativeFilename;
@@ -489,7 +479,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @return \H5peditorFile
      * @throws Exception
      */
-    public function saveFile($file, $contentId)
+    public function saveFile($file, $contentId): \H5peditorFile
     {
         $rootLevelFolder = $this->getRootLevelFolder();
         $prefix = '';
@@ -530,10 +520,10 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param array &$data
      * @param string $namespace
      * @param string $targetDirectory
-     * @param $editorFilename
+     * @param string $editorFilename
      * @return void
      */
-    protected function registerUploadField(array &$data, $namespace, $targetDirectory = '1:/_temp_/', $editorFilename = '')
+    protected function registerUploadField(array &$data, string $namespace, string $targetDirectory = '1:/_temp_/', string $editorFilename = ''): void
     {
         if (!isset($data['upload'])) {
             $data['upload'] = [];
@@ -608,7 +598,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws InsufficientUserPermissionsException
      * @throws InvalidPathException
      */
-    public function moveContentDirectory($source, $contentId = null)
+    public function moveContentDirectory($source, $contentId = null): ?object
     {
         if ($source === null) {
             return null;
@@ -796,7 +786,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @param resource $stream
      * @return bool
      */
-    public function saveFileFromZip($path, $file, $stream)
+    public function saveFileFromZip($path, $file, $stream): bool
     {
         $filePath = $path . '/' . $file;
 

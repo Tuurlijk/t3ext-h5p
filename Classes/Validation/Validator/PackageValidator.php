@@ -1,18 +1,6 @@
 <?php
-namespace MichielRoos\H5p\Validation\Validator;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
+namespace MichielRoos\H5p\Validation\Validator;
 
 use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
@@ -29,17 +17,17 @@ class PackageValidator extends AbstractValidator
     /**
      * Validates the given package
      *
-     * @param FileReference $package
+     * @param FileReference $value
      * @return bool
      */
-    protected function isValid($package)
+    protected function isValid($value): bool
     {
-        $storage = $package->getOriginalResource()->getStorage();
-        $h5pFramewok    = GeneralUtility::makeInstance(Framework::class, $storage);
-        $h5pFramewok->setPackageFile($package);
+        $storage = $value->getOriginalResource()->getStorage();
+        $framework = GeneralUtility::makeInstance(Framework::class, $storage);
+        $framework->setPackageFile($value);
         $h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $h5pCore        = GeneralUtility::makeInstance(CoreFactory::class, $h5pFramewok, $h5pFileStorage, '');
-        $validator      = GeneralUtility::makeInstance(\H5PValidator::class, $h5pFramewok, $h5pCore);
+        $h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $framework, $h5pFileStorage, '');
+        $validator = GeneralUtility::makeInstance(\H5PValidator::class, $framework, $h5pCore);
 
         $success = $validator->isValidPackage();
 

@@ -9,7 +9,7 @@ class BackendJsLoader
     /**
      * Load require JS modules
      */
-    public function loadJsModules()
+    public function loadJsModules(): void
     {
         if (TYPO3_MODE !== 'BE') {
             return;

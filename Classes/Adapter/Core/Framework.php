@@ -1,18 +1,6 @@
 <?php
 namespace MichielRoos\H5p\Adapter\Core;
 
-/*
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
 use MichielRoos\H5p\Exception\MethodNotImplementedException;
 use MichielRoos\H5p\Utility\MaintenanceUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -188,7 +176,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @param FileReference $file
      */
-    public function setPackageFile(FileReference $file)
+    public function setPackageFile(FileReference $file): void
     {
         $this->package = $file;
         $this->localTmpFile = $this->package->getOriginalResource()->getForLocalProcessing();
@@ -204,7 +192,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   - h5pVersion: The version of the H5P plugin/module
      * @throws \TYPO3\CMS\Core\Package\Exception
      */
-    public function getPlatformInfo()
+    public function getPlatformInfo(): array
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
         return [
@@ -256,7 +244,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param string $message The error message
      * @param string $code An optional code
      */
-    public function setErrorMessage($message, $code = null)
+    public function setErrorMessage($message, $code = null): void
     {
         $this->messages['error'][] = (object)[
             'code'    => $code,
@@ -285,7 +273,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param string $message
      *  The error message
      */
-    public function setInfoMessage($message)
+    public function setInfoMessage($message): void
     {
         $this->messages['info'][] = $message;
     }
@@ -296,7 +284,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param string $type 'info' or 'error'
      * @return string[]
      */
-    public function getMessages($type)
+    public function getMessages($type): ?array
     {
         if (empty($this->messages[$type])) {
             return null;
@@ -322,7 +310,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @return string Translated string
      * Translated string
      */
-    public function t($message, $replacements = [])
+    public function t($message, $replacements = []): string
     {
         // Insert !var as is, escape @var and emphasis %var.
         foreach ($replacements as $key => $replacement) {
@@ -338,7 +326,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param string $fileName
      * @return string URL to file
      */
-    public function getLibraryFileUrl($libraryFolderName, $fileName)
+    public function getLibraryFileUrl($libraryFolderName, $fileName): string
     {
         $file = $this->storage->getFile('/h5p/libraries/' . $libraryFolderName . '/' . $fileName);
         return '/' . ltrim($file->getPublicUrl(), '/');
@@ -350,7 +338,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @return string
      *   Path to the folder where the last uploaded h5p for this session is located.
      */
-    public function getUploadedH5pFolderPath()
+    public function getUploadedH5pFolderPath(): string
     {
         if (!$this->uploadedH5pFolderPath) {
             $this->uploadedH5pFolderPath = $this->getInjectedH5PCore()->fs->getTmpPath();
@@ -380,9 +368,9 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
-        return $GLOBALS['LANG'];
+        return GeneralUtility::makeInstance(LanguageService::class);
     }
 
     /**
@@ -391,7 +379,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @return string
      *   Path to the last uploaded h5p
      */
-    public function getUploadedH5pPath()
+    public function getUploadedH5pPath(): string
     {
         if (!$this->uploadedH5pPath) {
             $this->uploadedH5pPath = $this->getInjectedH5PCore()->fs->getTmpPath() . '.h5p';
@@ -408,7 +396,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function loadLibraries()
+    public function loadLibraries(): array
     {
         $installedLibraries = $this->libraryRepository->findAll();
 
@@ -429,7 +417,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function getAdminUrl()
+    public function getAdminUrl(): string
     {
         // TODO: Implement getAdminUrl() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -447,8 +435,10 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   Optional minor version number for library
      * @return int
      *   The id of the specified library or FALSE
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
-    public function getLibraryId($machineName, $majorVersion = null, $minorVersion = null)
+    public function getLibraryId($machineName, $majorVersion = null, $minorVersion = null): ?int
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
@@ -456,19 +446,19 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         $where = [];
         $where[] = $queryBuilder->expr()->eq(
             'machine_name',
-            $queryBuilder->createNamedParameter((string)$machineName, \PDO::PARAM_STR)
+            $queryBuilder->createNamedParameter((string)$machineName)
         );
         if ($majorVersion !== null) {
             // Look for major version
             $where[] = $queryBuilder->expr()->eq(
                 'major_version',
-                $queryBuilder->createNamedParameter((string)$majorVersion, \PDO::PARAM_STR)
+                $queryBuilder->createNamedParameter((string)$majorVersion)
             );
             if ($minorVersion !== null) {
                 // Look for minor version
                 $where[] = $queryBuilder->expr()->eq(
                     'minor_version',
-                    $queryBuilder->createNamedParameter((string)$minorVersion, \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter((string)$minorVersion)
                 );
             }
         }
@@ -477,7 +467,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             ->from('tx_h5p_domain_model_library')
             ->where(...$where)
             ->execute()
-            ->fetch();
+            ->fetchAssociative();
         return $libraryRow['uid'];
     }
 
@@ -495,7 +485,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   A string of file extensions separated by whitespace
      * @return string
      */
-    public function getWhitelist($isLibrary, $defaultContentWhitelist, $defaultLibraryWhitelist)
+    public function getWhitelist($isLibrary, $defaultContentWhitelist, $defaultLibraryWhitelist): string
     {
         // TODO: Get this value from a settings page.
         $whitelist = $defaultContentWhitelist;
@@ -517,8 +507,9 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @return bool
      *   TRUE if the library is a patched version of an existing library
      *   FALSE otherwise
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function isPatchedLibrary($library)
+    public function isPatchedLibrary($library): bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
@@ -552,7 +543,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *  TRUE if H5P development mode is active
      *  FALSE otherwise
      */
-    public function isInDevMode()
+    public function isInDevMode(): bool
     {
         return true;
     }
@@ -564,7 +555,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *  TRUE if the user is allowed to update libraries
      *  FALSE if the user is not allowed to update libraries
      */
-    public function mayUpdateLibraries()
+    public function mayUpdateLibraries(): bool
     {
         return true;
     }
@@ -669,7 +660,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @throws IllegalObjectTypeException
      * @throws \Exception
      */
-    public function insertContent($contentData, $contentMainId = null)
+    public function insertContent($contentData, $contentMainId = null): int
     {
         /** @var Library $library */
         $library = $this->libraryRepository->findOneByUid($contentData['library']['libraryId']);
@@ -700,7 +691,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @throws UnknownObjectException
      * @throws \Exception
      */
-    public function updateContent($contentData, $contentMainId = null)
+    public function updateContent($contentData, $contentMainId = null): int
     {
         /** @var Content $content */
         $content = $this->contentRepository->findOneByUid($contentData['id']);
@@ -1003,10 +994,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @return string
      *   The library's semantics as json
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function loadLibrarySemantics($machineName, $majorVersion, $minorVersion)
+    public function loadLibrarySemantics($machineName, $majorVersion, $minorVersion): ?string
     {
         /** @var Library $library */
         $library = $this->libraryRepository->findOneByMachinenameMajorVersionAndMinorVersion($machineName, $majorVersion,
@@ -1029,7 +1018,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param int $minorVersion
      *   The library's minor version
      *
-     * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
     public function alterLibrarySemantics(&$semantics, $machineName, $majorVersion, $minorVersion)
@@ -1062,7 +1050,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param stdClass $library
      *   Library object with id, name, major version and minor version.
      *
-     * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
     public function deleteLibrary($library)
@@ -1120,7 +1107,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   - preloadedCss(optional): comma separated sting with css file paths
      *   - dropCss(optional): csv of machine names
      * @throws \TYPO3\CMS\Extbase\Object\Exception
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function loadContentDependencies($id, $type = null)
     {
@@ -1157,7 +1143,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @return mixed
      *   Whatever has been stored as the setting
      * @throws \TYPO3\CMS\Extbase\Object\Exception
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function getOption($name, $default = null)
     {
@@ -1179,7 +1164,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *   Whatever we want to store as the setting
      *
      * @throws IllegalObjectTypeException
-     * @throws UnknownObjectException *@throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws UnknownObjectException
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function setOption($name, $value)
     {
@@ -1200,6 +1186,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      *
      * @param int $id Content identifier
      * @param array $fields Content fields, e.g. filtered or slug.
+     * @throws UnknownObjectException
      */
     public function updateContentFields($id, $fields)
     {
@@ -1250,7 +1237,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function getNumNotFiltered()
+    public function getNumNotFiltered(): int
     {
         // TODO: Implement getNumNotFiltered() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -1281,7 +1268,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function isContentSlugAvailable($slug)
+    public function isContentSlugAvailable($slug): bool
     {
         return $this->contentRepository->findOneBySlug($slug) === null;
     }
@@ -1292,7 +1279,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param string $type Type of event to generate stats for
      * @return array Number values indexed by library name and version
      */
-    public function getLibraryStats($type)
+    public function getLibraryStats($type): array
     {
         return ['none' => 0];
     }
@@ -1376,7 +1363,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * Get the amount of content items associated to a library
      * return int
      */
-    public function getLibraryContentCount()
+    public function getLibraryContentCount(): array
     {
         $contentCount = ['none' => 0];
         $allContent = $this->contentRepository->findAll();
@@ -1413,7 +1400,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param  [int]           $id         Id need by platform to determine permission
      * @return bool
      */
-    public function hasPermission($permission, $id = null)
+    public function hasPermission($permission, $id = null): bool
     {
         return true;
         // TODO: Implement hasPermission() method.
@@ -1445,10 +1432,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * Load addon libraries
      *
      * @return array
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function loadAddons()
+    public function loadAddons(): array
     {
         return $this->libraryRepository->getLibraryAddons();
     }
@@ -1459,7 +1444,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @param array $libraries
      * @return array
      */
-    public function getLibraryConfig($libraries = NULL)
+    public function getLibraryConfig($libraries = NULL): ?array
     {
         return defined('H5P_LIBRARY_CONFIG') ? H5P_LIBRARY_CONFIG : null;
     }
