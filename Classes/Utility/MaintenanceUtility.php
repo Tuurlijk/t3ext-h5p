@@ -15,7 +15,7 @@ class MaintenanceUtility
      * @param string $message
      * @throws MethodNotImplementedException
      */
-    public static function methodMissing($class = '', $function = '', $message = '')
+    public static function methodMissing(string $class = '', string $function = '', string $message = ''): void
     {
         if (defined('TYPO3_CONTEXT') && TYPO3_CONTEXT === 'Development') {
             throw new MethodNotImplementedException('Method not implemented: ' . $class . '->' . $function . ' ' . $message);

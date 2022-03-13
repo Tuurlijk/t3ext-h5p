@@ -2,7 +2,6 @@
 
 namespace MichielRoos\H5p\Adapter\Editor;
 
-use H5peditorFile;
 use MichielRoos\H5p\Adapter\Core\Framework;
 use MichielRoos\H5p\Domain\Model\Library;
 use MichielRoos\H5p\Domain\Model\LibraryTranslation;
@@ -47,14 +46,16 @@ class EditorStorage implements \H5peditorStorage
      */
     public function getLanguage($machineName, $majorVersion, $minorVersion, $language)
     {
-        $translation = false;
         $library = $this->libraryRepository->findOneByMachinenameMajorVersionAndMinorVersion($machineName, $majorVersion, $minorVersion);
+        if (!$library) {
+            return false;
+        }
         /** @var LibraryTranslation $translation */
         $libraryTranslation = $this->libraryTranslationRepository->findOneByLibraryAndLanguage($library, $language);
         if ($libraryTranslation instanceof LibraryTranslation) {
-            $translation = $libraryTranslation->getTranslation();
+            return $libraryTranslation->getTranslation();
         }
-        return $translation;
+        return false;
     }
 
     /**
@@ -83,6 +84,7 @@ class EditorStorage implements \H5peditorStorage
      * Used when saving content that has new uploaded files.
      *
      * @param int $fileId
+     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
      */
     public function keepFile($fileId)
     {
@@ -178,6 +180,7 @@ class EditorStorage implements \H5peditorStorage
      * @param array $libraries
      *  List of libraries indexed by machineName with objects as values. The objects
      *  have majorVersion and minorVersion as properties.
+     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
      */
     public function alterLibraryFiles(&$files, $libraries)
     {
@@ -222,8 +225,9 @@ class EditorStorage implements \H5peditorStorage
      * Marks a file for later cleanup, useful when files are not instantly cleaned
      * up. E.g. for files that are uploaded through the editor.
      *
-     * @param H5peditorFile
+     * @param $file
      * @param $content_id
+     * @throws \MichielRoos\H5p\Exception\MethodNotImplementedException
      */
     public static function markFileForCleanup($file, $content_id)
     {
@@ -236,7 +240,7 @@ class EditorStorage implements \H5peditorStorage
      *
      * @param string $filePath Path to file or directory
      */
-    public static function removeTemporarilySavedFiles($filePath)
+    public static function removeTemporarilySavedFiles($filePath): void
     {
         if (is_dir($filePath)) {
             \H5PCore::deleteFileTree($filePath);

@@ -25,7 +25,7 @@ class LibraryTranslationRepository extends Repository
     /**
      * initializes any required object
      */
-    public function initializeObject()
+    public function initializeObject(): void
     {
         if ($this->defaultQuerySettings === null) {
             $this->defaultQuerySettings = $this->objectManager->get(QuerySettingsInterface::class);
@@ -38,7 +38,7 @@ class LibraryTranslationRepository extends Repository
      * @param $language
      * @return object|null
      */
-    public function findOneByLibraryAndLanguage($library, $language)
+    public function findOneByLibraryAndLanguage(Library $library, $language): ?object
     {
         $query = $this->createQuery();
         $libraries = $query->matching(
