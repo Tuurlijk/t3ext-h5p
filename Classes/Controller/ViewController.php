@@ -2,6 +2,7 @@
 
 namespace MichielRoos\H5p\Controller;
 
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Context\Context;
 use H5PCore;
@@ -173,7 +174,7 @@ class ViewController extends ActionController
      * Get generic h5p settings
      *
      * @return array;
-     * @throws \TYPO3\CMS\Core\Context\Exception\AspectNotFoundException
+     * @throws AspectNotFoundException
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function getCoreSettings(): array

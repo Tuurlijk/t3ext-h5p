@@ -33,7 +33,6 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
@@ -464,9 +463,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         }
 
         $libraryRow = $queryBuilder->select('*')
-            ->from('tx_h5p_domain_model_library')
-            ->where(...$where)
-            ->execute()
+            ->from('tx_h5p_domain_model_library')->where(...$where)->executeQuery()
             ->fetchAssociative();
         return $libraryRow['uid'];
     }
@@ -529,9 +526,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         );
 
         $libraryRow = $queryBuilder->select('patch_version')
-            ->from('tx_h5p_domain_model_library')
-            ->where(...$where)
-            ->execute()
+            ->from('tx_h5p_domain_model_library')->where(...$where)->executeQuery()
             ->fetch();
         return $libraryRow['patch_version'] < $library['patchVersion'];
     }
@@ -1241,6 +1236,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     {
         // TODO: Implement getNumNotFiltered() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
+        return 0;
     }
 
     /**

@@ -3,19 +3,6 @@
 namespace MichielRoos\H5p\Controller;
 
 
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
-use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Pagination\SimplePagination;
-use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
-use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
-use TYPO3\CMS\Extbase\Http\ForwardResponse;
-use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use H5P_Plugin;
 use H5PContentValidator;
 use H5PCore;
@@ -30,26 +17,40 @@ use MichielRoos\H5p\Domain\Model\Library;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
 use MichielRoos\H5p\Property\TypeConverter\UploadedFileReferenceConverter;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Pagination\SimplePagination;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use TYPO3\CMS\Extbase\Http\ForwardResponse;
+use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
+use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Form\Controller\AbstractBackendController;
 
 /**
  * Module 'H5P' for the 'h5p' extension.
  */
-class H5pModuleController extends AbstractBackendController
+class H5pModuleController
 {
     public string $perms_clause;
     protected bool $h5pContentAllowedOnPage = false;
@@ -57,10 +58,6 @@ class H5pModuleController extends AbstractBackendController
     protected array $pageRecord = [];
     protected bool $isAccessibleForCurrentUser = false;
     protected int $id;
-    protected BackendUriBuilder $backendUriBuilder;
-    protected ModuleTemplateFactory $moduleTemplateFactory;
-    protected PageRenderer $pageRenderer;
-    protected IconFactory $iconFactory;
     protected int $limit = 20;
 
     /**
@@ -97,33 +94,30 @@ class H5pModuleController extends AbstractBackendController
     private int $itemsPerPage = 50;
 
     public function __construct(
-        ModuleTemplateFactory $moduleTemplateFactory,
-        PageRenderer $pageRenderer,
-        IconFactory $iconFactory,
-        BackendUriBuilder $backendUriBuilder
-    ) {
-        $this->moduleTemplateFactory = $moduleTemplateFactory;
-        $this->pageRenderer = $pageRenderer;
-        $this->iconFactory = $iconFactory;
-        $this->backendUriBuilder = $backendUriBuilder;
+        private readonly ModuleTemplateFactory $moduleTemplateFactory,
+        private readonly PageRenderer          $pageRenderer,
+        private readonly IconFactory           $iconFactory,
+        private readonly BackendUriBuilder     $backendUriBuilder
+    )
+    {
     }
 
     /**
      * Initializes the Module
      *
      * @return void
-     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
-     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public function initializeAction(): void
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->moduleTemplate->setTitle(LocalizationUtility::translate('LLL:EXT:h5p/Resources/Private/Language/BackendModule.xlf:mlang_tabs_tab'));
 
-        $this->id = (int)GeneralUtility::_GP('id');
-        $backendUser = $this->getBackendUser();
-        $this->perms_clause = $backendUser->getPagePermsClause(1);
-        $this->pageRecord = BackendUtility::readPageAccess($this->id, $this->perms_clause);
+        $this->id                         = (int)GeneralUtility::_GP('id');
+        $backendUser                      = $this->getBackendUser();
+        $this->perms_clause               = $backendUser->getPagePermsClause(1);
+        $this->pageRecord                 = BackendUtility::readPageAccess($this->id, $this->perms_clause);
         $this->isAccessibleForCurrentUser = ($this->id && is_array($this->pageRecord)) || (!$this->id && $this->isCurrentUserAdmin());
 
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:h5p/Resources/Private/Language/locallang.xlf');
@@ -138,24 +132,24 @@ class H5pModuleController extends AbstractBackendController
 
         // Get extension configuration
         $allowContentOnStandardPages = false;
-        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('h5p');
+        $extConf                     = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('h5p');
         if (!isset($extConf['onlyAllowRecordsInSysfolders']) || (int)$extConf['onlyAllowRecordsInSysfolders'] === 0) {
             $allowContentOnStandardPages = true;
         }
-        $pageIsSysfolder = (int)$this->pageRecord['doktype'] === 254;
+        $pageIsSysfolder               = (int)$this->pageRecord['doktype'] === 254;
         $this->h5pContentAllowedOnPage = $allowContentOnStandardPages || $pageIsSysfolder;
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $storage = $resourceFactory->getDefaultStorage();
-        $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
-        $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
+        $resourceFactory           = GeneralUtility::makeInstance(ResourceFactory::class);
+        $storage                   = $resourceFactory->getDefaultStorage();
+        $this->h5pFramework        = GeneralUtility::makeInstance(Framework::class, $storage);
+        $this->h5pFileStorage      = GeneralUtility::makeInstance(FileStorage::class, $storage);
+        $this->h5pCore             = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
         $this->h5pContentValidator = GeneralUtility::makeInstance(H5PContentValidator::class, $this->h5pFramework, $this->h5pCore);
-        $editorAjax = GeneralUtility::makeInstance(EditorAjax::class);
-        $editorStorage = GeneralUtility::makeInstance(EditorStorage::class);
-        $this->h5pEditor = GeneralUtility::makeInstance(H5peditor::class, $this->h5pCore, $editorStorage, $editorAjax);
+        $editorAjax                = GeneralUtility::makeInstance(EditorAjax::class);
+        $editorStorage             = GeneralUtility::makeInstance(EditorStorage::class);
+        $this->h5pEditor           = GeneralUtility::makeInstance(H5peditor::class, $this->h5pCore, $editorStorage, $editorAjax);
     }
 
     /**
@@ -190,10 +184,10 @@ class H5pModuleController extends AbstractBackendController
 
     /**
      * Initialize the view
-     * @todo v12: Change signature to TYPO3Fluid\Fluid\View\ViewInterface when extbase ViewInterface is dropped.
-     *
      * @param ViewInterface $view The view
      * @return void
+     * @todo v12: Change signature to TYPO3Fluid\Fluid\View\ViewInterface when extbase ViewInterface is dropped.
+     *
      */
     public function initializeView(ViewInterface $view): void
     {
@@ -215,15 +209,15 @@ class H5pModuleController extends AbstractBackendController
      */
     protected function registerDocheaderButtons(): void
     {
-        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $buttonBar      = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $currentRequest = $this->request;
-        $moduleName = $currentRequest->getPluginName();
-        $getVars = $this->request->getArguments();
+        $moduleName     = $currentRequest->getPluginName();
+        $getVars        = $this->request->getArguments();
 
         $extensionName = $currentRequest->getControllerExtensionName();
         if (count($getVars) === 0) {
             $modulePrefix = strtolower('tx_' . $extensionName . '_' . $moduleName);
-            $getVars = ['id', 'M', $modulePrefix];
+            $getVars      = ['id', 'M', $modulePrefix];
         }
         $shortcutButton = $buttonBar->makeShortcutButton()
             ->setModuleName($moduleName)
@@ -231,8 +225,8 @@ class H5pModuleController extends AbstractBackendController
         $buttonBar->addButton($shortcutButton);
 
         if ($this->h5pContentAllowedOnPage && in_array($this->request->getControllerActionName(), ['content', 'index', 'show'])) {
-            $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
-            $icon = $this->iconFactory->getIcon('actions-document-new', Icon::SIZE_SMALL);
+            $title         = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
+            $icon          = $this->iconFactory->getIcon('actions-document-new', Icon::SIZE_SMALL);
             $addUserButton = $buttonBar->makeLinkButton()
                 ->setHref($this->getHref('H5pModule', 'new'))
                 ->setTitle($title)
@@ -241,8 +235,8 @@ class H5pModuleController extends AbstractBackendController
         }
 
         if (in_array($this->request->getControllerActionName(), ['show'])) {
-            $title = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.edit');
-            $icon = $this->iconFactory->getIcon('actions-document-open', Icon::SIZE_SMALL);
+            $title         = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.edit');
+            $icon          = $this->iconFactory->getIcon('actions-document-open', Icon::SIZE_SMALL);
             $addUserButton = $buttonBar->makeLinkButton()
                 ->setHref($this->getHref('H5pModule', 'edit', ['contentId' => $this->request->getArgument('contentId')]))
                 ->setTitle($title)
@@ -327,9 +321,9 @@ class H5pModuleController extends AbstractBackendController
     public function indexAction(int $currentPage = 1): ResponseInterface
     {
         $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-        $content = $contentRepository->findAll();
+        $content           = $contentRepository->findAll();
 
-        $paginator = new QueryResultPaginator($content, $currentPage, $this->itemsPerPage);
+        $paginator  = new QueryResultPaginator($content, $currentPage, $this->itemsPerPage);
         $pagination = new SimplePagination($paginator);
 
 
@@ -355,9 +349,9 @@ class H5pModuleController extends AbstractBackendController
     public function contentAction(int $currentPage = 1): ResponseInterface
     {
         $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-        $content = $contentRepository->findByPid($this->id);
+        $content           = $contentRepository->findByPid($this->id);
 
-        $paginator = new QueryResultPaginator($content, $currentPage, $this->itemsPerPage);
+        $paginator  = new QueryResultPaginator($content, $currentPage, $this->itemsPerPage);
         $pagination = new SimplePagination($paginator);
 
         $this->view->assignMultiple([
@@ -382,20 +376,20 @@ class H5pModuleController extends AbstractBackendController
     public function librariesAction(int $currentPage = 1): ResponseInterface
     {
         $libraryRepository = GeneralUtility::makeInstance(LibraryRepository::class);
-        $libraries = $libraryRepository->findAll();
+        $libraries         = $libraryRepository->findAll();
 
         // Check if any libraries need an update
         $librariesThatNeedUpdate = [];
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $storage = $resourceFactory->getDefaultStorage();
+        $resourceFactory         = GeneralUtility::makeInstance(ResourceFactory::class);
+        $storage                 = $resourceFactory->getDefaultStorage();
         if ($storage !== null) {
             foreach ($libraries as $library) {
                 try {
                     $libraryJson = $storage->getFile('/h5p/libraries/' . $library->getFolderName() . '/library.json');
                     if ($libraryJson instanceof FileInterface && $libraryJson->getSize() > 0) {
                         $libraryContent = json_decode($libraryJson->getContents(), true);
-                        $preloadedCss = self::pathsToCsv($libraryContent, 'preloadedCss');
-                        $preloadedJs = self::pathsToCsv($libraryContent, 'preloadedJs');
+                        $preloadedCss   = self::pathsToCsv($libraryContent, 'preloadedCss');
+                        $preloadedJs    = self::pathsToCsv($libraryContent, 'preloadedJs');
                         if (($preloadedCss !== '' && $library->getPreloadedCss() !== $preloadedCss)
                             || ($preloadedJs !== '' && $library->getPreloadedJs() !== $preloadedJs)) {
                             $library->setPreloadedCss($preloadedCss);
@@ -415,7 +409,7 @@ class H5pModuleController extends AbstractBackendController
             $persistenceManager->persistAll();
         }
 
-        $paginator = new QueryResultPaginator($libraries, $currentPage, $this->itemsPerPage);
+        $paginator  = new QueryResultPaginator($libraries, $currentPage, $this->itemsPerPage);
         $pagination = new SimplePagination($paginator);
 
         $this->view->assignMultiple([
@@ -462,8 +456,8 @@ class H5pModuleController extends AbstractBackendController
     {
         // Keep track of the old library and params
         $oldLibrary = null;
-        $oldParams = null;
-        $content = [
+        $oldParams  = null;
+        $content    = [
             'disable' => H5PCore::DISABLE_NONE
         ];
 
@@ -501,7 +495,7 @@ class H5pModuleController extends AbstractBackendController
             return new ForwardResponse('new');
         }
 
-        $content['params'] = json_encode($params->params);
+        $content['params']   = json_encode($params->params);
         $content['metadata'] = $params->metadata;
 
         // Trim title and check length
@@ -549,7 +543,7 @@ class H5pModuleController extends AbstractBackendController
      */
     private function setDisabledContentFeatures(H5PCore $core, &$content): void
     {
-        $set = [
+        $set                = [
             H5PCore::DISPLAY_OPTION_FRAME     => (bool)$this->request->getArgument('frame'),
             H5PCore::DISPLAY_OPTION_DOWNLOAD  => (bool)$this->request->getArgument('download'),
             H5PCore::DISPLAY_OPTION_EMBED     => (bool)$this->request->getArgument('embed'),
@@ -574,8 +568,8 @@ class H5pModuleController extends AbstractBackendController
 
         // Keep track of the old library and params
         $oldLibrary = null;
-        $oldParams = null;
-        $content = [
+        $oldParams  = null;
+        $content    = [
             'disable' => H5PCore::DISABLE_NONE
         ];
 
@@ -613,7 +607,7 @@ class H5pModuleController extends AbstractBackendController
             return new ForwardResponse('new');
         }
 
-        $content['params'] = json_encode($params->params);
+        $content['params']   = json_encode($params->params);
         $content['metadata'] = $params->metadata;
 
         // Trim title and check length
@@ -666,7 +660,7 @@ class H5pModuleController extends AbstractBackendController
 
         if ($contentId > 0) {
             $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-            $content = $contentRepository->findByUid($contentId);
+            $content           = $contentRepository->findByUid($contentId);
 
             if (!$content instanceof Content) {
                 $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
@@ -681,7 +675,7 @@ class H5pModuleController extends AbstractBackendController
                     sprintf('%s %d.%d', $contentLibraryArray['machineName'], $contentLibraryArray['majorVersion'], $contentLibraryArray['minorVersion']));
             }
             $this->view->assign('content', $content);
-            $parameters = (array)json_decode($content->getFiltered());
+            $parameters     = (array)json_decode($content->getFiltered());
             $displayOptions = $this->h5pCore->getDisplayOptionsForEdit($content->getDisable());
             $this->view->assign('displayOptions', $displayOptions);
             $parameters = $this->injectMetadataIntoParameters($parameters, $content);
@@ -819,7 +813,7 @@ class H5pModuleController extends AbstractBackendController
         foreach (H5PCore::$scripts as $script) {
             $settings['core']['scripts'][] = $webCorePath . $script . $cacheBuster;
         }
-        $settings['loadedJs'] = [];
+        $settings['loadedJs']  = [];
         $settings['loadedCss'] = [];
 
         return $settings;
@@ -855,9 +849,9 @@ class H5pModuleController extends AbstractBackendController
     protected function embedEditorScriptsAndStyles(): void
     {
         $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-        $webCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
-        $webEditorPath = $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/';
-        $webScriptPath = $absoluteWebPath . 'Resources/Public/JavaScript/';
+        $webCorePath     = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $webEditorPath   = $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/';
+        $webScriptPath   = $absoluteWebPath . 'Resources/Public/JavaScript/';
 
         $paths = [
             'h5p-jquery'              => $webCorePath . 'js/jquery',
@@ -983,7 +977,7 @@ class H5pModuleController extends AbstractBackendController
 
         if ($contentId > 0) {
             $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-            $content = $contentRepository->findByUid($contentId);
+            $content           = $contentRepository->findByUid($contentId);
 
             if (!$content instanceof Content) {
                 $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
@@ -1012,7 +1006,7 @@ class H5pModuleController extends AbstractBackendController
     public function showAction(int $contentId): ResponseInterface
     {
         $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-        $content = $contentRepository->findByUid($contentId);
+        $content           = $contentRepository->findByUid($contentId);
 
         if (!$content instanceof Content) {
             $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
@@ -1026,7 +1020,7 @@ class H5pModuleController extends AbstractBackendController
 
         $cacheBuster = '?v=' . Framework::$version;
 
-        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
+        $absoluteWebPath  = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
         $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
@@ -1041,13 +1035,13 @@ class H5pModuleController extends AbstractBackendController
             'H5PIntegration = ' . json_encode($this->getCoreSettings()) . ';'
         );
 
-        $contentSettings = $this->getContentSettings($content);
-        $contentSettings['displayOptions'] = [];
-        $contentSettings['displayOptions']['frame'] = true;
-        $contentSettings['displayOptions']['export'] = false;
-        $contentSettings['displayOptions']['embed'] = false;
+        $contentSettings                                = $this->getContentSettings($content);
+        $contentSettings['displayOptions']              = [];
+        $contentSettings['displayOptions']['frame']     = true;
+        $contentSettings['displayOptions']['export']    = false;
+        $contentSettings['displayOptions']['embed']     = false;
         $contentSettings['displayOptions']['copyright'] = false;
-        $contentSettings['displayOptions']['icon'] = true;
+        $contentSettings['displayOptions']['icon']      = true;
         $this->pageRenderer->addJsInlineCode(
             'H5PIntegration contents',
             'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
@@ -1122,7 +1116,7 @@ class H5pModuleController extends AbstractBackendController
         ];
 
         if ($content->getEmbedType() === 'iframe') {
-            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $contentLibrary    = $content->getLibrary()->toAssocArray();
             $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
             $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
             if (is_array($dependencies)) {
@@ -1153,9 +1147,9 @@ class H5pModuleController extends AbstractBackendController
      */
     private function setJsAndCss(array $library, array &$settings): void
     {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $name       = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
+        $preloadJs  = explode(',', $library['preloadedJs']);
 
         if (!array_key_exists('scripts', $settings)) {
             $settings['scripts'] = [];
@@ -1185,9 +1179,9 @@ class H5pModuleController extends AbstractBackendController
      */
     private function loadJsAndCss(array $library): void
     {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $name       = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
+        $preloadJs  = explode(',', $library['preloadedJs']);
 
         foreach ($preloadJs as $js) {
             $js = trim($js);

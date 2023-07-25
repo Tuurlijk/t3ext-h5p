@@ -1,7 +1,8 @@
 <?php
 
-use MichielRoos\H5p\Controller\H5pModuleController;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -24,21 +25,10 @@ ExtensionUtility::registerPlugin(
     'EXT:h5p/Resources/Public/Icon/h5p.gif'
 );
 
-if (TYPO3_MODE === 'BE') {
-    ExtensionUtility::registerModule(
-        'h5p',
-        'web',
-        'Manager',
-        '',
-        [
-            H5pModuleController::class => 'content, index, new, edit, create, libraries, show, update, consent,error',
-        ],
-        [
-            'access' => 'user,group',
-            'icon'   => 'EXT:h5p/ext_icon.gif',
-            'labels' => 'LLL:EXT:h5p/Resources/Private/Language/BackendModule.xlf',
-        ]
-    );
+// Only evaluate this in the backend
+if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
+    && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()
+) {
 
     ExtensionManagementUtility::addPageTSConfig('<INCLUDE_TYPOSCRIPT: source="FILE:EXT:h5p/Configuration/TsConfig/ContentElementWizard.ts">');
 
@@ -47,7 +37,7 @@ if (TYPO3_MODE === 'BE') {
     $iconRegistry->registerIcon(
         'h5p-logo',
         BitmapIconProvider::class,
-        ['source' => 'EXT:h5p/ext_icon.gif']
+        ['source' => 'EXT:h5p/Resources/Public/Icon/h5p.gif']
     );
 
     call_user_func(

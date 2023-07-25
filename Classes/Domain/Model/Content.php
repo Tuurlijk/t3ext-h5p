@@ -3,6 +3,7 @@
 namespace MichielRoos\H5p\Domain\Model;
 
 
+use MichielRoos\H5p\Validation\Validator\PackageValidator;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Annotation as Extbase;
@@ -108,8 +109,8 @@ class Content extends AbstractEntity
      * Package
      *
      * @var FileReference
-     * @Extbase\Validate("\MichielRoos\H5p\Validation\Validator\PackageValidator")
      */
+    #[Extbase\Validate(['validator' => PackageValidator::class])]
     protected $package;
 
     /**

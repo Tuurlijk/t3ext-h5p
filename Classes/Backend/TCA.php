@@ -66,15 +66,15 @@ class TCA
     {
         $libraryRow = $this->getLibraryByUid($parameters['row']['library']);
 
-        $updatedAt = \DateTime::createFromFormat('U', (int)$libraryRow['updated_at']);
+        $updatedAt = \DateTime::createFromFormat('U', $libraryRow['updated_at'] ?? 0);
 
         $parameters['title'] = sprintf(
             '%s: %s %d.%d.%d - %s',
             $parameters['row']['title'],
-            $libraryRow['title'],
-            $libraryRow['major_version'],
-            $libraryRow['minor_version'],
-            $libraryRow['patch_version'],
+            $libraryRow['title'] ?? '',
+            $libraryRow['major_version'] ?? '',
+            $libraryRow['minor_version'] ?? '',
+            $libraryRow['patch_version'] ?? '',
             $updatedAt->format($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'] . ' ' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'])
         );
     }
@@ -90,14 +90,10 @@ class TCA
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $libraryRow = $queryBuilder->select('*')
-            ->from('tx_h5p_domain_model_library')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
-                )
-            )
-            ->execute()
+            ->from('tx_h5p_domain_model_library')->where($queryBuilder->expr()->eq(
+            'uid',
+            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+        ))->executeQuery()
             ->fetch();
         return $libraryRow;
     }
@@ -141,14 +137,10 @@ class TCA
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_content');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $contentRow = $queryBuilder->select('*')
-            ->from('tx_h5p_domain_model_content')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'uid',
-                    $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
-                )
-            )
-            ->execute()
+            ->from('tx_h5p_domain_model_content')->where($queryBuilder->expr()->eq(
+            'uid',
+            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
+        ))->executeQuery()
             ->fetch();
         return $contentRow;
     }

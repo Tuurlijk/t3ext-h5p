@@ -1,0 +1,27 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+#  MichielRoos\H5p\Property\TypeConverter\UploadedFileReferenceConverter:
+#    tags:
+#      name: extbase.type_converter
+#  MichielRoos\H5p\Property\TypeConverter\ObjectStorageConverter:
+#    tags:
+#      name: extbase.type_converter
+
+  TYPO3\CMS\Backend\Template\ModuleTemplateFactory:
+    shared: false
+    public: true
+
+  TYPO3\CMS\Core\Page\PageRenderer:
+    shared: false
+    public: true
+
+  TYPO3\CMS\Core\Imaging\IconFactory:
+    shared: false
+    public: true
+
+  TYPO3\CMS\Backend\Routing\UriBuilder:
+    public: true

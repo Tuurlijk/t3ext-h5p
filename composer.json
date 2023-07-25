@@ -20,7 +20,7 @@
         "h5p/h5p-core": "^1.24",
         "h5p/h5p-editor": "^1.24",
         "guzzlehttp/guzzle": "^7.4",
-        "typo3/cms-core": "11.5.*"
+        "typo3/cms-core": "12.4.*"
     },
     "replace": {
         "typo3-ter/h5p": "self.version"
@@ -34,7 +34,7 @@
             "extension-key": "h5p"
         },
         "branch-alias": {
-            "dev-master": "11.5-dev"
+            "dev-master": "12.4-dev"
         }
     },
     "autoload": {

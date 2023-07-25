@@ -1,4 +1,5 @@
 <?php
+
 namespace MichielRoos\H5p\Property\TypeConverter;
 
 /**
@@ -10,14 +11,12 @@ class ObjectStorageConverter extends \TYPO3\CMS\Extbase\Property\TypeConverter\O
      * @var string[]
      */
     protected $sourceTypes = ['array'];
-
     /**
      * Take precedence over the available ObjectStorageConverter
      *
      * @var int
      */
     protected $priority = 20;
-
     /**
      * Return the source, if it is an array, otherwise an empty array.
      * Filter out empty uploads
@@ -26,7 +25,7 @@ class ObjectStorageConverter extends \TYPO3\CMS\Extbase\Property\TypeConverter\O
      * @return array
      * @api
      */
-    public function getSourceChildPropertiesToBeConverted($source) :array
+    public function getSourceChildPropertiesToBeConverted($source): array
     {
         $propertiesToConvert = [];
         // TODO: Find a nicer way to throw away empty uploads
@@ -39,10 +38,8 @@ class ObjectStorageConverter extends \TYPO3\CMS\Extbase\Property\TypeConverter\O
                 $propertiesToConvert[$propertyName] = $propertyValue;
             }
         }
-
         return $propertiesToConvert;
     }
-
     /**
      * Check if this is an upload type
      *
