@@ -12,15 +12,13 @@ services:
 #      name: extbase.type_converter
 
   TYPO3\CMS\Backend\Template\ModuleTemplateFactory:
-    shared: false
     public: true
 
   TYPO3\CMS\Core\Page\PageRenderer:
-    shared: false
-    public: true
+    arguments:
+      $assetsCache: '@cache.assets'
 
   TYPO3\CMS\Core\Imaging\IconFactory:
-    shared: false
     public: true
 
   TYPO3\CMS\Backend\Routing\UriBuilder:
