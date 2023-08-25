@@ -17,7 +17,7 @@ class LibraryTranslationRepository extends Repository
     public function initializeObject(): void
     {
         if ($this->defaultQuerySettings === null) {
-            $this->defaultQuerySettings = $this->objectManager->get(QuerySettingsInterface::class);
+            $this->defaultQuerySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(QuerySettingsInterface::class);
         }
         $this->defaultQuerySettings->setRespectStoragePage(false);
     }

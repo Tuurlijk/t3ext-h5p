@@ -22,7 +22,6 @@ use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
@@ -78,9 +77,8 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         if ($rootLevelFolder->getIdentifier() === '/h5p/') {
             $this->folderPrefix = '';
         }
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->cachedAssetRepository = $objectManager->get(CachedAssetRepository::class);
-        $this->persistenceManager = $objectManager->get(PersistenceManager::class);
+        $this->cachedAssetRepository = GeneralUtility::makeInstance(CachedAssetRepository::class);
+        $this->persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
 
         // Ensure base directories exist
         foreach (['cachedassets', 'content', 'editor/audios', 'editor/images', 'editor/videos', 'exports', 'libraries', 'packages'] as $name) {

@@ -13,16 +13,16 @@ return [
         'labels'         => 'LLL:EXT:h5p/Resources/Private/Language/BackendModule.xlf',
         'extensionName'  => 'H5p',
 
-//        'controllerActions' => [
-//            H5pModuleController::class => ['content', 'index', 'new', 'edit', 'create', 'libraries', 'show', 'update', 'consent,error'],
-//        ],
-        'routes'         => [
-            '_default' => [
-                'target' => H5pModuleController::class . '::contentAction',
-            ],
-            'index'    => [
-                'target' => H5pModuleController::class . '::indexAction',
-            ],
+        'controllerActions' => [
+            H5pModuleController::class => ['content', 'index', 'new', 'edit', 'create', 'libraries', 'show', 'update', 'consent,error'],
         ],
+//        'routes'         => [
+//            '_default' => [
+//                'target' => H5pModuleController::class . '::contentAction',
+//            ],
+//            'index'    => [
+//                'target' => H5pModuleController::class . '::indexAction',
+//            ],
+//        ],
     ],
 ];

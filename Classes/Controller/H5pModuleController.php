@@ -30,6 +30,7 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Pagination\SimplePagination;
@@ -39,18 +40,18 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
-use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3Fluid\Fluid\View\ViewInterface;
 
 /**
  * Module 'H5P' for the 'h5p' extension.
  */
-class H5pModuleController
+class H5pModuleController extends ActionController
 {
     public string $perms_clause;
     protected bool $h5pContentAllowedOnPage = false;
@@ -179,7 +180,8 @@ class H5pModuleController
      */
     protected function getLanguageService(): LanguageService
     {
-        return GeneralUtility::makeInstance(LanguageService::class);
+        $serviceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+        return $serviceFactory->create('default');
     }
 
     /**
@@ -189,7 +191,7 @@ class H5pModuleController
      * @todo v12: Change signature to TYPO3Fluid\Fluid\View\ViewInterface when extbase ViewInterface is dropped.
      *
      */
-    public function initializeView(ViewInterface $view): void
+    public function initializeView(\TYPO3Fluid\Fluid\View\ViewInterface $view): void
     {
         $view->assignMultiple([
             'dateFormat' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'],
@@ -198,7 +200,7 @@ class H5pModuleController
 
         $this->registerDocheaderButtons();
         $this->generateMenu();
-        $this->moduleTemplate->setFlashMessageQueue($this->controllerContext->getFlashMessageQueue());
+        $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
     }
 
     /**
@@ -219,10 +221,10 @@ class H5pModuleController
             $modulePrefix = strtolower('tx_' . $extensionName . '_' . $moduleName);
             $getVars      = ['id', 'M', $modulePrefix];
         }
-        $shortcutButton = $buttonBar->makeShortcutButton()
-            ->setModuleName($moduleName)
-            ->setGetVariables($getVars);
-        $buttonBar->addButton($shortcutButton);
+//        $shortcutButton = $buttonBar->makeShortcutButton()
+//            ->setRouteIdentifier($moduleName)
+//            ->setArguments($getVars);
+//        $buttonBar->addButton($shortcutButton);
 
         if ($this->h5pContentAllowedOnPage && in_array($this->request->getControllerActionName(), ['content', 'index', 'show'])) {
             $title         = $this->getLanguageService()->sL('LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:module.menu.new');
@@ -449,7 +451,6 @@ class H5pModuleController
     /**
      * Create action
      *
-     * @throws StopActionException
      * @throws NoSuchArgumentException
      */
     public function createAction(): ResponseInterface
@@ -664,7 +665,7 @@ class H5pModuleController
 
             if (!$content instanceof Content) {
                 $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
-                $this->redirect('error', 'H5pModule', 'h5p');
+                return $this->redirect('error', 'H5pModule', 'h5p');
             }
 
             // load JS and CSS requirements
@@ -981,9 +982,8 @@ class H5pModuleController
 
             if (!$content instanceof Content) {
                 $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
-                $this->redirect('error');
+                return $this->redirect('error');
             }
-
             // load JS and CSS requirements
             $contentLibrary = $content->getLibrary()->toAssocArray();
             $this->view->assign('library',

@@ -158,16 +158,15 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     {
         $this->storage = $storage;
         $this->databaseLink = $GLOBALS['TYPO3_DB'];
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->persistenceManager = $this->objectManager->get(PersistenceManager::class);
-        $this->cachedAssetRepository = $this->objectManager->get(CachedAssetRepository::class);
-        $this->configSettingRepository = $this->objectManager->get(ConfigSettingRepository::class);
-        $this->contentRepository = $this->objectManager->get(ContentRepository::class);
-        $this->contentDependencyRepository = $this->objectManager->get(ContentDependencyRepository::class);
-        $this->contentTypeCacheEntryRepository = $this->objectManager->get(ContentTypeCacheEntryRepository::class);
-        $this->libraryRepository = $this->objectManager->get(LibraryRepository::class);
-        $this->libraryDependencyRepository = $this->objectManager->get(LibraryDependencyRepository::class);
-        $this->libraryTranslationRepository = $this->objectManager->get(LibraryTranslationRepository::class);
+        $this->persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
+        $this->cachedAssetRepository = GeneralUtility::makeInstance(CachedAssetRepository::class);
+        $this->configSettingRepository = GeneralUtility::makeInstance(ConfigSettingRepository::class);
+        $this->contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
+        $this->contentDependencyRepository = GeneralUtility::makeInstance(ContentDependencyRepository::class);
+        $this->contentTypeCacheEntryRepository = GeneralUtility::makeInstance(ContentTypeCacheEntryRepository::class);
+        $this->libraryRepository = GeneralUtility::makeInstance(LibraryRepository::class);
+        $this->libraryDependencyRepository = GeneralUtility::makeInstance(LibraryDependencyRepository::class);
+        $this->libraryTranslationRepository = GeneralUtility::makeInstance(LibraryTranslationRepository::class);
     }
 
     /**
@@ -1169,10 +1168,10 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             $setting->setConfigValue($value);
             $this->configSettingRepository->update($setting);
         } else {
-            $setting = $this->objectManager->get(ConfigSetting::class, $name, $value);
+            $setting = GeneralUtility::makeInstance(ConfigSetting::class, $name, $value);
             $this->configSettingRepository->add($setting);
         }
-        $persistenceManager = $this->objectManager->get(PersistenceManager::class);
+        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
         $persistenceManager->persistAll();
     }
 

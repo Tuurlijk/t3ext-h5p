@@ -51,7 +51,7 @@ class AjaxController extends ActionController
                 $postData['time'] = 0;
             }
 
-            $contentRepository = $this->objectManager->get(ContentRepository::class);
+            $contentRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentRepository::class);
 
             $content = $contentRepository->findByUid($postData['contentId']);
             if (!$content instanceof Content) {
@@ -60,10 +60,10 @@ class AjaxController extends ActionController
                 exit;
             }
 
-            $frontendUserRepository = $this->objectManager->get(FrontendUserRepository::class);
+            $frontendUserRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(FrontendUserRepository::class);
             $frontendUser = $frontendUserRepository->findByUid((int)$user['uid']);
 
-            $contentResultRepository = $this->objectManager->get(ContentResultRepository::class);
+            $contentResultRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentResultRepository::class);
 
             /** @var ContentResult $existingContentResult */
             $existingContentResult = $contentResultRepository->findOneByUserAndContentId($user['uid'], $postData['contentId']);
@@ -79,7 +79,7 @@ class AjaxController extends ActionController
                 $contentResult->setPid($GLOBALS['TSFE']->id);
                 $contentResultRepository->add($contentResult);
             }
-            $persistenceManager = $this->objectManager->get(PersistenceManager::class);
+            $persistenceManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PersistenceManager::class);
             $persistenceManager->persistAll();
             \H5PCore::ajaxSuccess();
             exit;

@@ -2,6 +2,8 @@
 namespace MichielRoos\H5p\Adapter\Core;
 
 
+use H5PCore;
+use H5PFrameworkInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 
 /**
@@ -12,6 +14,19 @@ use TYPO3\CMS\Core\SingletonInterface;
  */
 class CoreStorage extends \H5PStorage implements SingletonInterface
 {
+
+    /**
+     * Constructor for the H5PStorage
+     *
+     * @param H5PFrameworkInterface|object $H5PFramework
+     *  The frameworks implementation of the H5PFrameworkInterface
+     * @param H5PCore $H5PCore
+     */
+    public function __construct(H5PFrameworkInterface $H5PFramework, H5PCore $H5PCore) {
+        $this->h5pF = $H5PFramework;
+        $this->h5pC = $H5PCore;
+    }
+
 
     /**
      * Saves a H5P file

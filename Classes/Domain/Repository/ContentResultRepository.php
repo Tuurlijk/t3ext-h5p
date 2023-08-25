@@ -15,7 +15,7 @@ class ContentResultRepository extends Repository
     public function initializeObject()
     {
         if ($this->defaultQuerySettings === null) {
-            $this->defaultQuerySettings = $this->objectManager->get(QuerySettingsInterface::class);
+            $this->defaultQuerySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(QuerySettingsInterface::class);
         }
         $this->defaultQuerySettings->setRespectStoragePage(false);
     }

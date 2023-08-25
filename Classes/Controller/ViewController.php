@@ -391,7 +391,7 @@ class ViewController extends ActionController
         }
 
         $statisticsByPage = [];
-        $pageRepository = $this->objectManager->get(PageRepository::class);
+        $pageRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PageRepository::class);
         $pages = $pageRepository->findByUids($pageIds);
         foreach ($pages as $page) {
             $statisticsByPage[$page->getUid()] = [

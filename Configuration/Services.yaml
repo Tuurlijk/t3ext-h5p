@@ -4,6 +4,10 @@ services:
     autoconfigure: true
     public: false
 
+  MichielRoos\H5p\:
+    resource: '../Classes/*'
+
+
 #  MichielRoos\H5p\Property\TypeConverter\UploadedFileReferenceConverter:
 #    tags:
 #      name: extbase.type_converter
@@ -19,6 +23,21 @@ services:
       $assetsCache: '@cache.assets'
 
   TYPO3\CMS\Core\Imaging\IconFactory:
+    public: true
+
+  H5PFrameworkInterface:
+    class: 'H5PFrameworkInterface'
+    public: true
+
+  H5PCore:
+    class: 'H5PCore'
+    public: true
+
+  H5PFileStorage:
+    class: 'H5PFileStorage'
+    public: true
+
+  MichielRoos\H5p\Adapter\Core\Framework:
     public: true
 
   TYPO3\CMS\Backend\Routing\UriBuilder:

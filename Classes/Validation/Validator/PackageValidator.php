@@ -20,7 +20,7 @@ class PackageValidator extends AbstractValidator
      * @param FileReference $value
      * @return bool
      */
-    protected function isValid($value): bool
+    protected function isValid($value): void
     {
         $storage = $value->getOriginalResource()->getStorage();
         $framework = GeneralUtility::makeInstance(Framework::class, $storage);
@@ -39,9 +39,6 @@ class PackageValidator extends AbstractValidator
                 $this->addError($errorMessage, $code);
             }
             unlink($validator->h5pF->getUploadedH5pPath());
-            return false;
         }
-
-        return $success;
     }
 }

@@ -155,7 +155,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     {
         if ($resourcePointer === null) {
             /** @var $fileReference \MichielRoos\H5p\Domain\Model\FileReference */
-            $fileReference = $this->objectManager->get(FileReference::class);
+            $fileReference = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(FileReference::class);
         } else {
             $fileReference = $this->persistenceManager->getObjectByIdentifier($resourcePointer, FileReference::class);
         }
