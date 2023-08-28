@@ -75,14 +75,14 @@ class EditorController extends ActionController implements SingletonInterface
 
         $parameters = $request->getQueryParams();
         $prefix = 'h5p_';
-        $action = $parameters['action'] ?: 'default';
+        $action = $parameters['action'] ?? 'default';
         if (substr($action, 0, strlen($prefix)) == $prefix) {
             $action = substr($action, strlen($prefix));
         }
 
         switch ($action) {
             case H5PEditorEndpoints::FILES:
-                $token = $parameters['token'] ?: 'dummy';
+                $token = $parameters['token'] ?? 'dummy';
                 $requestBody =  $request->getParsedBody();
                 $contentId = $requestBody['contentId'];
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILES, $token, $contentId);
@@ -95,16 +95,16 @@ class EditorController extends ActionController implements SingletonInterface
 
             // Why H5P why . . .
             case 'libraries':
-                $machineName = $parameters['machineName'] ?: '';
+                $machineName = $parameters['machineName'] ?? '';
 
                 if ($machineName === '') {
                     $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARIES);
                 } else {
-                    $majorVersion = $parameters['majorVersion'] ?: '';
-                    $minorVersion = $parameters['minorVersion'] ?: '';
-                    $languageCode = $parameters['language'] ?: $this->language;
-                    $prefix = $parameters['prefix'] ?: '/fileadmin/h5p';
-                    $fileDir = $parameters['fileDir'] ?: '';
+                    $majorVersion = $parameters['majorVersion'] ?? '';
+                    $minorVersion = $parameters['minorVersion'] ?? '';
+                    $languageCode = $parameters['language'] ?? $this->language;
+                    $prefix = $parameters['prefix'] ?? '/fileadmin/h5p';
+                    $fileDir = $parameters['fileDir'] ?? '';
                     $defaultLanguage = 'en';
                     $this->h5pAjaxEditor->action(H5PEditorEndpoints::SINGLE_LIBRARY, $machineName, $majorVersion, $minorVersion, $languageCode, $prefix, $fileDir, $defaultLanguage);
                 }
@@ -112,19 +112,19 @@ class EditorController extends ActionController implements SingletonInterface
                 break;
             case H5PEditorEndpoints::LIBRARY_INSTALL:
                 $id = $parameters['id'];
-                $token = $parameters['token'] ?: 'dummy';
+                $token = $parameters['token'] ?? 'dummy';
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_INSTALL, $token, $id);
                 exit;
                 break;
             case H5PEditorEndpoints::LIBRARY_UPLOAD:
                 $contentId = $parameters['contentId'];
                 $uploadPath = $_FILES['h5p']['tmp_name'];
-                $token = $parameters['token'] ?: 'dummy';
+                $token = $parameters['token'] ?? 'dummy';
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_UPLOAD, $token, $uploadPath, $contentId);
                 exit;
                 break;
             case H5PEditorEndpoints::FILTER:
-                $token = $parameters['token'] ?: 'dummy';
+                $token = $parameters['token'] ?? 'dummy';
                 $libraryParameters = GeneralUtility::_POST('libraryParameters');
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILTER, $token, $libraryParameters);
                 exit;

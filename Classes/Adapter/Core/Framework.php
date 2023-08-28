@@ -468,7 +468,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             ->where(...$where)
             ->execute()
             ->fetchAssociative();
-        return $libraryRow['uid'];
+        return $libraryRow['uid'] ?? '0';
     }
 
     /**

@@ -142,7 +142,8 @@ class H5pModuleController extends AbstractBackendController
         if (!isset($extConf['onlyAllowRecordsInSysfolders']) || (int)$extConf['onlyAllowRecordsInSysfolders'] === 0) {
             $allowContentOnStandardPages = true;
         }
-        $pageIsSysfolder = (int)$this->pageRecord['doktype'] === 254;
+        $dokType = $this->pageRecord['doktype'] ?? 0;
+        $pageIsSysfolder = (int)$dokType === 254;
         $this->h5pContentAllowedOnPage = $allowContentOnStandardPages || $pageIsSysfolder;
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
