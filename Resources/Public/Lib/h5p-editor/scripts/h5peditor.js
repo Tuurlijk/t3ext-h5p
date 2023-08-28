@@ -1195,9 +1195,7 @@ ns.libraryFromString = function (library) {
     };
   }
   else {
-    console.log(library);
     H5P.error('Invalid überName');
-
     return false;
   }
 };
