@@ -1,4 +1,5 @@
 <?php
+
 namespace MichielRoos\H5p\Backend;
 
 use H5peditor;
@@ -7,6 +8,7 @@ use H5PEditorEndpoints;
 use MichielRoos\H5p\Adapter\Core\CoreFactory;
 use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
+use MichielRoos\H5p\Adapter\Core\FrameworkFactory;
 use MichielRoos\H5p\Adapter\Editor\EditorAjax;
 use MichielRoos\H5p\Adapter\Editor\EditorStorage;
 use MichielRoos\H5p\Domain\Repository\ContentTypeCacheEntryRepository;
@@ -67,24 +69,24 @@ class EditorController extends ActionController implements SingletonInterface
      * @param ServerRequestInterface $request
      * @return ResponseInterface
      */
-    public function defaultAction(ServerRequestInterface $request) :ResponseInterface
+    public function defaultAction(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->h5pAjaxEditor === null) {
             $this->initializeAction();
         }
 
         $parameters = $request->getQueryParams();
-        $prefix = 'h5p_';
-        $action = $parameters['action'] ?: 'default';
+        $prefix     = 'h5p_';
+        $action     = $parameters['action'] ?? 'default';
         if (substr($action, 0, strlen($prefix)) == $prefix) {
             $action = substr($action, strlen($prefix));
         }
 
         switch ($action) {
             case H5PEditorEndpoints::FILES:
-                $token = $parameters['token'] ?: 'dummy';
-                $requestBody =  $request->getParsedBody();
-                $contentId = $requestBody['contentId'];
+                $token       = $parameters['token'] ?? 'dummy';
+                $requestBody = $request->getParsedBody();
+                $contentId   = $requestBody['contentId'];
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILES, $token, $contentId);
                 exit;
                 break;
@@ -95,36 +97,36 @@ class EditorController extends ActionController implements SingletonInterface
 
             // Why H5P why . . .
             case 'libraries':
-                $machineName = $parameters['machineName'] ?: '';
+                $machineName = $parameters['machineName'] ?? '';
 
                 if ($machineName === '') {
                     $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARIES);
                 } else {
-                    $majorVersion = $parameters['majorVersion'] ?: '';
-                    $minorVersion = $parameters['minorVersion'] ?: '';
-                    $languageCode = $parameters['language'] ?: $this->language;
-                    $prefix = $parameters['prefix'] ?: '/fileadmin/h5p';
-                    $fileDir = $parameters['fileDir'] ?: '';
+                    $majorVersion    = $parameters['majorVersion'] ?? '';
+                    $minorVersion    = $parameters['minorVersion'] ?? '';
+                    $languageCode    = $parameters['language'] ?? $this->language;
+                    $prefix          = $parameters['prefix'] ?? '/fileadmin/h5p';
+                    $fileDir         = $parameters['fileDir'] ?? '';
                     $defaultLanguage = 'en';
                     $this->h5pAjaxEditor->action(H5PEditorEndpoints::SINGLE_LIBRARY, $machineName, $majorVersion, $minorVersion, $languageCode, $prefix, $fileDir, $defaultLanguage);
                 }
                 exit;
                 break;
             case H5PEditorEndpoints::LIBRARY_INSTALL:
-                $id = $parameters['id'];
-                $token = $parameters['token'] ?: 'dummy';
+                $id    = $parameters['id'];
+                $token = $parameters['token'] ?? 'dummy';
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_INSTALL, $token, $id);
                 exit;
                 break;
             case H5PEditorEndpoints::LIBRARY_UPLOAD:
-                $contentId = $parameters['contentId'];
+                $contentId  = $parameters['contentId'];
                 $uploadPath = $_FILES['h5p']['tmp_name'];
-                $token = $parameters['token'] ?: 'dummy';
+                $token      = $parameters['token'] ?? 'dummy';
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::LIBRARY_UPLOAD, $token, $uploadPath, $contentId);
                 exit;
                 break;
             case H5PEditorEndpoints::FILTER:
-                $token = $parameters['token'] ?: 'dummy';
+                $token             = $parameters['token'] ?? 'dummy';
                 $libraryParameters = GeneralUtility::_POST('libraryParameters');
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILTER, $token, $libraryParameters);
                 exit;
@@ -133,7 +135,7 @@ class EditorController extends ActionController implements SingletonInterface
         }
 
         // Send the response
-        return (new JsonResponse())->setPayload(['message' =>  sprintf("Action \'%s\' not yet implemented! %s %s", $action, __METHOD__, __LINE__)]);
+        return (new JsonResponse())->setPayload(['message' => sprintf("Action \'%s\' not yet implemented! %s %s", $action, __METHOD__, __LINE__)]);
     }
 
     /**
@@ -143,15 +145,17 @@ class EditorController extends ActionController implements SingletonInterface
     {
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $storage = $resourceFactory->getDefaultStorage();
-        $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
+
+        $frameworkFactory     = GeneralUtility::makeInstance(FrameworkFactory::class);
+        $this->h5pFramework   = $frameworkFactory->create();
+        $resourceFactory      = GeneralUtility::makeInstance(ResourceFactory::class);
+        $storage              = $resourceFactory->getDefaultStorage();
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, '', $this->language);
-        $editorAjax = GeneralUtility::makeInstance(EditorAjax::class);
-        $editorStorage = GeneralUtility::makeInstance(EditorStorage::class);
-        $this->h5pEditor = GeneralUtility::makeInstance(H5peditor::class, $this->h5pCore, $editorStorage, $editorAjax);
-        $this->h5pAjaxEditor = GeneralUtility::makeInstance(H5PEditorAjax::class, $this->h5pCore, $this->h5pEditor, $editorStorage);
+        $this->h5pCore        = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, '', $this->language);
+        $editorAjax           = GeneralUtility::makeInstance(EditorAjax::class);
+        $editorStorage        = GeneralUtility::makeInstance(EditorStorage::class);
+        $this->h5pEditor      = GeneralUtility::makeInstance(H5peditor::class, $this->h5pCore, $editorStorage, $editorAjax);
+        $this->h5pAjaxEditor  = GeneralUtility::makeInstance(H5PEditorAjax::class, $this->h5pCore, $this->h5pEditor, $editorStorage);
     }
 
     /**

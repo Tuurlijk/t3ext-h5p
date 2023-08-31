@@ -10,6 +10,7 @@ use H5peditor;
 use MichielRoos\H5p\Adapter\Core\CoreFactory;
 use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
+use MichielRoos\H5p\Adapter\Core\FrameworkFactory;
 use MichielRoos\H5p\Adapter\Editor\EditorAjax;
 use MichielRoos\H5p\Adapter\Editor\EditorStorage;
 use MichielRoos\H5p\Domain\Model\Content;
@@ -137,14 +138,18 @@ class H5pModuleController extends ActionController
         if (!isset($extConf['onlyAllowRecordsInSysfolders']) || (int)$extConf['onlyAllowRecordsInSysfolders'] === 0) {
             $allowContentOnStandardPages = true;
         }
-        $pageIsSysfolder               = (int)$this->pageRecord['doktype'] === 254;
+
+        $dokType                       = $this->pageRecord['doktype'] ?? 0;
+        $pageIsSysfolder               = (int)$dokType === 254;
         $this->h5pContentAllowedOnPage = $allowContentOnStandardPages || $pageIsSysfolder;
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
+        $frameworkFactory   = GeneralUtility::makeInstance(FrameworkFactory::class);
+        $this->h5pFramework = $frameworkFactory->create();
+
         $resourceFactory           = GeneralUtility::makeInstance(ResourceFactory::class);
         $storage                   = $resourceFactory->getDefaultStorage();
-        $this->h5pFramework        = GeneralUtility::makeInstance(Framework::class, $storage);
         $this->h5pFileStorage      = GeneralUtility::makeInstance(FileStorage::class, $storage);
         $this->h5pCore             = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
         $this->h5pContentValidator = GeneralUtility::makeInstance(H5PContentValidator::class, $this->h5pFramework, $this->h5pCore);

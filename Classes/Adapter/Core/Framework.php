@@ -1,12 +1,7 @@
 <?php
+
 namespace MichielRoos\H5p\Adapter\Core;
 
-use MichielRoos\H5p\Exception\MethodNotImplementedException;
-use MichielRoos\H5p\Utility\MaintenanceUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
-use TYPO3\CMS\Core\Http\Client\GuzzleClientFactory;
-use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use GuzzleHttp\Exception\GuzzleException;
 use MichielRoos\H5p\Domain\Model\CachedAsset;
 use MichielRoos\H5p\Domain\Model\ConfigSetting;
@@ -25,7 +20,12 @@ use MichielRoos\H5p\Domain\Repository\ContentTypeCacheEntryRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryTranslationRepository;
+use MichielRoos\H5p\Exception\MethodNotImplementedException;
+use MichielRoos\H5p\Utility\MaintenanceUtility;
 use stdClass;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Http\Client\GuzzleClientFactory;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -34,6 +34,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
@@ -156,17 +157,17 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function __construct(ResourceStorage $storage = null)
     {
-        $this->storage = $storage;
-        $this->databaseLink = $GLOBALS['TYPO3_DB'];
-        $this->persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-        $this->cachedAssetRepository = GeneralUtility::makeInstance(CachedAssetRepository::class);
-        $this->configSettingRepository = GeneralUtility::makeInstance(ConfigSettingRepository::class);
-        $this->contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-        $this->contentDependencyRepository = GeneralUtility::makeInstance(ContentDependencyRepository::class);
+        $this->storage                         = $storage;
+        $this->databaseLink                    = $GLOBALS['TYPO3_DB'];
+        $this->persistenceManager              = GeneralUtility::makeInstance(PersistenceManager::class);
+        $this->cachedAssetRepository           = GeneralUtility::makeInstance(CachedAssetRepository::class);
+        $this->configSettingRepository         = GeneralUtility::makeInstance(ConfigSettingRepository::class);
+        $this->contentRepository               = GeneralUtility::makeInstance(ContentRepository::class);
+        $this->contentDependencyRepository     = GeneralUtility::makeInstance(ContentDependencyRepository::class);
         $this->contentTypeCacheEntryRepository = GeneralUtility::makeInstance(ContentTypeCacheEntryRepository::class);
-        $this->libraryRepository = GeneralUtility::makeInstance(LibraryRepository::class);
-        $this->libraryDependencyRepository = GeneralUtility::makeInstance(LibraryDependencyRepository::class);
-        $this->libraryTranslationRepository = GeneralUtility::makeInstance(LibraryTranslationRepository::class);
+        $this->libraryRepository               = GeneralUtility::makeInstance(LibraryRepository::class);
+        $this->libraryDependencyRepository     = GeneralUtility::makeInstance(LibraryDependencyRepository::class);
+        $this->libraryTranslationRepository    = GeneralUtility::makeInstance(LibraryTranslationRepository::class);
     }
 
     /**
@@ -176,7 +177,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function setPackageFile(FileReference $file): void
     {
-        $this->package = $file;
+        $this->package      = $file;
         $this->localTmpFile = $this->package->getOriginalResource()->getForLocalProcessing();
     }
 
@@ -211,7 +212,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function fetchExternalData($url, $data = null, $blocking = true, $stream = '')
     {
-        $client = GuzzleClientFactory::getClient();
+        $client  = GuzzleClientFactory::getClient();
         $options = [
             // if $blocking is set, we want to do a synchronous request
             'synchronous' => $blocking,
@@ -287,7 +288,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         if (empty($this->messages[$type])) {
             return null;
         }
-        $messages = $this->messages[$type];
+        $messages              = $this->messages[$type];
         $this->messages[$type] = [];
         return $messages;
     }
@@ -350,12 +351,12 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     protected function getInjectedH5PCore()
     {
         if ($this->h5pCore === null) {
-            $language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
+            $language        = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-            $storage = $resourceFactory->getDefaultStorage();
-            $h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
-            $h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-            $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $h5pFramework, $h5pFileStorage, $language);
+            $storage         = $resourceFactory->getDefaultStorage();
+            $h5pFramework    = GeneralUtility::makeInstance(Framework::class, $storage);
+            $h5pFileStorage  = GeneralUtility::makeInstance(FileStorage::class, $storage);
+            $this->h5pCore   = GeneralUtility::makeInstance(CoreFactory::class, $h5pFramework, $h5pFileStorage, $language);
 
         }
         return $this->h5pCore;
@@ -441,7 +442,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-        $where = [];
+        $where   = [];
         $where[] = $queryBuilder->expr()->eq(
             'machine_name',
             $queryBuilder->createNamedParameter((string)$machineName)
@@ -464,7 +465,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         $libraryRow = $queryBuilder->select('*')
             ->from('tx_h5p_domain_model_library')->where(...$where)->executeQuery()
             ->fetchAssociative();
-        return $libraryRow['uid'];
+        return $libraryRow['uid'] ?? '0';
     }
 
     /**
@@ -510,7 +511,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_h5p_domain_model_library');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
 
-        $where = [];
+        $where   = [];
         $where[] = $queryBuilder->expr()->eq(
             'machine_name',
             $queryBuilder->createNamedParameter((string)$library['machineName'], \PDO::PARAM_STR)
@@ -593,7 +594,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
             $this->libraryRepository->add($library);
             // Persist and re-read the entity to generate the library ID in the DB and fill the field
             $this->persistenceManager->persistAll();
-            $library = $this->libraryRepository->findByIdentifier($this->persistenceManager->getIdentifierByObject($library));
+            $library                  = $this->libraryRepository->findByIdentifier($this->persistenceManager->getIdentifierByObject($library));
             $libraryData['libraryId'] = $library->getUid();
         } else {
             /** @var Library $library */
@@ -1140,7 +1141,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function getOption($name, $default = null)
     {
-        $value = $default;
+        $value   = $default;
         $setting = $this->configSettingRepository->findOneByConfigKey($name);
         if ($setting instanceof ConfigSetting) {
             $value = $setting->getConfigValue();
@@ -1361,7 +1362,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function getLibraryContentCount(): array
     {
         $contentCount = ['none' => 0];
-        $allContent = $this->contentRepository->findAll();
+        $allContent   = $this->contentRepository->findAll();
         if ($allContent) {
             /** @var Content $item */
             foreach ($allContent as $item) {

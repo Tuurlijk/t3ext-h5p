@@ -6,7 +6,7 @@ services:
 
   MichielRoos\H5p\:
     resource: '../Classes/*'
-
+    exclude: '../Classes/Adapter/Core/*'
 
 #  MichielRoos\H5p\Property\TypeConverter\UploadedFileReferenceConverter:
 #    tags:
@@ -29,16 +29,12 @@ services:
     class: 'H5PFrameworkInterface'
     public: true
 
-  H5PCore:
-    class: 'H5PCore'
-    public: true
-
   H5PFileStorage:
     class: 'H5PFileStorage'
     public: true
 
-  MichielRoos\H5p\Adapter\Core\Framework:
+  TYPO3\CMS\Backend\Routing\UriBuilder:
     public: true
 
-  TYPO3\CMS\Backend\Routing\UriBuilder:
+  MichielRoos\H5p\Controller\H5pModuleController:
     public: true

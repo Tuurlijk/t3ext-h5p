@@ -2,17 +2,18 @@
 
 namespace MichielRoos\H5p\Controller;
 
-use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Context\Context;
 use H5PCore;
 use MichielRoos\H5p\Adapter\Core\CoreFactory;
 use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
+use MichielRoos\H5p\Adapter\Core\FrameworkFactory;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\ContentResultRepository;
 use MichielRoos\H5p\Domain\Repository\PageRepository;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -72,15 +73,17 @@ class ViewController extends ActionController
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $storage = $resourceFactory->getDefaultStorage();
-        $this->h5pFramework = GeneralUtility::makeInstance(Framework::class, $storage);
+        $frameworkFactory   = GeneralUtility::makeInstance(FrameworkFactory::class);
+        $this->h5pFramework = $frameworkFactory->create();
+
+        $resourceFactory      = GeneralUtility::makeInstance(ResourceFactory::class);
+        $storage              = $resourceFactory->getDefaultStorage();
         $this->h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
-        $this->h5pCore = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
+        $this->h5pCore        = GeneralUtility::makeInstance(CoreFactory::class, $this->h5pFramework, $this->h5pFileStorage, $this->language);
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
-        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
+        $absoluteWebPath  = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
         $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
 
         foreach (\H5PCore::$scripts as $script) {
@@ -121,13 +124,13 @@ class ViewController extends ActionController
             'H5PIntegration = ' . json_encode($this->getCoreSettings()) . ';'
         );
 
-        $contentSettings = $this->getContentSettings($content);
-        $contentSettings['displayOptions'] = [];
-        $contentSettings['displayOptions']['frame'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME);
-        $contentSettings['displayOptions']['export'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD);
-        $contentSettings['displayOptions']['embed'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED);
+        $contentSettings                                = $this->getContentSettings($content);
+        $contentSettings['displayOptions']              = [];
+        $contentSettings['displayOptions']['frame']     = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME);
+        $contentSettings['displayOptions']['export']    = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD);
+        $contentSettings['displayOptions']['embed']     = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED);
         $contentSettings['displayOptions']['copyright'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_COPYRIGHT);
-        $contentSettings['displayOptions']['icon'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_ABOUT);
+        $contentSettings['displayOptions']['icon']      = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_ABOUT);
         $this->pageRenderer->addJsInlineCode(
             'H5PIntegration contents cid-' . $content->getUid(),
             'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
@@ -223,7 +226,7 @@ class ViewController extends ActionController
                 $name .= ' ' . $user ['last_name'];
             }
 
-            $settings['user'] = [
+            $settings['user']               = [
                 'name' => $name,
                 'mail' => $user['email']
             ];
@@ -237,7 +240,7 @@ class ViewController extends ActionController
         foreach (H5PCore::$scripts as $script) {
             $settings['core']['scripts'][] = $relativeCorePath . $script . $cacheBuster;
         }
-        $settings['loadedJs'] = [];
+        $settings['loadedJs']  = [];
         $settings['loadedCss'] = [];
 
         return $settings;
@@ -278,7 +281,7 @@ class ViewController extends ActionController
         ];
 
         if ($content->getEmbedType() === 'iframe') {
-            $contentLibrary = $content->getLibrary()->toAssocArray();
+            $contentLibrary    = $content->getLibrary()->toAssocArray();
             $dependencyLibrary = $this->h5pCore->loadLibrary($contentLibrary['machineName'], $contentLibrary['majorVersion'], $contentLibrary['minorVersion']);
             $this->h5pCore->findLibraryDependencies($dependencies, $dependencyLibrary);
             if (is_array($dependencies)) {
@@ -309,9 +312,9 @@ class ViewController extends ActionController
      */
     private function setJsAndCss(array $library, array &$settings): void
     {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
-        $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
+        $name        = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $preloadCss  = explode(',', $library['preloadedCss']);
+        $preloadJs   = explode(',', $library['preloadedJs']);
         $cacheBuster = '?v=' . Framework::$version;
 
         if (!array_key_exists('scripts', $settings)) {
@@ -342,9 +345,9 @@ class ViewController extends ActionController
      */
     private function loadJsAndCss($library): void
     {
-        $name = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $name       = $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
         $preloadCss = explode(',', $library['preloadedCss']);
-        $preloadJs = explode(',', $library['preloadedJs']);
+        $preloadJs  = explode(',', $library['preloadedJs']);
 
         foreach ($preloadJs as $js) {
             $js = trim($js);
@@ -391,8 +394,8 @@ class ViewController extends ActionController
         }
 
         $statisticsByPage = [];
-        $pageRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PageRepository::class);
-        $pages = $pageRepository->findByUids($pageIds);
+        $pageRepository   = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PageRepository::class);
+        $pages            = $pageRepository->findByUids($pageIds);
         foreach ($pages as $page) {
             $statisticsByPage[$page->getUid()] = [
                 'page'       => $page,
