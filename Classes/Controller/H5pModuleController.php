@@ -711,20 +711,18 @@ class H5pModuleController extends ActionController
      */
     public function getEditorSettings($settings)
     {
-        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-
         $cacheBuster = '?v=' . Framework::$version;
 
         // Add JavaScript settings
         $settings['editor'] = [
             'filesPath'          => '/fileadmin/h5p/editor',
             'fileIcon'           => [
-                'path'   => $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/images/binary-file.png',
+                'path'   => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/images/binary-file.png'),
                 'width'  => 50,
                 'height' => 50,
             ],
             'ajaxPath'           => (string)$this->backendUriBuilder->buildUriFromRoute('h5p_editor_action', ['action' => 'h5p_']),
-            'libraryUrl'         => $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/',
+            'libraryUrl'         => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/'),
             'copyrightSemantics' => $this->h5pContentValidator->getCopyrightSemantics(),
             'metadataSemantics'  => $this->h5pContentValidator->getMetadataSemantics(),
             'assets'             => [],
@@ -733,7 +731,7 @@ class H5pModuleController extends ActionController
             'language'           => $this->language
         ];
 
-        $webCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $webCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
         foreach (H5PCore::$styles as $style) {
             $settings['editor']['assets']['css'][] = $webCorePath . $style . $cacheBuster;
         }
@@ -741,7 +739,7 @@ class H5pModuleController extends ActionController
             $settings['editor']['assets']['js'][] = $webCorePath . $script . $cacheBuster;
         }
 
-        $webEditorPAth = $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/';
+        $webEditorPAth = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/');
         foreach (H5peditor::$styles as $style) {
             $settings['editor']['assets']['css'][] = $webEditorPAth . $style . $cacheBuster;
         }
@@ -771,8 +769,6 @@ class H5pModuleController extends ActionController
     {
         $backendUser = $this->getBackendUser()->user;
 
-        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-
         $url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
 
         $cacheBuster = '?v=' . Framework::$version;
@@ -801,7 +797,7 @@ class H5pModuleController extends ActionController
             'libraryConfig'      => $this->h5pFramework->getLibraryConfig(),
             'crossorigin'        => defined('H5P_CROSSORIGIN') ? H5P_CROSSORIGIN : null,
             'pluginCacheBuster'  => $cacheBuster,
-            'libraryUrl'         => $absoluteWebPath . 'Resources/Public/Lib/h5p-core/js',
+            'libraryUrl'         => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js'),
             'contents'           => []
         ];
 
@@ -812,7 +808,7 @@ class H5pModuleController extends ActionController
             ];
         }
 
-        $webCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $webCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
         foreach (H5PCore::$styles as $style) {
             $settings['core']['styles'][] = $webCorePath . $style . $cacheBuster;
         }
