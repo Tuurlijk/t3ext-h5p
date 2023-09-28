@@ -1,6 +1,8 @@
 <?php
+
 namespace MichielRoos\H5p\Domain\Repository;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
@@ -14,9 +16,7 @@ class ContentRepository extends Repository
      */
     public function initializeObject()
     {
-        if ($this->defaultQuerySettings === null) {
-            $this->defaultQuerySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(QuerySettingsInterface::class);
-        }
+        if ($this->defaultQuerySettings === null) $this->defaultQuerySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
         $this->defaultQuerySettings->setRespectStoragePage(false);
     }
 }

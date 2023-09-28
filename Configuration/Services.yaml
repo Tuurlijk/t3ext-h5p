@@ -38,3 +38,6 @@ services:
 
   MichielRoos\H5p\Controller\H5pModuleController:
     public: true
+
+  MichielRoos\H5p\Backend\EditorController:
+    public: true

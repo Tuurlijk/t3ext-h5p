@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -165,8 +166,7 @@ class EditorController extends ActionController implements SingletonInterface
      */
     protected function getLanguageService()
     {
-        $languageService = GeneralUtility::makeInstance(LanguageService::class);
-        $languageService->init($GLOBALS['BE_USER']->uc['lang']);
+        $languageService = GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
         return $languageService;
     }
 }

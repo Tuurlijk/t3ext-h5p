@@ -1,13 +1,16 @@
 <?php
 namespace MichielRoos\H5p\Controller;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use Psr\Http\Message\ResponseInterface;
 use MichielRoos\H5p\Domain\Model\Content;
 use MichielRoos\H5p\Domain\Model\ContentResult;
 use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\ContentResultRepository;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -103,6 +106,18 @@ class AjaxController extends ActionController
      */
     protected function getLanguageService(): LanguageService
     {
-        return GeneralUtility::makeInstance(LanguageService::class);
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if ($request instanceof ServerRequestInterface && ApplicationType::fromRequest($request)->isFrontend()) {
+            $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+            return $languageServiceFactory->createFromSiteLanguage($request->getAttribute('language')
+                ?? $request->getAttribute('site')->getDefaultLanguage());
+        }
+
+        if (($GLOBALS['LANG'] ?? null) instanceof LanguageService) {
+            return $GLOBALS['LANG'];
+        }
+
+        $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+        return $languageServiceFactory->createFromUserPreferences($GLOBALS['BE_USER'] ?? null);
     }
 }

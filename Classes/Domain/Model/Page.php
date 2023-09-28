@@ -12,7 +12,7 @@ class Page extends AbstractEntity
      *
      * @var string
      */
-    protected $title = '';
+    protected string $title = '';
 
     /**
      * @return string
@@ -25,7 +25,7 @@ class Page extends AbstractEntity
     /**
      * @param string $title
      */
-    public function setTitle(string $title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }

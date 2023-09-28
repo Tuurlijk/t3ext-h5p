@@ -3,6 +3,7 @@
 namespace MichielRoos\H5p\Domain\Repository;
 
 use MichielRoos\H5p\Domain\Model\Library;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
@@ -17,7 +18,7 @@ class LibraryTranslationRepository extends Repository
     public function initializeObject(): void
     {
         if ($this->defaultQuerySettings === null) {
-            $this->defaultQuerySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(QuerySettingsInterface::class);
+            $this->defaultQuerySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
         }
         $this->defaultQuerySettings->setRespectStoragePage(false);
     }
@@ -30,9 +31,16 @@ class LibraryTranslationRepository extends Repository
     public function findOneByLibraryAndLanguage($library, $language): ?object
     {
         $query = $this->createQuery();
-        $libraries = $query->matching(
-            $query->logicalAnd([$query->equals('library', $library->getUid()), $query->equals('language_code', $language)])
-        )->execute();
+
+        $query->matching(
+            $query->logicalAnd(
+                $query->equals('library', $library->getUid()),
+                $query->equals('language_code', $language),
+            )
+        );
+
+        $libraries = $query->execute();
+
         if ($libraries->count()) {
             return $libraries->getFirst();
         }

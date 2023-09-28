@@ -14,7 +14,7 @@ return [
         'extensionName'  => 'H5p',
 
         'controllerActions' => [
-            H5pModuleController::class => ['content', 'index', 'new', 'edit', 'create', 'libraries', 'show', 'update', 'consent,error'],
+            H5pModuleController::class => ['content', 'index', 'new', 'edit', 'create', 'libraries', 'show', 'update', 'consent', 'error'],
         ],
 //        'routes'         => [
 //            '_default' => [

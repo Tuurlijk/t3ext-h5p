@@ -35,6 +35,7 @@ use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Pagination\SimplePagination;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -185,8 +186,8 @@ class H5pModuleController extends ActionController
      */
     protected function getLanguageService(): LanguageService
     {
-        $serviceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
-        return $serviceFactory->create('default');
+        $languageService = GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
+        return $languageService;
     }
 
     /**
@@ -847,34 +848,34 @@ class H5pModuleController extends ActionController
 
     /**
      * Embed scripts and styles
+     * @throws InvalidFileException
      */
     protected function embedEditorScriptsAndStyles(): void
     {
-        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-        $webCorePath     = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
-        $webEditorPath   = $absoluteWebPath . 'Resources/Public/Lib/h5p-editor/';
-        $webScriptPath   = $absoluteWebPath . 'Resources/Public/JavaScript/';
+        $webCorePath   = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
+        $webEditorPath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/');
+        $webScriptPath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/JavaScript/');
 
         $paths = [
-            'h5p-jquery'              => $webCorePath . 'js/jquery',
-            'h5p'                     => $webCorePath . 'js/h5p',
-            'h5p-event-dispatcher'    => $webCorePath . 'js/h5p-event-dispatcher',
-            'h5p-x-api-event'         => $webCorePath . 'js/h5p-x-api-event',
-            'h5p-x-api'               => $webCorePath . 'js/h5p-x-api',
-            'h5p-content-type'        => $webCorePath . 'js/h5p-content-type',
-            'h5p-confirmation-dialog' => $webCorePath . 'js/h5p-confirmation-dialog',
-            'h5p-action-bar'          => $webCorePath . 'js/h5p-action-bar',
-            'h5peditor-editor'        => $webEditorPath . 'scripts/h5peditor-editor',
-            'h5peditor-init'          => $webEditorPath . 'scripts/h5peditor-init',
-            'h5p-display-options'     => $webCorePath . 'js/h5p-display-options',
+            'h5p-jquery'              => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/jquery'),
+            'h5p'                     => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p'),
+            'h5p-event-dispatcher'    => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-event-dispatcher'),
+            'h5p-x-api-event'         => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-x-api-event'),
+            'h5p-x-api'               => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-x-api'),
+            'h5p-content-type'        => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-content-type'),
+            'h5p-confirmation-dialog' => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-confirmation-dialog'),
+            'h5p-action-bar'          => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-action-bar'),
+            'h5peditor-editor'        => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/scripts/h5peditor-editor'),
+            'h5peditor-init'          => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/scripts/h5peditor-init'),
+            'h5p-display-options'     => PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js/h5p-display-options'),
             'TYPO3/CMS/H5p/editor'    => $webScriptPath . 'editor',
         ];
 
         $languageFile = ExtensionManagementUtility::extPath('h5p') . 'Resources/Public/Lib/h5p-editor/language/' . $this->language . '.js';
         if (file_exists($languageFile)) {
-            $paths['h5peditor-editor-language'] = $webEditorPath . 'language/' . $this->language;
+            $paths['h5peditor-editor-language'] = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/language/' . $this->language);
         } else {
-            $paths['h5peditor-editor-language'] = $webEditorPath . 'language/en';
+            $paths['h5peditor-editor-language'] = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-editor/language/en');
         }
 
         $this->pageRenderer->addRequireJsConfiguration([
@@ -1001,8 +1002,7 @@ class H5pModuleController extends ActionController
      * Show action
      * @param int $contentId
      * @return ResponseInterface
-     * @throws RouteNotFoundException
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws RouteNotFoundException|\TYPO3\CMS\Core\Resource\Exception\InvalidFileException
      */
     public function showAction(int $contentId): ResponseInterface
     {
@@ -1019,10 +1019,7 @@ class H5pModuleController extends ActionController
             return new ForwardResponse('error');
         }
 
-        $cacheBuster = '?v=' . Framework::$version;
-
-        $absoluteWebPath  = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-        $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $relativeCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
 
         foreach (\H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
@@ -1084,7 +1081,6 @@ class H5pModuleController extends ActionController
      * Get content settings
      *
      * @return array;
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public function getContentSettings(Content $content): array
     {
@@ -1123,7 +1119,7 @@ class H5pModuleController extends ActionController
             if (is_array($dependencies)) {
                 $dependencies = $this->h5pCore->orderDependenciesByWeight($dependencies);
                 foreach ($dependencies as $key => $dependency) {
-                    if (strpos($key, 'preloaded-') !== 0) {
+                    if (!str_starts_with($key, 'preloaded-')) {
                         continue;
                     }
                     $this->setJsAndCss($dependency['library'], $settings);

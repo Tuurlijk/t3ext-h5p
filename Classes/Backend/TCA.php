@@ -27,7 +27,7 @@ class TCA
             $parameters['title'] = sprintf(
                 '%s: %s',
                 $row['config_key'],
-                (string)$row['config_value']
+                $row['config_value'] ?? ''
             );
         }
     }
@@ -64,7 +64,7 @@ class TCA
      */
     public function getContentTitle(&$parameters, $parentObject)
     {
-        $libraryRow = $this->getLibraryByUid($parameters['row']['library']);
+        $libraryRow = $this->getLibraryByUid($parameters['row']['library'] ?? '');
 
         $updatedAt = \DateTime::createFromFormat('U', $libraryRow['updated_at'] ?? 0);
 

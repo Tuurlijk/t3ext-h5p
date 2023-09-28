@@ -14,9 +14,7 @@ class ConfigSettingRepository extends Repository
      */
     public function initializeObject()
     {
-        if ($this->defaultQuerySettings === null) {
-            $this->defaultQuerySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(QuerySettingsInterface::class);
-        }
+        if ($this->defaultQuerySettings === null) $this->defaultQuerySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(QuerySettingsInterface::class);
         $this->defaultQuerySettings->setRespectStoragePage(false);
     }
 }

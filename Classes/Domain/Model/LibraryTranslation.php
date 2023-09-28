@@ -1,7 +1,9 @@
 <?php
+
 namespace MichielRoos\H5p\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+
 /**
  * Class LibraryTranslation
  * @package MichielRoos\H5p\Domain\Model
@@ -11,19 +13,19 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @var Library
      */
-    protected $library;
+    protected Library $library;
 
     /**
      * @var string
      */
-    protected $languageCode;
+    protected string $languageCode;
 
     /**
      * @var string
      */
-    protected $translation;
+    protected string $translation;
 
-    public static function create(Library $library, $languageCode, $translation)
+    public static function create(Library $library, $languageCode, $translation): LibraryTranslation
     {
         $translationInstance = new LibraryTranslation();
         $translationInstance->setLibrary($library);
@@ -35,7 +37,7 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @return Library
      */
-    public function getLibrary()
+    public function getLibrary(): Library
     {
         return $this->library;
     }
@@ -43,7 +45,7 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @param Library $library
      */
-    public function setLibrary(Library $library)
+    public function setLibrary(Library $library): void
     {
         $this->library = $library;
     }
@@ -51,7 +53,7 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @return string
      */
-    public function getLanguageCode()
+    public function getLanguageCode(): string
     {
         return $this->languageCode;
     }
@@ -59,7 +61,7 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @param string $languageCode
      */
-    public function setLanguageCode($languageCode)
+    public function setLanguageCode(string $languageCode): void
     {
         $this->languageCode = $languageCode;
     }
@@ -67,7 +69,7 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @return string
      */
-    public function getTranslation()
+    public function getTranslation(): string
     {
         return $this->translation;
     }
@@ -75,7 +77,7 @@ class LibraryTranslation extends AbstractEntity
     /**
      * @param string $translation
      */
-    public function setTranslation($translation)
+    public function setTranslation(string $translation): void
     {
         $this->translation = $translation;
     }

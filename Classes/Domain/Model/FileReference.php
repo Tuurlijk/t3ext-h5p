@@ -12,12 +12,12 @@ class FileReference extends \TYPO3\CMS\Extbase\Domain\Model\FileReference
      *
      * @var integer
      */
-    protected $originalFileIdentifier;
+    protected int $originalFileIdentifier;
 
     /**
      * @param ResourceInterface $originalResource
      */
-    public function setOriginalResource(ResourceInterface $originalResource)
+    public function setOriginalResource(ResourceInterface $originalResource): void
     {
         $this->setFileReference($originalResource);
     }
@@ -25,7 +25,7 @@ class FileReference extends \TYPO3\CMS\Extbase\Domain\Model\FileReference
     /**
      * @param \TYPO3\CMS\Core\Resource\FileReference $originalResource
      */
-    private function setFileReference(\TYPO3\CMS\Core\Resource\FileReference $originalResource)
+    private function setFileReference(\TYPO3\CMS\Core\Resource\FileReference $originalResource): void
     {
         $this->originalResource = $originalResource;
         $this->originalFileIdentifier = (int)$originalResource->getOriginalFile()->getUid();

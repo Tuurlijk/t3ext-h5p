@@ -12,9 +12,9 @@ class ConfigSetting extends AbstractEntity
     /**
      * ConfigSetting constructor.
      * @param string $key
-     * @param string $value
+     * @param mixed $value
      */
-    public function __construct(string $key = '', string $value = '')
+    public function __construct(string $key = '', mixed $value = '')
     {
         $this->configKey = $key;
         $this->configValue = $value;

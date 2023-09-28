@@ -12,9 +12,12 @@ use MichielRoos\H5p\Domain\Repository\ContentRepository;
 use MichielRoos\H5p\Domain\Repository\ContentResultRepository;
 use MichielRoos\H5p\Domain\Repository\PageRepository;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -103,7 +106,19 @@ class ViewController extends ActionController
      */
     protected function getLanguageService(): LanguageService
     {
-        return GeneralUtility::makeInstance(LanguageService::class);
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if ($request instanceof ServerRequestInterface && ApplicationType::fromRequest($request)->isFrontend()) {
+            $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+            return $languageServiceFactory->createFromSiteLanguage($request->getAttribute('language')
+                ?? $request->getAttribute('site')->getDefaultLanguage());
+        }
+
+        if (($GLOBALS['LANG'] ?? null) instanceof LanguageService) {
+            return $GLOBALS['LANG'];
+        }
+
+        $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+        return $languageServiceFactory->createFromUserPreferences($GLOBALS['BE_USER'] ?? null);
     }
 
     /**

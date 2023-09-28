@@ -28,6 +28,7 @@ use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\Client\GuzzleClientFactory;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -86,11 +87,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      * @var array
      */
     private $messages = [];
-
-    /**
-     * @var mixed|\TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    private $databaseLink;
 
     /**
      * @var string
@@ -158,7 +154,6 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
     public function __construct(ResourceStorage $storage = null)
     {
         $this->storage                         = $storage;
-        $this->databaseLink                    = $GLOBALS['TYPO3_DB'];
         $this->persistenceManager              = GeneralUtility::makeInstance(PersistenceManager::class);
         $this->cachedAssetRepository           = GeneralUtility::makeInstance(CachedAssetRepository::class);
         $this->configSettingRepository         = GeneralUtility::makeInstance(ConfigSettingRepository::class);
@@ -212,7 +207,7 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     public function fetchExternalData($url, $data = null, $blocking = true, $stream = '')
     {
-        $client  = GuzzleClientFactory::getClient();
+        $client = GeneralUtility::makeInstance(GuzzleClientFactory::class)->getClient();
         $options = [
             // if $blocking is set, we want to do a synchronous request
             'synchronous' => $blocking,
@@ -369,7 +364,8 @@ class Framework implements \H5PFrameworkInterface, SingletonInterface
      */
     protected function getLanguageService(): LanguageService
     {
-        return GeneralUtility::makeInstance(LanguageService::class);
+        $languageService = GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
+        return $languageService;
     }
 
     /**
