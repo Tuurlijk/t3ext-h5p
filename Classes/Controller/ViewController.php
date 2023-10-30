@@ -86,8 +86,7 @@ class ViewController extends ActionController
 
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
 
-        $absoluteWebPath  = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-        $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $relativeCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
 
         foreach (\H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFooterFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
@@ -194,11 +193,10 @@ class ViewController extends ActionController
      * @return array;
      * @throws AspectNotFoundException
      * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws \TYPO3\CMS\Core\Resource\Exception\InvalidFileException
      */
     public function getCoreSettings(): array
     {
-        $absoluteWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath('h5p'));
-
         $ajaxSetFinishedUri = $this->uriBuilder->reset()
             ->setArguments(['type' => 1561098634614])
             ->setCreateAbsoluteUri(true)
@@ -226,9 +224,10 @@ class ViewController extends ActionController
             'libraryConfig'      => $this->h5pFramework->getLibraryConfig(),
             'crossorigin'        => defined('H5P_CROSSORIGIN') ? H5P_CROSSORIGIN : null,
             'pluginCacheBuster'  => $cacheBuster,
-            'libraryUrl'         => $url . $absoluteWebPath . 'Resources/Public/Lib/h5p-core/js',
+            'libraryUrl'         => $url . PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js'),
             'contents'           => []
         ];
+        
 
         if (GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
             $user = $GLOBALS['TSFE']->fe_user->user;
@@ -248,7 +247,8 @@ class ViewController extends ActionController
             $settings['postUserStatistics'] = $this->h5pFramework->getOption('track_user') && (bool)$user['uid'];
         }
 
-        $relativeCorePath = $absoluteWebPath . 'Resources/Public/Lib/h5p-core/';
+        $relativeCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
+
         foreach (H5PCore::$styles as $style) {
             $settings['core']['styles'][] = $relativeCorePath . $style . $cacheBuster;
         }

@@ -20,7 +20,7 @@ class Library extends AbstractEntity
     /**
      * @var string
      */
-    protected string $addTo;
+    protected string $addTo = '';
 
     /**
      * @var \DateTime
@@ -35,12 +35,12 @@ class Library extends AbstractEntity
     /**
      * @var string
      */
-    protected string $dropLibraryCss;
+    protected string $dropLibraryCss = '';
 
     /**
      * @var string
      */
-    protected string $embedTypes;
+    protected string $embedTypes = '';
 
     /**
      * @var bool
@@ -55,7 +55,7 @@ class Library extends AbstractEntity
     /**
      * @var string
      */
-    protected string $machineName;
+    protected string $machineName = '';
 
     /**
      * @var integer
@@ -75,12 +75,12 @@ class Library extends AbstractEntity
     /**
      * @var string
      */
-    protected string $preloadedCss;
+    protected string $preloadedCss = '';
 
     /**
      * @var string
      */
-    protected string $preloadedJs;
+    protected string $preloadedJs = '';
 
     /**
      * @var bool
@@ -95,12 +95,12 @@ class Library extends AbstractEntity
     /**
      * @var string
      */
-    protected string $semantics;
+    protected string $semantics = '';
 
     /**
      * @var string
      */
-    protected string $tutorial_url;
+    protected string $tutorial_url = '';
 
     // Inversed relations (not in DB)
     /**
@@ -126,7 +126,7 @@ class Library extends AbstractEntity
     /**
      * @var string
      */
-    protected string $metadataSettings;
+    protected string $metadataSettings = '';
 
 //    /**
     //     * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<CachedAsset>
