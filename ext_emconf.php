@@ -8,10 +8,10 @@ $EM_CONF['h5p'] = [
     'author_company' => 'Michiel Roos',
     'author_email'   => 'michiel@michielroos.com',
     'state'          => 'stable',
-    'version'        => '11.5.10',
+    'version'        => '12.4.0',
     'constraints'    => [
         'depends'   => [
-            'typo3' => '11.5.0-11.5.99',
+            'typo3' => '12.4.0-12.4.99',
         ],
         'conflicts' => [],
         'suggests'  => [],

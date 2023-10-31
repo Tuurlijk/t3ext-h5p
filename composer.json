@@ -1,45 +1,45 @@
 {
-    "name": "michielroos/h5p",
-    "type": "typo3-cms-extension",
-    "description": "Create and add rich content to your website for free. Some examples of what you get with H5P are Interactive Video, Quizzes, Collage and Timeline.",
-    "keywords": [
-        "h5p",
-        "content",
-        "interactive",
-        "html5"
-    ],
-    "license": "GPL-2.0+",
-    "authors": [
-        {
-            "name": "Michiel Roos",
-            "homepage": "https://www.michielroos.com",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "h5p/h5p-core": "^1.24",
-        "h5p/h5p-editor": "^1.24",
-        "guzzlehttp/guzzle": "^7.4",
-        "typo3/cms-core": "12.4.*"
-    },
-    "replace": {
-        "typo3-ter/h5p": "self.version"
-    },
-    "config": {
-        "bin-dir": "bin",
-        "optimize-autoloader": true
-    },
-    "extra": {
-        "typo3/cms": {
-            "extension-key": "h5p"
-        },
-        "branch-alias": {
-            "dev-master": "12.4-dev"
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "MichielRoos\\H5p\\": "Classes"
-        }
+  "name": "michielroos/h5p",
+  "type": "typo3-cms-extension",
+  "description": "Create and add rich content to your website for free. Some examples of what you get with H5P are Interactive Video, Quizzes, Collage and Timeline.",
+  "keywords": [
+    "h5p",
+    "content",
+    "interactive",
+    "html5"
+  ],
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Michiel Roos",
+      "homepage": "https://www.michielroos.com",
+      "role": "Developer"
     }
+  ],
+  "require": {
+    "h5p/h5p-core": "1.24.4",
+    "h5p/h5p-editor": "1.24.4",
+    "guzzlehttp/guzzle": "^7.4",
+    "typo3/cms-core": "12.4.*"
+  },
+  "replace": {
+    "typo3-ter/h5p": "self.version"
+  },
+  "config": {
+    "bin-dir": "bin",
+    "optimize-autoloader": true
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "h5p"
+    },
+    "branch-alias": {
+      "dev-master": "12.4-dev"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "MichielRoos\\H5p\\": "Classes"
+    }
+  }
 }
