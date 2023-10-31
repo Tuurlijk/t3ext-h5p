@@ -14,6 +14,7 @@ return [
         'delete'         => 'deleted',
         'sortby'         => 'config_key',
         'searchFields'   => 'config_key,config_value',
+        'security'       => true,
         'iconfile'       => 'EXT:h5p/Resources/Public/Icon/h5p.gif',
     ],
     'columns'  => [

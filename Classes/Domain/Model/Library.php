@@ -153,6 +153,10 @@ class Library extends AbstractEntity
     public function __construct()
     {
         $this->libraryDependencies = new ObjectStorage();
+        $this->contents = new ObjectStorage();
+        $this->contentDependencies = new ObjectStorage();
+        $this->libraryDependencies = new ObjectStorage();
+        $this->libraryTranslations = new ObjectStorage();
     }
 
     /**
@@ -239,8 +243,8 @@ class Library extends AbstractEntity
         $this->setPatchVersion($libraryData['patchVersion']);
         $this->setRunnable($libraryData['runnable']);
         $this->setHasIcon((bool)$libraryData['hasIcon']);
-        $this->setAddTo(empty($libraryData['addTo']) ? null : json_encode($libraryData['addTo']));
-        $this->setMetadataSettings($libraryData['metadataSettings']);
+        $this->setAddTo(empty($libraryData['addTo']) ? '' : json_encode($libraryData['addTo']));
+        $this->setMetadataSettings($libraryData['metadataSettings'] ?? '');
         if (isset($libraryData['semantics'])) {
             $this->setSemantics($libraryData['semantics']);
         }

@@ -15,8 +15,8 @@
                 <label><input type="radio" name="action" value="upload"/>Upload</label>
                 <label><input type="radio" name="action" value="create"/>Create</label>
                 <f:form.hidden name="contentId" value="{content.uid}"/>
-                <f:form.hidden name="library" value="{library}"/>
-                <f:form.hidden name="parameters" value="{parameters}"/>
+                <f:form.hidden name="library" id="tx_h5p_web_h5pmanager_library" value="{library}"/>
+                <f:form.hidden name="parameters" id="tx_h5p_web_h5pmanager_parameters" value="{parameters}"/>
             </div>
             <div id="major-publishing-actions" class="submitbox">
                 <input type="submit" name="submit-button" value="Update" class="btn btn-light"/>

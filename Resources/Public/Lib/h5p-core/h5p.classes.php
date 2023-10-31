@@ -2088,7 +2088,7 @@ class H5PCore {
    * @return int Content ID
    */
   public function saveContent($content, $contentMainId = NULL) {
-    if (isset($content['id'])) {
+    if (isset($content['id']) && $content['id'] > 0) {
       $this->h5pF->updateContent($content, $contentMainId);
     }
     else {

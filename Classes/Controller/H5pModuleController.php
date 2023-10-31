@@ -521,6 +521,9 @@ class H5pModuleController extends ActionController
 
         try {
             // Save new content
+            if ($this->request->hasArgument('contentId')) {
+                $content['id'] = (int)$this->request->getArgument('contentId');
+            }
             $content['id'] = $this->h5pCore->saveContent($content);
         } catch (\Exception $e) {
             $this->addFlashMessage($e->getMessage(), $e->getCode(), AbstractMessage::ERROR);
