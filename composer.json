@@ -17,8 +17,8 @@
         }
     ],
     "require": {
-        "h5p/h5p-core": "^1.24",
-        "h5p/h5p-editor": "^1.24",
+        "h5p/h5p-core": "1.24.*",
+        "h5p/h5p-editor": "1.24.*",
         "guzzlehttp/guzzle": "^7.4",
         "typo3/cms-core": "11.5.*"
     },
