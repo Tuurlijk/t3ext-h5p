@@ -1,6 +1,7 @@
 <?php
 namespace MichielRoos\H5p\Controller;
 
+use H5PCore;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use Psr\Http\Message\ResponseInterface;
@@ -49,24 +50,24 @@ class AjaxController extends ActionController
 
         if (GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
             $user = $GLOBALS['TSFE']->fe_user->user;
-            $postData = GeneralUtility::_POST();
+            $postData = $this->request->getParsedBody();
             if (!array_key_exists('time', $postData)) {
                 $postData['time'] = 0;
             }
 
-            $contentRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentRepository::class);
+            $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
 
             $content = $contentRepository->findByUid($postData['contentId']);
             if (!$content instanceof Content) {
                 $error['details'] = 'Content not found';
-                \H5PCore::ajaxError($error['message'], $error['errorCode'], $error['statusCode'], $error['details']);
+                H5PCore::ajaxError($error['message'], $error['errorCode'], $error['statusCode'], $error['details']);
                 exit;
             }
 
-            $frontendUserRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(FrontendUserRepository::class);
+            $frontendUserRepository = GeneralUtility::makeInstance(FrontendUserRepository::class);
             $frontendUser = $frontendUserRepository->findByUid((int)$user['uid']);
 
-            $contentResultRepository = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ContentResultRepository::class);
+            $contentResultRepository = GeneralUtility::makeInstance(ContentResultRepository::class);
 
             /** @var ContentResult $existingContentResult */
             $existingContentResult = $contentResultRepository->findOneByUserAndContentId($user['uid'], $postData['contentId']);
@@ -82,12 +83,12 @@ class AjaxController extends ActionController
                 $contentResult->setPid($GLOBALS['TSFE']->id);
                 $contentResultRepository->add($contentResult);
             }
-            $persistenceManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PersistenceManager::class);
+            $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
             $persistenceManager->persistAll();
-            \H5PCore::ajaxSuccess();
+            H5PCore::ajaxSuccess();
             exit;
         }
-        \H5PCore::ajaxError($error['message'], $error['errorCode'], $error['statusCode'], $error['details']);
+        H5PCore::ajaxError($error['message'], $error['errorCode'], $error['statusCode'], $error['details']);
         exit;
     }
 

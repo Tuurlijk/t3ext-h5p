@@ -1,6 +1,8 @@
 <?php
 namespace MichielRoos\H5p\Domain\Model;
 
+use DateTime;
+use Exception;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
@@ -181,7 +183,7 @@ class ContentResult extends AbstractEntity
 
     /**
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public function getFormattedTimeInterval(): string
     {
@@ -189,23 +191,23 @@ class ContentResult extends AbstractEntity
     }
 
     /**
-     * @return \DateTime
-     * @throws \Exception
+     * @return DateTime
+     * @throws Exception
      */
-    public function getFinishedDateTime(): \DateTime
+    public function getFinishedDateTime(): DateTime
     {
-        $datetime = new \DateTime();
+        $datetime = new DateTime();
         $datetime->setTimestamp($this->finished);
         return $datetime;
     }
 
     /**
-     * @return \DateTime
-     * @throws \Exception
+     * @return DateTime
+     * @throws Exception
      */
-    public function getOpenedDateTime(): \DateTime
+    public function getOpenedDateTime(): DateTime
     {
-        $datetime = new \DateTime();
+        $datetime = new DateTime();
         $datetime->setTimestamp($this->opened);
         return $datetime;
     }

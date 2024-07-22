@@ -2,7 +2,9 @@
 
 namespace MichielRoos\H5p\Adapter\Editor;
 
+use H5PCore;
 use H5peditorFile;
+use H5peditorStorage;
 use MichielRoos\H5p\Adapter\Core\FrameworkFactory;
 use MichielRoos\H5p\Domain\Model\Library;
 use MichielRoos\H5p\Domain\Model\LibraryTranslation;
@@ -12,7 +14,7 @@ use MichielRoos\H5p\Utility\MaintenanceUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
-class EditorStorage implements \H5peditorStorage
+class EditorStorage implements H5peditorStorage
 {
     /**
      * @var LibraryRepository
@@ -83,7 +85,7 @@ class EditorStorage implements \H5peditorStorage
      *
      * @param int $fileId
      */
-    public function keepFile($fileId)
+    public function keepFile($fileId): void
     {
         // TODO: Implement keepFile() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -134,7 +136,7 @@ class EditorStorage implements \H5peditorStorage
 
         // Load all libraries that have semantics and are runnable
         $this->libraryRepository->setDefaultOrderings(['title' => QueryInterface::ORDER_ASCENDING]);
-        $libraries = $this->libraryRepository->findByRunnable([true]);
+        $libraries = $this->libraryRepository->findBy(['runnable' => [true]]);
         /** @var Library $library */
         foreach ($libraries as $library) {
             if ($library->getSemantics() === null) {
@@ -178,7 +180,7 @@ class EditorStorage implements \H5peditorStorage
      *  List of libraries indexed by machineName with objects as values. The objects
      *  have majorVersion and minorVersion as properties.
      */
-    public function alterLibraryFiles(&$files, $libraries)
+    public function alterLibraryFiles(&$files, $libraries): void
     {
         // TODO: Implement alterLibraryFiles() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -222,7 +224,7 @@ class EditorStorage implements \H5peditorStorage
      * @param H5peditorFile
      * @param $content_id
      */
-    public static function markFileForCleanup($file, $content_id)
+    public static function markFileForCleanup($file, $content_id): void
     {
         // TODO: Implement markFileForCleanup() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -233,10 +235,10 @@ class EditorStorage implements \H5peditorStorage
      *
      * @param string $filePath Path to file or directory
      */
-    public static function removeTemporarilySavedFiles($filePath)
+    public static function removeTemporarilySavedFiles($filePath): void
     {
         if (is_dir($filePath)) {
-            \H5PCore::deleteFileTree($filePath);
+            H5PCore::deleteFileTree($filePath);
         } elseif (is_file($filePath)) {
             unlink($filePath);
         }

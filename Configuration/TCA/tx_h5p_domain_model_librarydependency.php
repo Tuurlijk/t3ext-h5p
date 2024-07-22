@@ -1,11 +1,13 @@
 <?php
 
+use MichielRoos\H5p\Backend\TCA;
+
 return [
     'ctrl'     => [
         'hideTable'      => true,
         'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_librarydependency',
         'label'          => 'library',
-        'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getLibraryDependencyTitle',
+        'label_userFunc' => TCA::class . '->getLibraryDependencyTitle',
         'tstamp'         => 'tstamp',
         'crdate'         => 'crdate',
         'enablecolumns'  => [

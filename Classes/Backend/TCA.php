@@ -1,5 +1,8 @@
 <?php
 namespace MichielRoos\H5p\Backend;
+use DateTime;
+use Exception;
+use PDO;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -12,13 +15,13 @@ class TCA
      *
      * @param $parameters
      * @param $parentObject
-     * @throws \Exception
+     * @throws Exception
      */
     public function getConfigSettingTitle(&$parameters, $parentObject): void
     {
         $row = BackendUtility::getRecord($parameters['table'], $parameters['row']['uid']);
         if ($row['config_key'] === 'content_type_cache_updated_at') {
-            $date = \DateTime::createFromFormat('U', (int)$row['config_value']);
+            $date = DateTime::createFromFormat('U', (int)$row['config_value']);
             $parameters['title'] = sprintf(
                 '%s: %s',
                 $row['config_key'],
@@ -43,7 +46,7 @@ class TCA
     {
         $row = BackendUtility::getRecord($parameters['table'], $parameters['row']['uid']);
 
-        $updatedAt = \DateTime::createFromFormat('U', (int)$row['updated_at']);
+        $updatedAt = DateTime::createFromFormat('U', (int)$row['updated_at']);
 
         $parameters['title'] = sprintf(
             '%s: %s %d.%d.%d - %s',
@@ -66,7 +69,7 @@ class TCA
     {
         $row = BackendUtility::getRecord($parameters['table'], $parameters['row']['uid']);
 
-        $updatedAt = \DateTime::createFromFormat('U', $row['updated_at'] ?? 0);
+        $updatedAt = DateTime::createFromFormat('U', $row['updated_at'] ?? 0);
 
         $parameters['title'] = sprintf(
             '%s: %s %d.%d.%d - %s',
@@ -92,9 +95,8 @@ class TCA
         $libraryRow = $queryBuilder->select('*')
             ->from('tx_h5p_domain_model_library')->where($queryBuilder->expr()->eq(
             'uid',
-            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
-        ))->executeQuery()
-            ->fetch();
+            $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)
+        ))->executeQuery()->fetchAssociative();
         return $libraryRow;
     }
 
@@ -131,9 +133,8 @@ class TCA
         $contentRow = $queryBuilder->select('*')
             ->from('tx_h5p_domain_model_content')->where($queryBuilder->expr()->eq(
             'uid',
-            $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)
-        ))->executeQuery()
-            ->fetch();
+            $queryBuilder->createNamedParameter($uid, PDO::PARAM_INT)
+        ))->executeQuery()->fetchAssociative();
         return $contentRow;
     }
 

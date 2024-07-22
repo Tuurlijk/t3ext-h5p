@@ -2,11 +2,11 @@
 
 namespace MichielRoos\H5p\Controller;
 
-
 use H5P_Plugin;
 use H5PContentValidator;
 use H5PCore;
 use H5peditor;
+use InvalidArgumentException;
 use MichielRoos\H5p\Adapter\Core\CoreFactory;
 use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
@@ -38,17 +38,22 @@ use TYPO3\CMS\Core\Pagination\SimplePagination;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3Fluid\Fluid\View\ViewInterface;
+
+// Ignoriert Deprecation Notices in diesem Skript
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 /**
  * Module 'H5P' for the 'h5p' extension.
@@ -117,7 +122,7 @@ class H5pModuleController extends ActionController
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->moduleTemplate->setTitle(LocalizationUtility::translate('LLL:EXT:h5p/Resources/Private/Language/BackendModule.xlf:mlang_tabs_tab'));
 
-        $this->id                         = (int)GeneralUtility::_GP('id');
+        $this->id                         = (int)($this->request->getParsedBody()['id'] ?? $this->request->getQueryParams()['id'] ?? null);
         $backendUser                      = $this->getBackendUser();
         $this->perms_clause               = $backendUser->getPagePermsClause(1);
         $this->pageRecord                 = BackendUtility::readPageAccess($this->id, $this->perms_clause);
@@ -197,7 +202,7 @@ class H5pModuleController extends ActionController
      * @todo v12: Change signature to TYPO3Fluid\Fluid\View\ViewInterface when extbase ViewInterface is dropped.
      *
      */
-    public function initializeView(\TYPO3Fluid\Fluid\View\ViewInterface $view): void
+    public function initializeView(ViewInterface $view): void
     {
         $view->assignMultiple([
             'dateFormat' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'],
@@ -213,7 +218,7 @@ class H5pModuleController extends ActionController
      * Registers the Icons into the docheader
      *
      * @return void
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function registerDocheaderButtons(): void
     {
@@ -357,7 +362,7 @@ class H5pModuleController extends ActionController
     public function contentAction(int $currentPage = 1): ResponseInterface
     {
         $contentRepository = GeneralUtility::makeInstance(ContentRepository::class);
-        $content           = $contentRepository->findByPid($this->id);
+        $content           = $contentRepository->findBy(['pid' => $this->id]);
 
         $paginator  = new QueryResultPaginator($content, $currentPage, $this->itemsPerPage);
         $pagination = new SimplePagination($paginator);
@@ -379,7 +384,7 @@ class H5pModuleController extends ActionController
      *
      * @param int $currentPage
      * @return ResponseInterface
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws Exception
      */
     public function librariesAction(int $currentPage = 1): ResponseInterface
     {
@@ -513,7 +518,7 @@ class H5pModuleController extends ActionController
         }
 
         if (strlen($trimmed_title) > 255) {
-            $this->addFlashMessage('Title is too long. Must be 256 letters or shorter.', '', AbstractMessage::ERROR);
+            $this->addFlashMessage('Title is too long. Must be 256 letters or shorter.', '', ContextualFeedbackSeverity::ERROR);
             return new ForwardResponse('new');
         }
 
@@ -526,7 +531,7 @@ class H5pModuleController extends ActionController
             }
             $content['id'] = $this->h5pCore->saveContent($content);
         } catch (\Exception $e) {
-            $this->addFlashMessage($e->getMessage(), $e->getCode(), AbstractMessage::ERROR);
+            $this->addFlashMessage($e->getMessage(), $e->getCode(), ContextualFeedbackSeverity::ERROR);
             return new ForwardResponse('new');
         }
 
@@ -535,6 +540,7 @@ class H5pModuleController extends ActionController
 
         // Used to generate the slug
         $content['title'] = $content['metadata']->title;
+        $content['slug'] = false;
 
         // Store content dependencies
         $this->h5pCore->filterParameters($content);
@@ -628,7 +634,7 @@ class H5pModuleController extends ActionController
         }
 
         if (strlen($trimmed_title) > 255) {
-            $this->addFlashMessage('Title is too long. Must be 256 letters or shorter.', '', AbstractMessage::ERROR);
+            $this->addFlashMessage('Title is too long. Must be 256 letters or shorter.', '', ContextualFeedbackSeverity::ERROR);
             return new ForwardResponse('new');
         }
 
@@ -639,7 +645,7 @@ class H5pModuleController extends ActionController
             $content['id'] = $contentId;
             $content['id'] = $this->h5pCore->saveContent($content, $contentId);
         } catch (\Exception $e) {
-            $this->addFlashMessage($e->getMessage(), $e->getCode(), AbstractMessage::ERROR);
+            $this->addFlashMessage($e->getMessage(), $e->getCode(), ContextualFeedbackSeverity::ERROR);
             return new ForwardResponse('new');
         }
 
@@ -673,7 +679,7 @@ class H5pModuleController extends ActionController
             $content           = $contentRepository->findByUid($contentId);
 
             if (!$content instanceof Content) {
-                $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
+                $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', ContextualFeedbackSeverity::ERROR);
                 return $this->redirect('error', 'H5pModule', 'h5p');
             }
 
@@ -767,7 +773,7 @@ class H5pModuleController extends ActionController
      * Get generic h5p settings
      *
      * @return array;
-     * @throws RouteNotFoundException|\TYPO3\CMS\Extbase\Object\Exception
+     * @throws RouteNotFoundException|Exception
      */
     public function getCoreSettings(): array
     {
@@ -969,7 +975,7 @@ class H5pModuleController extends ActionController
      * @throws NoSuchArgumentException
      * @throws RouteNotFoundException
      * @throws StopActionException
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws Exception
      */
     public function newAction(int $contentId = 0): ResponseInterface
     {
@@ -986,7 +992,7 @@ class H5pModuleController extends ActionController
             $content           = $contentRepository->findByUid($contentId);
 
             if (!$content instanceof Content) {
-                $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
+                $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', ContextualFeedbackSeverity::ERROR);
                 return $this->redirect('error');
             }
             // load JS and CSS requirements
@@ -1005,7 +1011,7 @@ class H5pModuleController extends ActionController
      * Show action
      * @param int $contentId
      * @return ResponseInterface
-     * @throws RouteNotFoundException|\TYPO3\CMS\Core\Resource\Exception\InvalidFileException
+     * @throws RouteNotFoundException|InvalidFileException
      */
     public function showAction(int $contentId): ResponseInterface
     {
@@ -1013,21 +1019,21 @@ class H5pModuleController extends ActionController
         $content           = $contentRepository->findByUid($contentId);
 
         if (!$content instanceof Content) {
-            $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', AbstractMessage::ERROR);
+            $this->addFlashMessage(sprintf('Content element with id %d not found', $contentId), 'Record not found', ContextualFeedbackSeverity::ERROR);
             return new ForwardResponse('error');
         }
 
         if (!$content->getLibrary()) {
-            $this->addFlashMessage('Content element has no H5P library', 'H5P library not found on content', AbstractMessage::ERROR);
+            $this->addFlashMessage('Content element has no H5P library', 'H5P library not found on content', ContextualFeedbackSeverity::ERROR);
             return new ForwardResponse('error');
         }
 
         $relativeCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
 
-        foreach (\H5PCore::$scripts as $script) {
+        foreach (H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
         }
-        foreach (\H5PCore::$styles as $style) {
+        foreach (H5PCore::$styles as $style) {
             $this->pageRenderer->addCssFile($relativeCorePath . $style, 'stylesheet', 'all', '', false, false, '', true);
         }
 

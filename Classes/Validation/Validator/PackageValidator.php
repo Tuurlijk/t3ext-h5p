@@ -2,6 +2,7 @@
 
 namespace MichielRoos\H5p\Validation\Validator;
 
+use H5PValidator;
 use MichielRoos\H5p\Adapter\Core\CoreFactory;
 use MichielRoos\H5p\Adapter\Core\FileStorage;
 use MichielRoos\H5p\Adapter\Core\Framework;
@@ -30,7 +31,7 @@ class PackageValidator extends AbstractValidator
         $framework->setPackageFile($value);
         $h5pFileStorage = GeneralUtility::makeInstance(FileStorage::class, $storage);
         $h5pCore        = GeneralUtility::makeInstance(CoreFactory::class, $framework, $h5pFileStorage, '');
-        $validator      = GeneralUtility::makeInstance(\H5PValidator::class, $framework, $h5pCore);
+        $validator      = GeneralUtility::makeInstance(H5PValidator::class, $framework, $h5pCore);
 
         $success = $validator->isValidPackage();
 

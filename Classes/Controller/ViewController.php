@@ -19,11 +19,13 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
@@ -48,22 +50,9 @@ class ViewController extends ActionController
      * @var CoreFactory|object
      */
     private $h5pCore;
-
-    /**
-     * Inject content repository
-     * @param ContentRepository $contentRepository
-     */
-    public function injectContentRepository(ContentRepository $contentRepository): void
+    public function __construct(ContentRepository $contentRepository, ContentResultRepository $contentResultRepository)
     {
         $this->contentRepository = $contentRepository;
-    }
-
-    /**
-     * Inject content result repository
-     * @param ContentResultRepository $contentResultRepository
-     */
-    public function injectContentResultRepository(ContentResultRepository $contentResultRepository): void
-    {
         $this->contentResultRepository = $contentResultRepository;
     }
 
@@ -72,7 +61,7 @@ class ViewController extends ActionController
      */
     public function initializeAction(): void
     {
-        $this->contentObjectRenderer = $this->configurationManager->getContentObject();
+        $this->contentObjectRenderer = $this->request->getAttribute('currentContentObject');
 
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 
@@ -88,10 +77,10 @@ class ViewController extends ActionController
 
         $relativeCorePath = PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/');
 
-        foreach (\H5PCore::$scripts as $script) {
+        foreach (H5PCore::$scripts as $script) {
             $this->pageRenderer->addJsFooterFile($relativeCorePath . $script, 'text/javascript', false, false, '', true);
         }
-        foreach (\H5PCore::$styles as $style) {
+        foreach (H5PCore::$styles as $style) {
             $this->pageRenderer->addCssFile($relativeCorePath . $style);
         }
 
@@ -140,11 +129,11 @@ class ViewController extends ActionController
 
         $contentSettings                                = $this->getContentSettings($content);
         $contentSettings['displayOptions']              = [];
-        $contentSettings['displayOptions']['frame']     = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_FRAME);
-        $contentSettings['displayOptions']['export']    = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_DOWNLOAD);
-        $contentSettings['displayOptions']['embed']     = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_EMBED);
-        $contentSettings['displayOptions']['copyright'] = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_COPYRIGHT);
-        $contentSettings['displayOptions']['icon']      = (bool)($data['tx_h5p_display_options'] & \H5PCore::DISABLE_ABOUT);
+        $contentSettings['displayOptions']['frame']     = (bool)($data['tx_h5p_display_options'] & H5PCore::DISABLE_FRAME);
+        $contentSettings['displayOptions']['export']    = (bool)($data['tx_h5p_display_options'] & H5PCore::DISABLE_DOWNLOAD);
+        $contentSettings['displayOptions']['embed']     = (bool)($data['tx_h5p_display_options'] & H5PCore::DISABLE_EMBED);
+        $contentSettings['displayOptions']['copyright'] = (bool)($data['tx_h5p_display_options'] & H5PCore::DISABLE_COPYRIGHT);
+        $contentSettings['displayOptions']['icon']      = (bool)($data['tx_h5p_display_options'] & H5PCore::DISABLE_ABOUT);
         $this->pageRenderer->addJsInlineCode(
             'H5PIntegration contents cid-' . $content->getUid(),
             'H5PIntegration.contents[\'cid-' . $content->getUid() . '\'] = ' . json_encode($contentSettings) . ';'
@@ -192,8 +181,8 @@ class ViewController extends ActionController
      *
      * @return array;
      * @throws AspectNotFoundException
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
-     * @throws \TYPO3\CMS\Core\Resource\Exception\InvalidFileException
+     * @throws Exception
+     * @throws InvalidFileException
      */
     public function getCoreSettings(): array
     {
@@ -227,7 +216,7 @@ class ViewController extends ActionController
             'libraryUrl'         => $url . PathUtility::getPublicResourceWebPath('EXT:h5p/Resources/Public/Lib/h5p-core/js'),
             'contents'           => []
         ];
-        
+
 
         if (GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'isLoggedIn')) {
             $user = $GLOBALS['TSFE']->fe_user->user;
@@ -266,7 +255,7 @@ class ViewController extends ActionController
      *
      * @param Content $content
      * @return array;
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws Exception
      */
     public function getContentSettings(Content $content): array
     {
@@ -390,7 +379,7 @@ class ViewController extends ActionController
 
         $user = $GLOBALS['TSFE']->fe_user->user;
 
-        $statistics = $this->contentResultRepository->findByUser((int)$user['uid']);
+        $statistics = $this->contentResultRepository->findBy(['user' => (int)$user['uid']]);
         if (!$statistics) {
             $this->view->assign('statisticsNotFound', true);
             return $this->htmlResponse(null);
@@ -409,7 +398,7 @@ class ViewController extends ActionController
         }
 
         $statisticsByPage = [];
-        $pageRepository   = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PageRepository::class);
+        $pageRepository   = GeneralUtility::makeInstance(PageRepository::class);
         $pages            = $pageRepository->findByUids($pageIds);
         foreach ($pages as $page) {
             $statisticsByPage[$page->getUid()] = [

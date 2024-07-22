@@ -23,7 +23,7 @@ class ContentDependencyRepository extends Repository
     /**
      * initializes any required object
      */
-    public function initializeObject()
+    public function initializeObject(): void
     {
         if ($this->defaultQuerySettings === null) $this->defaultQuerySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
         $this->defaultQuerySettings->setRespectStoragePage(false);

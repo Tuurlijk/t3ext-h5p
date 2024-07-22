@@ -128,7 +128,7 @@ class EditorController extends ActionController implements SingletonInterface
                 break;
             case H5PEditorEndpoints::FILTER:
                 $token             = $parameters['token'] ?? 'dummy';
-                $libraryParameters = GeneralUtility::_POST('libraryParameters');
+                $libraryParameters = $this->request->getParsedBody()['libraryParameters'];
                 $this->h5pAjaxEditor->action(H5PEditorEndpoints::FILTER, $token, $libraryParameters);
                 exit;
                 break;
@@ -142,7 +142,7 @@ class EditorController extends ActionController implements SingletonInterface
     /**
      *
      */
-    public function initializeAction()
+    public function initializeAction(): void
     {
         $this->language = ($this->getLanguageService()->lang === 'default') ? 'en' : $this->getLanguageService()->lang;
 

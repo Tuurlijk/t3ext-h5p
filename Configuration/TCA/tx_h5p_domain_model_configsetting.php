@@ -1,11 +1,13 @@
 <?php
 
+use MichielRoos\H5p\Backend\TCA;
+
 return [
     'ctrl'     => [
         'adminOnly'      => true,
         'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_configsetting',
         'label'          => 'config_key',
-        'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getConfigSettingTitle',
+        'label_userFunc' => TCA::class . '->getConfigSettingTitle',
         'tstamp'         => 'tstamp',
         'crdate'         => 'crdate',
         'enablecolumns'  => [

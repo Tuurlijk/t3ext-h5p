@@ -2,12 +2,13 @@
 namespace MichielRoos\H5p\Adapter\Core;
 
 
+use H5PEventBase;
 use TYPO3\CMS\Core\SingletonInterface;
 
 /**
  * Class Event
  */
-class Event extends \H5PEventBase implements SingletonInterface
+class Event extends H5PEventBase implements SingletonInterface
 {
 
     /**

@@ -27,7 +27,7 @@ class LibraryRepository extends Repository
     /**
      * initializes any required object
      */
-    public function initializeObject()
+    public function initializeObject(): void
     {
         if ($this->defaultQuerySettings === null) {
             $this->defaultQuerySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
@@ -39,9 +39,9 @@ class LibraryRepository extends Repository
      * @param integer $id
      * @throws IllegalObjectTypeException
      */
-    public function removeByLibraryId($id)
+    public function removeByLibraryId($id): void
     {
-        $library = $this->findOneByUid($id);
+        $library = $this->findOneBy(['uid' => $id]);
         if ($library !== null) {
             $this->remove($library);
         }

@@ -1,10 +1,12 @@
 <?php
 
+use MichielRoos\H5p\Backend\TCA;
+
 return [
     'ctrl'     => [
         'title'          => 'LLL:EXT:h5p/Resources/Private/Language/locallang.xlf:tx_h5p_domain_model_content',
         'label'          => 'title',
-        'label_userFunc' => \MichielRoos\H5p\Backend\TCA::class . '->getContentTitle',
+        'label_userFunc' => TCA::class . '->getContentTitle',
         'tstamp'         => 'tstamp',
         'crdate'         => 'crdate',
         'enablecolumns'  => [

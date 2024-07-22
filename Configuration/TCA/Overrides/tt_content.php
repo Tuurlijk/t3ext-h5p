@@ -1,8 +1,11 @@
 <?php
+
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
 defined('TYPO3') or die('¯\_(ツ)_/¯');
 
 
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns(
+ExtensionManagementUtility::addTCAcolumns(
     'tt_content',
     [
         'tx_h5p_content'         => [
@@ -32,20 +35,20 @@ defined('TYPO3') or die('¯\_(ツ)_/¯');
             'config'  => [
                 'type'    => 'check',
                 'items'   => [
-                    ['LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.0', ''], // 1
-                    ['LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.1', ''], // 2
-                    ['LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.2', ''], // 4
-                    ['LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.3', ''], // 8
-                    ['LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.4', ''], // 16
+                    ['label' => 'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.0', ''], // 1
+                    ['label' => 'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.1', ''], // 2
+                    ['label' => 'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.2', ''], // 4
+                    ['label' => 'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.3', ''], // 8
+                    ['label' => 'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:tt_content.tx_h5p_display_options.I.4', ''], // 16
                 ],
                 'cols'    => 2,
-                'default' => \H5PCore::DISABLE_FRAME + \H5PCore::DISABLE_COPYRIGHT // 1 + 8
+                'default' => H5PCore::DISABLE_FRAME + H5PCore::DISABLE_COPYRIGHT // 1 + 8
             ],
         ],
     ]
 );
 
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette(
+ExtensionManagementUtility::addFieldsToPalette(
     'tt_content',
     'h5p',
     'tx_h5p_content,--linebreak--,tx_h5p_display_options'
@@ -54,7 +57,7 @@ defined('TYPO3') or die('¯\_(ツ)_/¯');
 // This is needed for addToAllTCAtypes to work
 $GLOBALS['TCA']['tt_content']['types']['h5p_view']['showitem'] = '';
 
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+ExtensionManagementUtility::addToAllTCAtypes(
     'tt_content',
     '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.general;general,
      --palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.header;header,

@@ -3,6 +3,9 @@
 namespace MichielRoos\H5p\Domain\Model;
 
 
+use DateTime;
+use Exception;
+use H5PCore;
 use MichielRoos\H5p\Validation\Validator\PackageValidator;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -39,9 +42,9 @@ class Content extends AbstractEntity
     protected string $contentType = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
-    protected \DateTime $createdAt;
+    protected DateTime $createdAt;
 
     /**
      * @var int
@@ -119,9 +122,9 @@ class Content extends AbstractEntity
     protected string $parameters = '{}';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
-    protected \DateTime $updatedAt;
+    protected DateTime $updatedAt;
 
     /**
      * @var string
@@ -151,12 +154,12 @@ class Content extends AbstractEntity
      * @param array $contentData
      * @param Library $library
      * @return Content
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createFromContentData(array $contentData, Library $library): Content
     {
         $content = new Content();
-        $content->setCreatedAt(new \DateTime());
+        $content->setCreatedAt(new DateTime());
 
         $content->updateFromContentData($contentData, $library);
 
@@ -177,11 +180,11 @@ class Content extends AbstractEntity
     /**
      * @param array $contentData
      * @param Library $library
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateFromContentData(array $contentData, Library $library): void
     {
-        $this->setUpdatedAt(new \DateTime());
+        $this->setUpdatedAt(new DateTime());
         $this->setFiltered('{}');
         $this->setLibrary($library);
         if (isset($contentData['disable'])) {
@@ -205,7 +208,7 @@ class Content extends AbstractEntity
 
     public function determineEmbedType(): void
     {
-        $this->setEmbedType(\H5PCore::determineEmbedType('div', $this->getLibrary()->getEmbedTypes()));
+        $this->setEmbedType(H5PCore::determineEmbedType('div', $this->getLibrary()->getEmbedTypes()));
     }
 
     /**
@@ -305,17 +308,17 @@ class Content extends AbstractEntity
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -529,17 +532,17 @@ class Content extends AbstractEntity
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      */
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

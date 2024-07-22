@@ -2,6 +2,7 @@
 
 namespace MichielRoos\H5p\Adapter\Editor;
 
+use H5PEditorAjaxInterface;
 use MichielRoos\H5p\Domain\Model\Library;
 use MichielRoos\H5p\Domain\Repository\ContentTypeCacheEntryRepository;
 use MichielRoos\H5p\Domain\Repository\LibraryRepository;
@@ -9,7 +10,7 @@ use MichielRoos\H5p\Domain\Repository\LibraryTranslationRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
-class EditorAjax implements \H5PEditorAjaxInterface
+class EditorAjax implements H5PEditorAjaxInterface
 {
     /**
      * @var LibraryRepository
@@ -49,7 +50,7 @@ class EditorAjax implements \H5PEditorAjaxInterface
             'minorVersion' => QueryInterface::ORDER_DESCENDING
         ]);
 
-        $librariesOrderedByMajorAndMinorVersion = $this->libraryRepository->findByRunnable(1);
+        $librariesOrderedByMajorAndMinorVersion = $this->libraryRepository->findBy(['runnable' => 1]);
 
         $versionInformation = [];
         /** @var Library $library */
@@ -65,6 +66,7 @@ class EditorAjax implements \H5PEditorAjaxInterface
                 'major_version' => $library->getMajorVersion(),
                 'minor_version' => $library->getMinorVersion(),
                 'patch_version' => $library->getPatchVersion(),
+                'patch_version_in_folder_name' => $library->getPatchVersion(),
                 'restricted'    => $library->isRestricted(),
                 'has_icon'      => $library->isHasIcon()
             ];
@@ -84,7 +86,7 @@ class EditorAjax implements \H5PEditorAjaxInterface
     public function getContentTypeCache($machineName = NULL)
     {
         if ($machineName != null) {
-            return $this->contentTypeCacheEntryRepository->findOneByMachineName($machineName);
+            return $this->contentTypeCacheEntryRepository->findOneBy(['machineName' => $machineName]);
         }
 
         return $this->contentTypeCacheEntryRepository->getContentTypeCacheObjects();

@@ -1,6 +1,12 @@
 <?php
 namespace MichielRoos\H5p\Adapter\Core;
 
+use H5PCore;
+use H5peditorFile;
+use H5PFileStorage;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
@@ -27,7 +33,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 /**
  * Class FileStorage
  */
-class FileStorage implements \H5PFileStorage, SingletonInterface
+class FileStorage implements H5PFileStorage, SingletonInterface
 {
     /**
      * @var string
@@ -126,9 +132,9 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws InsufficientFolderAccessPermissionsException
      * @throws InsufficientFolderWritePermissionsException
      */
-    public function saveLibrary($library)
+    public function saveLibrary($library): void
     {
-        $name = \H5PCore::libraryToString($library, true);
+        $name = H5PCore::libraryToString($library, true);
         $rootLevelFolder = $this->getRootLevelFolder();
         $destination = 'libraries/' . $name . '/';
         if ($this->folderPrefix) {
@@ -147,8 +153,8 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         $libraryFolder = $this->storage->createFolder($destination, $rootLevelFolder);
 
         $source = str_replace("\\", '/', $library['uploadDirectory']);
-        /** @var \SplFileInfo $fileInfo */
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
+        /** @var SplFileInfo $fileInfo */
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $pathName = str_replace("\\", '/', $pathName);
             $dir = str_replace($source, '', $pathName);
@@ -179,7 +185,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws InsufficientFolderAccessPermissionsException
      * @throws InsufficientFolderWritePermissionsException
      */
-    public function saveContent($source, $content)
+    public function saveContent($source, $content): void
     {
         $rootLevelFolder = $this->getRootLevelFolder();
         $destination = 'content/' . $content['id'] . '/';
@@ -199,8 +205,8 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
         }
         $contentFolder = $this->storage->createFolder($destination, $rootLevelFolder);
 
-        /** @var \SplFileInfo $fileInfo */
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
+        /** @var SplFileInfo $fileInfo */
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $pathName = str_replace("\\", '/', $pathName);
             $dir = str_replace($source, '', $pathName);
@@ -229,7 +235,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function deleteContent($content)
+    public function deleteContent($content): void
     {
         // TODO: Implement deleteContent() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -246,7 +252,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function cloneContent($id, $newId)
+    public function cloneContent($id, $newId): void
     {
         // TODO: Implement cloneContent() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -277,7 +283,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function exportContent($id, $target)
+    public function exportContent($id, $target): void
     {
         // TODO: Implement exportContent() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -294,7 +300,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function exportLibrary($library, $target)
+    public function exportLibrary($library, $target): void
     {
         // TODO: Implement exportLibrary() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -311,7 +317,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function saveExport($source, $filename)
+    public function saveExport($source, $filename): void
     {
         // TODO: Implement saveExport() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -325,7 +331,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function deleteExport($filename)
+    public function deleteExport($filename): void
     {
         // TODO: Implement deleteExport() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -340,7 +346,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function hasExport($filename)
+    public function hasExport($filename): void
     {
         // TODO: Implement hasExport() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -356,7 +362,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *  Hashed key for cached asset
      * @throws IllegalObjectTypeException
      */
-    public function cacheAssets(&$files, $key)
+    public function cacheAssets(&$files, $key): void
     {
         /**
          * The files we get here are published H5P library CSS and JS files.
@@ -462,7 +468,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function deleteCachedAssets($keys)
+    public function deleteCachedAssets($keys): void
     {
         // TODO: Implement deleteCachedAssets() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -472,12 +478,12 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * Save files uploaded through the editor.
      * The files must be marked as temporary until the content form is saved.
      *
-     * @param \H5peditorFile $file
+     * @param H5peditorFile $file
      * @param int $contentId
-     * @return \H5peditorFile
+     * @return H5peditorFile
      * @throws Exception
      */
-    public function saveFile($file, $contentId): \H5peditorFile
+    public function saveFile($file, $contentId): H5peditorFile
     {
         $rootLevelFolder = $this->getRootLevelFolder();
         $prefix = '';
@@ -555,7 +561,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws InsufficientFolderAccessPermissionsException
      * @throws InsufficientFolderWritePermissionsException
      */
-    public function cloneContentFile($file, $fromId, $toId)
+    public function cloneContentFile($file, $fromId, $toId): void
     {
         $rootLevelFolder = $this->getRootLevelFolder();
 
@@ -629,8 +635,8 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
             }
         }
 
-        /** @var \SplFileInfo $fileInfo */
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
+        /** @var SplFileInfo $fileInfo */
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST) as $fileInfo) {
             $pathName = $fileInfo->getPathname();
             $dir = str_replace($source, '', $pathName);
             $dir = ltrim($dir, '/');
@@ -685,7 +691,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function getContent($file_path)
+    public function getContent($file_path): void
     {
         // TODO: Implement getContent() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -701,7 +707,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @return string|int File ID or NULL if not found
      * @throws MethodNotImplementedException
      */
-    public function getContentFile($file, $contentId)
+    public function getContentFile($file, $contentId): void
     {
         // TODO: Implement getContentFile() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -716,7 +722,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      *
      * @throws MethodNotImplementedException
      */
-    public function removeContentFile($file, $contentId)
+    public function removeContentFile($file, $contentId): void
     {
         // TODO: Implement removeContentFile() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -730,7 +736,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function hasWriteAccess()
+    public function hasWriteAccess(): void
     {
         // TODO: Implement hasWriteAccess() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -746,7 +752,7 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
      * @throws MethodNotImplementedException
      * @throws MethodNotImplementedException
      */
-    public function hasPresave($libraryName, $developmentPath = null)
+    public function hasPresave($libraryName, $developmentPath = null): void
     {
         // TODO: Implement hasPresave() method.
         MaintenanceUtility::methodMissing(__CLASS__, __FUNCTION__);
@@ -795,5 +801,10 @@ class FileStorage implements \H5PFileStorage, SingletonInterface
 
         // Store in local storage folder
         return file_put_contents($filePath, $stream);
+    }
+
+    public function deleteLibrary($library): void
+    {
+        // Deine Implementierung hier
     }
 }

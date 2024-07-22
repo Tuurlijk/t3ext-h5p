@@ -2,6 +2,8 @@
 
 namespace MichielRoos\H5p\Property\TypeConverter;
 
+use Exception;
+use InvalidArgumentException;
 use TYPO3\CMS\Extbase\Domain\Model\AbstractFileFolder;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
@@ -21,6 +23,12 @@ use TYPO3\CMS\Extbase\Property\Exception\TypeConverterException;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\TypeConverter\AbstractTypeConverter;
 use TYPO3\CMS\Extbase\Security\Cryptography\HashService;
+use const UPLOAD_ERR_FORM_SIZE;
+use const UPLOAD_ERR_INI_SIZE;
+use const UPLOAD_ERR_NO_FILE;
+use const UPLOAD_ERR_OK;
+use const UPLOAD_ERR_PARTIAL;
+
 /**
  * Class UploadedFileReferenceConverter
  */
@@ -62,25 +70,10 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     protected HashService $hashService;
     protected PersistenceManager $persistenceManager;
     protected array $convertedResources = [];
-    /**
-     * @param ResourceFactory $resourceFactory
-     */
-    public function injectResourceFactory(ResourceFactory $resourceFactory): void
+    public function __construct(ResourceFactory $resourceFactory, HashService $hashService, PersistenceManager $persistenceManager)
     {
         $this->resourceFactory = $resourceFactory;
-    }
-    /**
-     * @param HashService $hashService
-     */
-    public function injectHashService(HashService $hashService): void
-    {
         $this->hashService = $hashService;
-    }
-    /**
-     * @param PersistenceManager $persistenceManager
-     */
-    public function injectPersistenceManager(PersistenceManager $persistenceManager): void
-    {
         $this->persistenceManager = $persistenceManager;
     }
     /**
@@ -100,7 +93,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      */
     public function convertFrom($source, $targetType, array $convertedChildProperties = [], PropertyMappingConfigurationInterface $configuration = null)
     {
-        if (!isset($source['error']) || $source['error'] === \UPLOAD_ERR_NO_FILE) {
+        if (!isset($source['error']) || $source['error'] === UPLOAD_ERR_NO_FILE) {
             if (isset($source['submittedFile']['resourcePointer'])) {
                 try {
                     $resourcePointer = $this->hashService->validateAndStripHmac($source['submittedFile']['resourcePointer']);
@@ -109,17 +102,17 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
                         return $this->createFileReferenceFromFalFileObject($this->resourceFactory->getFileObject($fileUid));
                     }
                     return $this->createFileReferenceFromFalFileReferenceObject($this->resourceFactory->getFileReferenceObject($resourcePointer), $resourcePointer);
-                } catch (\InvalidArgumentException $e) {
+                } catch (InvalidArgumentException $e) {
                     // Nothing to do. No file is uploaded and resource pointer is invalid. Discard!
                 }
             }
             return null;
         }
-        if ($source['error'] !== \UPLOAD_ERR_OK) {
+        if ($source['error'] !== UPLOAD_ERR_OK) {
             switch ($source['error']) {
-                case \UPLOAD_ERR_INI_SIZE:
-                case \UPLOAD_ERR_FORM_SIZE:
-                case \UPLOAD_ERR_PARTIAL:
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                case UPLOAD_ERR_PARTIAL:
                     return new Error('Error Code: ' . $source['error'], 1264440823);
                 default:
                     return new Error('An error occurred while uploading. Please try again or contact the administrator if the problem remains', 1340193849);
@@ -130,7 +123,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
         }
         try {
             $resource = $this->importUploadedResource($source, $configuration);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return new Error($e->getMessage(), $e->getCode());
         }
         $this->convertedResources[$source['tmp_name']] = $resource;
@@ -155,7 +148,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     {
         if ($resourcePointer === null) {
             /** @var $fileReference \MichielRoos\H5p\Domain\Model\FileReference */
-            $fileReference = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(FileReference::class);
+            $fileReference = GeneralUtility::makeInstance(FileReference::class);
         } else {
             $fileReference = $this->persistenceManager->getObjectByIdentifier($resourcePointer, FileReference::class);
         }

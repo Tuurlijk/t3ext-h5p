@@ -1,6 +1,10 @@
 <?php
 namespace MichielRoos\H5p\Domain\Model;
 
+use DateTime;
+use Exception;
+use H5PCore;
+use stdClass;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use MichielRoos\H5p\Domain\Repository\LibraryDependencyRepository;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
@@ -23,14 +27,14 @@ class Library extends AbstractEntity
     protected string $addTo = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
-    protected \DateTime $createdAt;
+    protected DateTime $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
-    protected \DateTime $updatedAt;
+    protected DateTime $updatedAt;
 
     /**
      * @var string
@@ -150,13 +154,14 @@ class Library extends AbstractEntity
     /**
      * Library constructor.
      */
-    public function __construct()
+    public function __construct(LibraryDependencyRepository $libraryDependencyRepository)
     {
         $this->libraryDependencies = new ObjectStorage();
         $this->contents = new ObjectStorage();
         $this->contentDependencies = new ObjectStorage();
         $this->libraryDependencies = new ObjectStorage();
         $this->libraryTranslations = new ObjectStorage();
+        $this->libraryDependencyRepository = $libraryDependencyRepository;
     }
 
     /**
@@ -165,7 +170,7 @@ class Library extends AbstractEntity
      * @param array $libraryData
      *
      * @return Library
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createFromLibraryData(array &$libraryData): Library
     {
@@ -197,8 +202,8 @@ class Library extends AbstractEntity
 
         $library = new Library();
         $library->updateFromLibraryData($libraryData);
-        $library->setCreatedAt(new \DateTime());
-        $library->setUpdatedAt(new \DateTime());
+        $library->setCreatedAt(new DateTime());
+        $library->setUpdatedAt(new DateTime());
         $library->setRestricted(false);
         $library->setTutorialUrl('');
         return $library;
@@ -230,11 +235,11 @@ class Library extends AbstractEntity
     /**
      * @param array $libraryData
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateFromLibraryData(array $libraryData): void
     {
-        $this->setUpdatedAt(new \DateTime());
+        $this->setUpdatedAt(new DateTime());
         $this->setTitle($libraryData['machineName']);
         $this->setTitle($libraryData['title']);
         $this->setMachineName($libraryData['machineName']);
@@ -310,41 +315,33 @@ class Library extends AbstractEntity
     }
 
     /**
-     * @param LibraryDependencyRepository $libraryDependencyRepository
+     * @return DateTime
      */
-    public function injectLibraryDepencencyRepository(LibraryDependencyRepository $libraryDependencyRepository): void
-    {
-        $this->libraryDependencyRepository = $libraryDependencyRepository;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      */
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -405,7 +402,7 @@ class Library extends AbstractEntity
      */
     public function getFolderName(): string
     {
-        return \H5PCore::libraryToString($this->toAssocArray(), true);
+        return H5PCore::libraryToString($this->toAssocArray(), true);
     }
 
     /**
@@ -690,16 +687,16 @@ class Library extends AbstractEntity
      */
     public function getString(): string
     {
-        return \H5PCore::libraryToString($this->toAssocArray(), false);
+        return H5PCore::libraryToString($this->toAssocArray(), false);
     }
 
     /**
      * Returns this library as a stdClass object in a format that H5P expects
      * when it calls the method:
-     * @return \stdClass
+     * @return stdClass
      * @see \H5peditorStorage::getLibraries()
      */
-    public function toStdClass(): \stdClass
+    public function toStdClass(): stdClass
     {
         return (object)$this->toAssocArray();
     }
@@ -720,7 +717,7 @@ class Library extends AbstractEntity
      */
     public function getDependentLibraries(): array
     {
-        $dependencies = $this->libraryDependencyRepository->findByRequiredLibrary($this)->toArray();
+        $dependencies = $this->libraryDependencyRepository->findBy(['requiredLibrary' => $this])->toArray();
         return array_map(function ($libraryDependency) {
             /** @var LibraryDependency $libraryDependency */
             return $libraryDependency->getLibrary();

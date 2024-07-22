@@ -9,20 +9,6 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 defined('TYPO3') or die('¯\_(ツ)_/¯');
 
-ExtensionUtility::registerPlugin(
-    'h5p',
-    'view',
-    'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:h5p.contentelement',
-    'EXT:h5p/Resources/Public/Icon/h5p.gif'
-);
-
-ExtensionUtility::registerPlugin(
-    'h5p',
-    'statistics',
-    'LLL:EXT:h5p/Resources/Private/Language/Tca.xlf:h5p.statistics',
-    'EXT:h5p/Resources/Public/Icon/h5p.gif'
-);
-
 /** @var IconRegistry $iconRegistry */
 $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
 $iconRegistry->registerIcon(

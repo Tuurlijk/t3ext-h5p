@@ -21,20 +21,9 @@ class UploadViewHelper extends AbstractFormFieldViewHelper
      * @var PropertyMapper
      */
     protected $propertyMapper;
-
-    /**
-     * @param HashService $hashService
-     */
-    public function injectHashService(HashService $hashService): void
+    public function __construct(HashService $hashService, PropertyMapper $propertyMapper)
     {
         $this->hashService = $hashService;
-    }
-
-    /**
-     * @param PropertyMapper $propertyMapper
-     */
-    public function injectPropertyMapper(PropertyMapper $propertyMapper): void
-    {
         $this->propertyMapper = $propertyMapper;
     }
 
